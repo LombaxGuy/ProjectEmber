@@ -46,7 +46,7 @@ public class Movement : MonoBehaviour
 
             case 1:
                 {
-                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+                    if (Input.touchCount > 0 && Input.touchCount != 2 && Input.GetTouch(0).phase == TouchPhase.Moved)
                     {
                         
                         Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
