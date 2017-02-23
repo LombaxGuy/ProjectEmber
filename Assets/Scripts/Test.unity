@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.4616946, g: 0.51241565, b: 0.58993244, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 667874787}
   - component: {fileID: 667874786}
   - component: {fileID: 667874791}
+  - component: {fileID: 667874792}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -236,7 +237,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 667874785}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: -0.12, y: 1, z: -10.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -253,10 +254,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b2db71a2e655f4d9db850c575ede55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
   moveSpeed: 0.01
   moveLerpTime: 0.1
   cameraLockState: 1
   cameraLockTarget: {fileID: 2065113907}
+=======
+  speed: 0.01
+  cam_State: 1
+  target: {fileID: 2065113907}
+--- !u!114 &667874792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 667874785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0e5077db427a354fa22540240840f43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxZoomSpeed: 0.5
+  hardMinCap: 40
+  hardMaxCap: 90
+>>>>>>> 845791317eb9eee5d57022cb00f7ec8b15d84758
 --- !u!1 &1190131253
 GameObject:
   m_ObjectHideFlags: 0
