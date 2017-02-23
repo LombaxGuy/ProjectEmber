@@ -1384,7 +1384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.01
   moveLerpTime: 0.1
-  cameraLockState: 1
+  cameraLockState: 2
   cameraLockTarget: {fileID: 311448050}
   zoomSpeed: 0.01
   zoomLerpTime: 0.1
