@@ -1386,6 +1386,8 @@ MonoBehaviour:
   moveLerpTime: 0.1
   cameraLockState: 1
   cameraLockTarget: {fileID: 311448050}
+  zoomSpeed: 0.01
+  zoomLerpTime: 0.1
 --- !u!1 &1039360907
 GameObject:
   m_ObjectHideFlags: 0

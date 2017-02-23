@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 {
     #region Camera move fields.
 
+    [Header("Movement")]
     [SerializeField]
     private float moveSpeed = 0.01f;
 
@@ -36,6 +37,27 @@ public class CameraController : MonoBehaviour
     private Vector3 cameraPosition;
     #endregion
 
+    [Space(10)]
+    [Header("Zoom")]
+
+    #region Zoom
+    [SerializeField]
+    private float zoomSpeed = 0.01f;
+
+    [SerializeField]
+    private float zoomLerpTime = 0.1f;
+
+    private float zoomMargin = 1;
+
+    private float zoomMinSoft = -1.5f;
+    private float zoomMaxSoft = 2.5f;
+
+    private float zoomMinHard;
+    private float zoomMaxHard;
+
+    private float dynamicZoomSpeed = 1;
+    #endregion
+
     // Use this for initialization
     void Start()
     {
@@ -44,6 +66,9 @@ public class CameraController : MonoBehaviour
         yMinHard = yMinSoft - margin;
         yMaxHard = yMaxSoft + margin;
 
+        zoomMinHard = zoomMinSoft - zoomMargin;
+        zoomMaxHard = zoomMaxSoft + zoomMargin;
+
         Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
 
@@ -51,8 +76,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         HandleCameraMovement();
-
-
+        HandleCameraZoom();
     }
 
     private void HandleCameraMovement()
@@ -61,7 +85,7 @@ public class CameraController : MonoBehaviour
         {
             case 1:
                 {
-                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+                    if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
                     {
                         #region Border snask
                         if (transform.position.x > xMinSoft && transform.position.x < xMaxSoft)
@@ -99,10 +123,9 @@ public class CameraController : MonoBehaviour
                         cameraPosition.z = transform.position.z;
 
                         transform.position = cameraPosition;
-
                     }
 
-                    if (Input.touchCount <= 0)
+                    if (Input.touchCount == 0)
                     {
                         if (transform.position.x > xMaxSoft)
                         {
@@ -139,6 +162,57 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    private void HandleCameraZoom()
+    {
+        if (Input.touchCount == 2)
+        {
+            Touch touch0 = Input.GetTouch(0);
+            Touch touch1 = Input.GetTouch(1);
+
+            //Touch distancen i den forrige frame
+            float oldDistance = Vector2.Distance((touch0.position - touch0.deltaPosition), (touch1.position - touch1.deltaPosition));
+            //Touch distancen i den nuværende frame
+            float currentDistance = Vector2.Distance(touch0.position, touch1.position);
+
+            //Difference mellem de to udregnede distancer
+            float deltaDistance = oldDistance - currentDistance;
+
+            if (transform.position.z > zoomMinSoft && transform.position.z < zoomMaxSoft)
+            {
+                dynamicZoomSpeed = 1;
+            }
+            else if (transform.position.z < zoomMinSoft)
+            {
+                CalculateZoomSpeed(zoomMinSoft, zoomMinHard, ref dynamicZoomSpeed);
+            }
+            else if (transform.position.z > zoomMaxSoft)
+            {
+                CalculateZoomSpeed(zoomMaxSoft, zoomMaxHard, ref dynamicZoomSpeed);
+            }
+
+            if (deltaDistance < 0 && transform.position.z < zoomMaxHard || deltaDistance > 0 && transform.position.z > zoomMinHard)
+            {
+                transform.Translate(0, 0, -deltaDistance * zoomSpeed * dynamicZoomSpeed);
+
+                cameraPosition.z = Mathf.Clamp(transform.position.z, zoomMinHard, zoomMaxHard);
+
+                transform.position = new Vector3(transform.position.x, transform.position.y, cameraPosition.z);
+            }
+        }
+
+        if (Input.touchCount == 0)
+        {
+            if (transform.position.z > zoomMaxSoft)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(transform.position.z, zoomMaxSoft, zoomLerpTime));
+            }
+            else if (transform.position.z < zoomMinSoft)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(transform.position.z, zoomMinSoft, zoomLerpTime));
+            }
+        }
+    }
+
     private void CalculateDynamicSpeed(float softCap, float hardCap, ref float dynamicSpeed, char axis)
     {
         axis = axis.ToString().ToLower().ToCharArray()[0];
@@ -162,5 +236,11 @@ public class CameraController : MonoBehaviour
                 Debug.Log("Could not find Axis: " + axis);
                 break;
         }
+    }
+
+    private void CalculateZoomSpeed(float softCap, float hardCap, ref float dynamicSpeed)
+    {
+        float percent = 1 - (softCap - transform.position.z) / (softCap - hardCap);
+        dynamicSpeed = Mathf.Pow(percent, 2);
     }
 }
