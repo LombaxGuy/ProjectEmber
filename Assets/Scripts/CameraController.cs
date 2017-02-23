@@ -7,13 +7,13 @@ public class CameraController : MonoBehaviour
     #region Camera move fields.
 
     [SerializeField]
-    private float moveCenterSpeed = 0.01f;
+    private float moveSpeed = 0.01f;
 
     [SerializeField]
     private float moveLerpTime = 0.1f;
 
     [SerializeField]
-    private int cameraLockState;
+    private int cameraLockState = 1;
 
     [SerializeField]
     private GameObject cameraLockTarget;
@@ -37,7 +37,7 @@ public class CameraController : MonoBehaviour
     #endregion
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         xMinHard = xMinSoft - margin;
         xMaxHard = xMaxSoft + margin;
@@ -46,11 +46,13 @@ public class CameraController : MonoBehaviour
 
         Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
         HandleCameraMovement();
+
+
     }
 
     private void HandleCameraMovement()
@@ -90,7 +92,7 @@ public class CameraController : MonoBehaviour
                         #endregion
                         Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
 
-                        transform.Translate(-touchDeltaPosition.x * moveCenterSpeed * xDynamicSpeed, -touchDeltaPosition.y * moveCenterSpeed * yDynamicSpeed, 0);
+                        transform.Translate(-touchDeltaPosition.x * moveSpeed * xDynamicSpeed, -touchDeltaPosition.y * moveSpeed * yDynamicSpeed, 0);
 
                         cameraPosition.x = Mathf.Clamp(transform.position.x, xMinSoft - margin, xMaxSoft + margin);
                         cameraPosition.y = Mathf.Clamp(transform.position.y, yMinSoft - margin, yMaxSoft + margin);
@@ -127,7 +129,6 @@ public class CameraController : MonoBehaviour
                     cameraPosition.x = cameraLockTarget.transform.position.x;
                     cameraPosition.y = cameraLockTarget.transform.position.y;
                     cameraPosition.z = transform.position.z;
-
 
                     transform.position = Vector3.Lerp(transform.position, cameraPosition, moveLerpTime);
                 }

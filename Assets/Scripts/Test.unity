@@ -250,12 +250,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 667874785}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0c22ef9acfca9e40b031f9daefc7415, type: 3}
+  m_Script: {fileID: 11500000, guid: 86b2db71a2e655f4d9db850c575ede55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.01
-  cam_State: 1
-  target: {fileID: 2065113907}
+  moveSpeed: 0.01
+  moveLerpTime: 0.1
+  cameraLockState: 1
+  cameraLockTarget: {fileID: 2065113907}
 --- !u!1 &1190131253
 GameObject:
   m_ObjectHideFlags: 0
