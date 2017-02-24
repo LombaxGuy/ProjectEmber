@@ -23,6 +23,11 @@ public class CameraController : MonoBehaviour
 
     private float margin = 2;
 
+    private float xMaxSoftRaw = 2;
+    private float xMinSoftRaw = -2;
+    private float yMaxSoftRaw = 2;
+    private float yMinSoftRaw = -2;
+
     private float xMaxSoft = 2;
     private float xMinSoft = -2;
     private float yMaxSoft = 2;
@@ -37,6 +42,8 @@ public class CameraController : MonoBehaviour
     private float yDynamicSpeed = 1;
 
     private Vector3 cameraPosition;
+
+    private float moveZoomCapExtender = 1;
     #endregion
 
     [Space(10)]
@@ -57,11 +64,19 @@ public class CameraController : MonoBehaviour
     private float zoomMaxHard;
 
     private float dynamicZoomSpeed = 1;
+
+    private float currentZoomPercentage;
     #endregion
 
     // Use this for initialization
     void Start()
     {
+        // Sets the soft cap values for the movement
+        xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
+        xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
+        yMaxSoft = yMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
+        yMinSoft = yMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
+
         // Sets the hard cap values for the movement
         xMinHard = xMinSoft - margin;
         xMaxHard = xMaxSoft + margin;
@@ -71,11 +86,26 @@ public class CameraController : MonoBehaviour
         // Sets the hard cap values for the zoom
         zoomMinHard = zoomMinSoft - zoomMargin;
         zoomMaxHard = zoomMaxSoft + zoomMargin;
+
+        // Calculate currentZoomPercentage
+        currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Updates the soft cap values for the movement
+        xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
+        xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
+        yMaxSoft = yMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
+        yMinSoft = yMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
+
+        // Updates the hard cap values for the movement
+        xMinHard = xMinSoft - margin;
+        xMaxHard = xMaxSoft + margin;
+        yMinHard = yMinSoft - margin;
+        yMaxHard = yMaxSoft + margin;
+
         // Handle move function
         HandleCameraMovement();
         // Handle zoom function
@@ -202,6 +232,7 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void HandleCameraZoom()
     {
+
         // If the number of touch inputs is 2
         if (Input.touchCount == 2)
         {
@@ -222,6 +253,7 @@ public class CameraController : MonoBehaviour
             {
                 //... the dynamicZoomSpeed is set to 1.
                 dynamicZoomSpeed = 1;
+                currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
             }
             // If the zoom level is smaller than the soft cap...
             else if (transform.position.z < zoomMinSoft)
