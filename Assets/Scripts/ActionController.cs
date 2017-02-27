@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ActionController : MonoBehaviour {
-    
-    private LineRenderer line;
+public class ActionController : MonoBehaviour
+{
+
+    // private LineRenderer line;
+    [SerializeField]
+    private GameObject activeFlame;
+
     private Vector3 flamePos;
     private Vector3 touchPos;
     private Vector3 touchStartPos;
     private Vector3 touchEndPos;
     private Vector3 direction;
-    private Rigidbody rb;
+    private Rigidbody flameRigidbody;
     private float forceStrength;
-    private float initialForce;
+    private float defaultForce;
+
+    private float maxShootMagnitude;
+    private float minShootMagnitude;
 
     [SerializeField]
     private bool touchBallToShoot;
@@ -35,137 +42,103 @@ public class ActionController : MonoBehaviour {
         set { flameIsMoving = value; }
     }
     // Use this for initialization
-    void Start ()
+    void Start()
     {
-        initialForce = 10;
+        defaultForce = 10;
         playerDragging = false;
-        rb = GetComponent<Rigidbody>();
-        line = GetComponent<LineRenderer>();
-	}
-	
-	// Update is called once per frame
-	void Update ()
+        flameRigidbody = GetComponent<Rigidbody>();
+
+        // line = GetComponent<LineRenderer>();
+    }
+
+    private void HandleInputBegan()
     {
-        if (touchBallToShoot == true)
+        playerDragging = true;
+
+        if (touchBallToShoot)
         {
-            if (Input.touchCount == 1)
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-                RaycastHit hit;
-
-                if (Physics.Raycast(ray, out hit))
-                {
-                    if (hit.collider.gameObject == this.gameObject)
-                    {
-                        if (Input.GetTouch(0).phase == TouchPhase.Began)
-                        {
-                            line.enabled = true;
-                            playerDragging = true;
-                            touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                            direction = transform.position - touchPos;
-                            touchPos = transform.position + direction;
-                            line.SetPosition(0, transform.position);
-                            line.SetPosition(1, touchPos);
-                        }
-                    }
-                }
-
-                if (playerDragging == true)
-                {
-                    if (Input.GetTouch(0).phase == TouchPhase.Moved)
-                    {
-                        touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                        direction = transform.position - touchPos;
-                        touchPos = transform.position + direction;
-                        line.SetPosition(0, transform.position);
-                        line.SetPosition(1, touchPos);
-                    }
-                    if (Input.GetTouch(0).phase == TouchPhase.Ended)
-                    {
-                        line.enabled = false;
-                        playerDragging = false;
-                        touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                        direction = transform.position - touchPos;
-                        Debug.Log("Magnitude : " + direction.magnitude);
-                        if (direction.magnitude < 3 && direction.magnitude > 1)
-                        {
-                            forceStrength = initialForce * direction.magnitude / 2;
-                        }
-                        else if (direction.magnitude > 3)
-                        {
-                            forceStrength = initialForce;
-                        }
-                        else
-                        {
-                            forceStrength = 0;
-                        }
-
-                        rb.AddForce(direction.normalized * forceStrength, ForceMode.Impulse);
-                    }
-                }
-            }
+            touchStartPos = activeFlame.transform.position;
         }
         else
         {
-            if (Input.touchCount == 1)
+            touchStartPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, activeFlame.transform.position.z));
+        }
+    }
+
+    private void UpdateTouchPosAndDirection()
+    {
+        touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, activeFlame.transform.position.z));
+        direction = touchStartPos - touchEndPos;
+    }
+
+    private void HandleInputEnded()
+    {
+        playerDragging = false;
+
+        if (direction.magnitude < 3 && direction.magnitude > 1)
+        {
+            // ---------------------------------------------------------
+            forceStrength = defaultForce * direction.magnitude / 2;
+            Debug.Log("Medium force: " + forceStrength);
+            // ---------------------------------------------------------
+        }
+        else if (direction.magnitude > 3)
+        {
+            forceStrength = defaultForce;
+            Debug.Log("Max force: " + forceStrength);
+        }
+        else
+        {
+            forceStrength = 0;
+            Debug.Log("No force: " + forceStrength);
+        }
+
+        flameRigidbody.AddForce(direction.normalized * forceStrength, ForceMode.Impulse);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.touchCount == 1)
+        {
+            if (touchBallToShoot)
             {
-                switch (Input.GetTouch(0).phase)
+                if (Input.GetTouch(0).phase == TouchPhase.Began)
                 {
-                    case TouchPhase.Began:
-                        touchStartPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                        line.enabled = true;
-                        playerDragging = true;
-                        touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                        direction = touchStartPos - touchEndPos;
-                        touchEndPos = transform.position + direction;
-                        line.SetPosition(0, transform.position);
-                        line.SetPosition(1, touchEndPos);
-                        break;
-                    case TouchPhase.Moved:
-                        if (playerDragging == true)
-                        {
-                            touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                            direction = touchStartPos - touchEndPos;
-                            touchEndPos = transform.position + direction;
-                            line.SetPosition(0, transform.position);
-                            line.SetPosition(1, touchEndPos);
-                        }
+                    Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                    RaycastHit hit;
 
-                        break;
-                    case TouchPhase.Stationary:
-                        break;
-                    case TouchPhase.Ended:
-                        if (playerDragging == true)
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        if (hit.collider.gameObject == this.gameObject)
                         {
-                            touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                            line.enabled = false;
-                            playerDragging = false;
-                            direction = touchStartPos - touchEndPos;
-                            Debug.Log("Magnitude : " + direction.magnitude);
-                            if (direction.magnitude < 3 && direction.magnitude > 1)
-                            {
-                                forceStrength = initialForce * direction.magnitude / 2;
-                            }
-                            else if (direction.magnitude > 3)
-                            {
-                                forceStrength = initialForce;
-                            }
-                            else
-                            {
-                                forceStrength = 0;
-                            }
-
-                            rb.AddForce(direction.normalized * forceStrength, ForceMode.Impulse);
+                            HandleInputBegan();
                         }
-                        break;
-                    case TouchPhase.Canceled:
-                        break;
-                    default:
-                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (Input.GetTouch(0).phase == TouchPhase.Began)
+                {
+                    HandleInputBegan();
+                }
+            }
+
+            if (playerDragging == true)
+            {
+                if (Input.GetTouch(0).phase == TouchPhase.Moved)
+                {
+                    UpdateTouchPosAndDirection();
+                }
+
+                if (Input.GetTouch(0).phase == TouchPhase.Ended)
+                {
+                    UpdateTouchPosAndDirection();
+
+                    HandleInputEnded();
                 }
             }
         }
-
-		
-	}
+    }
 }
