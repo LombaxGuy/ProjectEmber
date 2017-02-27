@@ -10,7 +10,6 @@ public class ActionController : MonoBehaviour {
     private Vector3 touchStartPos;
     private Vector3 touchEndPos;
     private Vector3 direction;
-    private Vector3 clippingPlane = new Vector3(0, 0, 0.05f);
     private Rigidbody rb;
     private float forceStrength;
     private float initialForce;
@@ -113,22 +112,23 @@ public class ActionController : MonoBehaviour {
                 switch (Input.GetTouch(0).phase)
                 {
                     case TouchPhase.Began:
+                        touchStartPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
                         line.enabled = true;
                         playerDragging = true;
-                        touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                        direction = transform.position - touchPos;
-                        touchPos = transform.position + direction;
+                        touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
+                        direction = touchStartPos - touchEndPos;
+                        touchEndPos = transform.position + direction;
                         line.SetPosition(0, transform.position);
-                        line.SetPosition(1, touchPos);
+                        line.SetPosition(1, touchEndPos);
                         break;
                     case TouchPhase.Moved:
                         if (playerDragging == true)
                         {
-                            touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                            direction = transform.position - touchPos;
-                            touchPos = transform.position + direction;
+                            touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
+                            direction = touchStartPos - touchEndPos;
+                            touchEndPos = transform.position + direction;
                             line.SetPosition(0, transform.position);
-                            line.SetPosition(1, touchPos);
+                            line.SetPosition(1, touchEndPos);
                         }
 
                         break;
@@ -137,10 +137,10 @@ public class ActionController : MonoBehaviour {
                     case TouchPhase.Ended:
                         if (playerDragging == true)
                         {
+                            touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
                             line.enabled = false;
                             playerDragging = false;
-                            touchPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 5));
-                            direction = transform.position - touchPos;
+                            direction = touchStartPos - touchEndPos;
                             Debug.Log("Magnitude : " + direction.magnitude);
                             if (direction.magnitude < 3 && direction.magnitude > 1)
                             {
