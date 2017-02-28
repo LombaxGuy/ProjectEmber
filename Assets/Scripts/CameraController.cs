@@ -122,91 +122,95 @@ public class CameraController : MonoBehaviour
         {
             case CameraLockState.FreeMove:
                 {
-                    // If a touch input is received and the touch phase is "Moved"
-                    if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
+                    if (!ActionController.PlayerShooting)
                     {
-                        #region xDynamicSpeed
-                        // If the camera is located within the x-bounds of the map...
-                        if (transform.position.x > xMinSoft && transform.position.x < xMaxSoft)
+                        // If a touch input is received and the touch phase is "Moved"
+                        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
                         {
-                            //... the dynamic speed on the x-axis is set to 1. 
-                            xDynamicSpeed = 1;
-                        }
-                        // If the camera is out of bounds on the left(-x) side of the map... 
-                        else if (transform.position.x < xMinSoft)
-                        {
-                            //... calculate the dynamic speed on the x-axis.
-                            CalculateDynamicSpeed(xMinSoft, xMinHard, ref xDynamicSpeed, 'x');
-                        }
-                        // If the camera is out of bounds on the right(+x) side of the map... 
-                        else if (transform.position.x > xMaxSoft)
-                        {
-                            //... calculate the dynamic speed on the x-axis.
-                            CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed, 'x');
-                        }
-                        #endregion
+                            #region xDynamicSpeed
+                            // If the camera is located within the x-bounds of the map...
+                            if (transform.position.x > xMinSoft && transform.position.x < xMaxSoft)
+                            {
+                                //... the dynamic speed on the x-axis is set to 1. 
+                                xDynamicSpeed = 1;
+                            }
+                            // If the camera is out of bounds on the left(-x) side of the map... 
+                            else if (transform.position.x < xMinSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMinSoft, xMinHard, ref xDynamicSpeed, 'x');
+                            }
+                            // If the camera is out of bounds on the right(+x) side of the map... 
+                            else if (transform.position.x > xMaxSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed, 'x');
+                            }
+                            #endregion
 
-                        #region yDynamicSpeed
-                        // Same as in xDynamicSpeed just on the y-axis.
-                        if (transform.position.y > yMinSoft && transform.position.y < yMaxSoft)
-                        {
-                            yDynamicSpeed = 1;
+                            #region yDynamicSpeed
+                            // Same as in xDynamicSpeed just on the y-axis.
+                            if (transform.position.y > yMinSoft && transform.position.y < yMaxSoft)
+                            {
+                                yDynamicSpeed = 1;
+                            }
+                            else if (transform.position.y < yMinSoft)
+                            {
+                                CalculateDynamicSpeed(yMinSoft, yMinHard, ref yDynamicSpeed, 'y');
+                            }
+                            else if (transform.position.y > yMaxSoft)
+                            {
+                                CalculateDynamicSpeed(yMaxSoft, yMaxHard, ref yDynamicSpeed, 'y');
+                            }
+                            #endregion
+
+                            // Saves the change in position in a Vector2
+                            Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
+
+                            // Moves the camera
+                            transform.Translate(-touchDeltaPosition.x * moveSpeed * xDynamicSpeed, -touchDeltaPosition.y * moveSpeed * yDynamicSpeed, 0);
+
+                            // Clamps the camera's position
+                            cameraPosition.x = Mathf.Clamp(transform.position.x, xMinSoft - margin, xMaxSoft + margin);
+                            cameraPosition.y = Mathf.Clamp(transform.position.y, yMinSoft - margin, yMaxSoft + margin);
+                            cameraPosition.z = transform.position.z;
+
+                            // Sets the position to the clamped values
+                            transform.position = cameraPosition;
                         }
-                        else if (transform.position.y < yMinSoft)
+
+                        // If no touch input is received
+                        if (Input.touchCount == 0)
                         {
-                            CalculateDynamicSpeed(yMinSoft, yMinHard, ref yDynamicSpeed, 'y');
+                            #region X-Axis
+                            // If the current x-position of the camera is larger than the x-position soft cap...
+                            if (transform.position.x > xMaxSoft)
+                            {
+                                //... the camera's x-position is lerped to the value of the soft cap.
+                                transform.position = new Vector3(Mathf.Lerp(transform.position.x, xMaxSoft, moveLerpTime), transform.position.y, transform.position.z);
+                            }
+                            // If the current x-position of the camera is smaller than the x-position soft cap...
+                            else if (transform.position.x < xMinSoft)
+                            {
+                                //... the camera's x-position is lerped to the value of the soft cap.
+                                transform.position = new Vector3(Mathf.Lerp(transform.position.x, xMinSoft, moveLerpTime), transform.position.y, transform.position.z);
+                            }
+                            #endregion
+
+                            #region Y-Axis
+                            // Same as the X-Axis but on the Y-Axis
+                            if (transform.position.y > yMaxSoft)
+                            {
+                                transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, yMaxSoft, moveLerpTime), transform.position.z);
+                            }
+                            else if (transform.position.y < yMinSoft)
+                            {
+                                transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, yMinSoft, moveLerpTime), transform.position.z);
+                            }
+                            #endregion
                         }
-                        else if (transform.position.y > yMaxSoft)
-                        {
-                            CalculateDynamicSpeed(yMaxSoft, yMaxHard, ref yDynamicSpeed, 'y');
-                        }
-                        #endregion
-
-                        // Saves the change in position in a Vector2
-                        Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
-
-                        // Moves the camera
-                        transform.Translate(-touchDeltaPosition.x * moveSpeed * xDynamicSpeed, -touchDeltaPosition.y * moveSpeed * yDynamicSpeed, 0);
-
-                        // Clamps the camera's position
-                        cameraPosition.x = Mathf.Clamp(transform.position.x, xMinSoft - margin, xMaxSoft + margin);
-                        cameraPosition.y = Mathf.Clamp(transform.position.y, yMinSoft - margin, yMaxSoft + margin);
-                        cameraPosition.z = transform.position.z;
-
-                        // Sets the position to the clamped values
-                        transform.position = cameraPosition;
                     }
-
-                    // If no touch input is received
-                    if (Input.touchCount == 0)
-                    {
-                        #region X-Axis
-                        // If the current x-position of the camera is larger than the x-position soft cap...
-                        if (transform.position.x > xMaxSoft)
-                        {
-                            //... the camera's x-position is lerped to the value of the soft cap.
-                            transform.position = new Vector3(Mathf.Lerp(transform.position.x, xMaxSoft, moveLerpTime), transform.position.y, transform.position.z);
-                        }
-                        // If the current x-position of the camera is smaller than the x-position soft cap...
-                        else if (transform.position.x < xMinSoft)
-                        {
-                            //... the camera's x-position is lerped to the value of the soft cap.
-                            transform.position = new Vector3(Mathf.Lerp(transform.position.x, xMinSoft, moveLerpTime), transform.position.y, transform.position.z);
-                        }
-                        #endregion
-
-                        #region Y-Axis
-                        // Same as the X-Axis but on the Y-Axis
-                        if (transform.position.y > yMaxSoft)
-                        {
-                            transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, yMaxSoft, moveLerpTime), transform.position.z);
-                        }
-                        else if (transform.position.y < yMinSoft)
-                        {
-                            transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, yMinSoft, moveLerpTime), transform.position.z);
-                        }
-                        #endregion
-                    }
+                    
                 }
                 break;
 
