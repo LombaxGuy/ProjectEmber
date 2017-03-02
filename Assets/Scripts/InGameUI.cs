@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PauseMenuButton : MonoBehaviour {
+public class InGameUI : MonoBehaviour {
 
     [SerializeField]
     private GameObject pauseCanvas;
 
-    public void OnButtonClick()
+    public void OnPauseButtonClick()
     {
         pauseCanvas.SetActive(true);
+        pauseCanvas.GetComponent<MenuScript>().CurrentlyActive = "pauseMenu";
     }
 }
