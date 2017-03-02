@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Trajectory : MonoBehaviour
 {
-    // Reference to the LineRenderer we will use to display the simulated path
-    public LineRenderer sightLine;
+    
 
+    // Reference to the LineRenderer we will use to display the simulated path
+    private LineRenderer sightLine;
+
+    [SerializeField]
+    private GameObject flameObject;
     // Reference to a Component that holds information about fire strength, location of cannon, etc.
-    public PlayerFire playerFire;
+    //public PlayerFire playerFire;
+
 
     // Number of segments to calculate - more gives a smoother line
     public int segmentCount = 20;
@@ -20,24 +25,45 @@ public class Trajectory : MonoBehaviour
     private Collider _hitObject;
     public Collider hitObject { get { return _hitObject; } }
 
+    private void OnEnable()
+    {
+        EventManager.OnProjectileLaunched += OnLaunch;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnLaunch;
+    }
+
+    private void OnLaunch(Vector3 direction, float forceStrenght)
+    {
+        SimulatePath(direction, forceStrenght);
+    }
+
+    private void Start()
+    {
+        sightLine = GetComponent<LineRenderer>();
+    }
+
     void FixedUpdate()
     {
-        simulatePath();
+        //SimulatePath();
     }
 
     /// <summary>
     /// Simulate the path of a launched ball.
     /// Slight errors are inherent in the numerical method used.
     /// </summary>
-    void simulatePath()
+    void SimulatePath(Vector3 direction, float forceStrenght)
     {
         Vector3[] segments = new Vector3[segmentCount];
 
         // The first line point is wherever the player's cannon, etc is
-        segments[0] = playerFire.transform.position;
+        segments[0] = flameObject.transform.position;
 
         // The initial velocity
-        Vector3 segVelocity = playerFire.transform.up * playerFire.fireStrength * Time.deltaTime;
+        Vector3 segVelocity = direction * forceStrenght;
+        Debug.Log(segVelocity);
 
         // reset our hit object
         _hitObject = null;
@@ -81,7 +107,7 @@ public class Trajectory : MonoBehaviour
         // At the end, apply our simulations to the LineRenderer
 
         // Set the colour of our path to the colour of the next ball
-        Color startColor = playerFire.nextColor;
+        Color startColor = Color.red;
         Color endColor = startColor;
         startColor.a = 1;
         endColor.a = 0;
