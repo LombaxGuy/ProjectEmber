@@ -8,7 +8,7 @@ public class ProjectileLife : MonoBehaviour {
     bool isAlive = true;
     [SerializeField]
     bool isShot = false;
-    float aliveTime = 5;
+    float aliveTime = 6;
     GameObject handler;
 
     Vector3 firePos;
@@ -57,9 +57,7 @@ public class ProjectileLife : MonoBehaviour {
                 Respawn(firePos,false,1);
             }
         }
-        
-
-		
+        		
 	}
 
     public void Fizzle(bool life, int ammount)
@@ -89,13 +87,17 @@ public class ProjectileLife : MonoBehaviour {
 
 
 
-    void setPos(Vector3 pos)
+    public void setPos(Vector3 pos)
     {
         //Needs to change to fire point
         firePos = pos;
     }
 
-
+    public void Shoot()
+    {
+        isShot = true;
+        handler.GetComponent<PlayerLives>().Shot();
+    }
         
 
 }
