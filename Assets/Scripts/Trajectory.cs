@@ -83,8 +83,17 @@ public class Trajectory : MonoBehaviour
                 segments[i] = segments[i - 1] + segmentVelocity.normalized * hit.distance;
                 // correct ending velocity, since we didn't actually travel an entire segment
                 segmentVelocity = segmentVelocity - Physics.gravity * (segmentScale - hit.distance) / segmentVelocity.magnitude;
+
+                float bounceFactor = 1;
+                if (hitObject.sharedMaterial != null)
+                {
+                    bounceFactor = hitObject.sharedMaterial.bounciness;
+                }
+                    
                 // flip the velocity to simulate a bounce
-                segmentVelocity = Vector3.Reflect(segmentVelocity, hit.normal);
+                segmentVelocity = Vector3.Reflect(segmentVelocity * bounceFactor, hit.normal);
+
+                
 
                 if (hit.transform.tag == "FlammableObject")
                 {
