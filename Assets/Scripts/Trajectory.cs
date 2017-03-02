@@ -11,19 +11,16 @@ public class Trajectory : MonoBehaviour
 
     [SerializeField]
     private GameObject flameObject;
-    // Reference to a Component that holds information about fire strength, location of cannon, etc.
-    //public PlayerFire playerFire;
-
 
     // Number of segments to calculate - more gives a smoother line
-    public int segmentCount = 20;
+    public int segmentCount = 250;
 
     // Length scale for each segment
-    public float segmentScale = 1;
+    public float segmentScale = 0.1f;
 
     // gameobject we're actually pointing at (may be useful for highlighting a target, etc.)
-    private Collider _hitObject;
-    public Collider hitObject { get { return _hitObject; } }
+    private Collider hitObject;
+    public Collider HitObject { get { return hitObject; } }
 
     private void OnEnable()
     {
@@ -62,33 +59,42 @@ public class Trajectory : MonoBehaviour
         segments[0] = flameObject.transform.position;
 
         // The initial velocity
-        Vector3 segVelocity = direction * forceStrenght;
-        Debug.Log(segVelocity);
+        Vector3 segmentVelocity = direction * forceStrenght;
 
         // reset our hit object
-        _hitObject = null;
+        hitObject = null;
 
         for (int i = 1; i < segmentCount; i++)
         {
             // Time it takes to traverse one segment of length segScale (careful if velocity is zero)
-            float segTime = (segVelocity.sqrMagnitude != 0) ? segmentScale / segVelocity.magnitude : 0;
+            float segTime = (segmentVelocity.sqrMagnitude != 0) ? segmentScale / segmentVelocity.magnitude : 0;
 
             // Add velocity from gravity for this segment's timestep
-            segVelocity = segVelocity + Physics.gravity * segTime;
+            segmentVelocity = segmentVelocity + Physics.gravity * segTime;
 
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
-            if (Physics.Raycast(segments[i - 1], segVelocity, out hit, segmentScale))
+            if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale))
             {
                 // remember who we hit
-                _hitObject = hit.collider;
+                hitObject = hit.collider;
 
                 // set next position to the position where we hit the physics object
-                segments[i] = segments[i - 1] + segVelocity.normalized * hit.distance;
+                segments[i] = segments[i - 1] + segmentVelocity.normalized * hit.distance;
                 // correct ending velocity, since we didn't actually travel an entire segment
-                segVelocity = segVelocity - Physics.gravity * (segmentScale - hit.distance) / segVelocity.magnitude;
+                segmentVelocity = segmentVelocity - Physics.gravity * (segmentScale - hit.distance) / segmentVelocity.magnitude;
                 // flip the velocity to simulate a bounce
-                segVelocity = Vector3.Reflect(segVelocity, hit.normal);
+                segmentVelocity = Vector3.Reflect(segmentVelocity, hit.normal);
+
+                if (hit.transform.tag == "FlammableObject")
+                {
+                    break;
+                }
+                else if (hit.transform.tag == "KillerObject")
+                {
+                    break;
+                }
+
 
                 /*
 				 * Here you could check if the object hit by the Raycast had some property - was 
@@ -100,7 +106,7 @@ public class Trajectory : MonoBehaviour
             // If our raycast hit no objects, then set the next position to the last one plus v*t
             else
             {
-                segments[i] = segments[i - 1] + segVelocity * segTime;
+                segments[i] = segments[i - 1] + segmentVelocity * segTime;
             }
         }
 

@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Projectile
   - Handler
+  - KillerObject
+  - FlammableObject
   layers:
   - Default
   - TransparentFX

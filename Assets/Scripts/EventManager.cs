@@ -16,7 +16,7 @@ public class EventManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("EventManager.cs: The event 'OnPlayerDeath' was not invoked because nothing subscibes to it.");
+            Debug.Log("EventManager.cs: The event 'OnProjectileLaunched' was not invoked because nothing subscibes to it.");
         }
     }
 }
