@@ -197,6 +197,9 @@ public class ActionController : MonoBehaviour
         EventManager.InvokeOnProjectileLaunched(direction.normalized, forceStrength);
         // Adds a force impulse to the rigidbody of the active flame.
         flameRigidbody.AddForce(direction.normalized * forceStrength, ForceMode.Impulse);
+
+        GetComponent<ProjectileLife>().Shoot();
+
     }
 
     /// <summary>

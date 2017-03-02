@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class PlayerLives : MonoBehaviour {
 
+    [SerializeField]
     int lives = 3;
+    [SerializeField]
+    GameObject water;
 
-
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
@@ -27,8 +29,11 @@ public class PlayerLives : MonoBehaviour {
         lives = lives + amount;
 
         if(!life)
-        lives = lives - amount;
-      
+        lives = lives - amount;      
+    }
 
+    public void Shot()
+    {
+        water.GetComponent<WaterBottom>().Creep(10);
     }
 }
