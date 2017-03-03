@@ -4,32 +4,50 @@ using UnityEngine;
 
 public class ProjectileLife : MonoBehaviour {
 
-
+    [SerializeField]
     bool isAlive = true;
     [SerializeField]
     bool isShot = false;
     float aliveTime = 6;
-    GameObject handler;
+    [SerializeField]
+    Vector3 spawnPos;
+    Rigidbody projetileBody;
 
-    Vector3 firePos;
 
-    public Vector3 FirePos
+    private void OnEnable()
     {
-        get
-        {
-            return firePos;
-        }
-        set
-        {
-            firePos = value;
-        }
+        EventManager.OnProjectileLaunched += OnShot;
+        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileIgnite += OnIgnite;
     }
 
-	// Use this for initialization
-	void Start () {
-        handler = GameObject.FindGameObjectWithTag("Handler");
-        firePos = gameObject.transform.position;
-	}
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnShot;
+        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileIgnite -= OnIgnite;
+    }
+
+    private void OnShot(Vector3 dir,float force)
+    {
+        Shoot();
+    }
+
+    private void OnDeath()
+    {
+        Death();
+    }
+
+    private void OnIgnite()
+    {
+        Ignite();
+    }
+
+    // Use this for initialization
+    void Start () {       
+        spawnPos = gameObject.transform.position;
+        projetileBody = gameObject.GetComponent<Rigidbody>();
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -38,7 +56,7 @@ public class ProjectileLife : MonoBehaviour {
         //Handle when not shot
         if(!isShot)
         {
-            gameObject.GetComponent<Rigidbody>().Sleep();
+            projetileBody.Sleep();
         }
 
         //Handle when lit
@@ -54,50 +72,63 @@ public class ProjectileLife : MonoBehaviour {
 
             if (!isAlive)
             {
-                Respawn(firePos,false,1);
+                Respawn();
             }
         }
         		
 	}
 
-    public void Fizzle(bool life, int ammount)
+    public void Shoot()
     {
+        isShot = true;
+       
+    }
 
-        Respawn(firePos, life, ammount);
+    void Death()
+    {
+        isAlive = false;
+        isShot = false;                       
+        Respawn();
 
     }
 
-
-    public void Fizzle(Vector3 spawnPos, bool life, int ammount)
+    void Ignite()
     {
-
-        Respawn(spawnPos, life, ammount);
-        
+        isShot = false;        
+        Respawn();
     }
 
-    void Respawn(Vector3 spawnPos,bool life, int ammount)
+    void Respawn()
     {
-        isShot = false;
         aliveTime = 5;
-        gameObject.GetComponent<Rigidbody>().Sleep();
+        projetileBody.Sleep();
         gameObject.transform.position = spawnPos;
-        handler.GetComponent<PlayerLives>().HandleLife(life, ammount);
         isAlive = true;
     }
 
 
-
-    public void setPos(Vector3 pos)
+    //Collision handling
+    void OnCollisionEnter(Collision other)
     {
-        //Needs to change to fire point
-        firePos = pos;
+
+        if (other.gameObject.tag == "FlammableObject")
+        {
+
+            spawnPos = other.gameObject.transform.GetChild(0).transform.position;
+            other.gameObject.GetComponent<Collider>().enabled = false;
+            EventManager.InvokeOnProjectileIgnite();
+            
+
+        }
+
+        if (other.gameObject.tag == "KillerObject")
+        {
+            EventManager.InvokeOnProjectileDead();
+        }
+
     }
 
-    public void Shoot()
-    {
-        isShot = true;
-        handler.GetComponent<PlayerLives>().Shot();
-    }
-        
+
+
 
 }
