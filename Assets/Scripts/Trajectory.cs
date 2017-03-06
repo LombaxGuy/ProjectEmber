@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class Trajectory : MonoBehaviour
 {
-    
-
     // Reference to the LineRenderer we will use to display the simulated path
-    private LineRenderer sightLine;
+    private LineRenderer line;
 
     [SerializeField]
     private GameObject flameObject;
@@ -39,7 +37,7 @@ public class Trajectory : MonoBehaviour
 
     private void Start()
     {
-        sightLine = GetComponent<LineRenderer>();
+        line = GetComponent<LineRenderer>();
     }
 
     void FixedUpdate()
@@ -126,11 +124,11 @@ public class Trajectory : MonoBehaviour
         Color endColor = startColor;
         startColor.a = 1;
         endColor.a = 0;
-        sightLine.SetColors(startColor, endColor);
+        line.SetColors(startColor, endColor);
 
-        sightLine.SetVertexCount(segmentCount);
+        line.SetVertexCount(segmentCount);
         for (int i = 0; i < segmentCount; i++)
-            sightLine.SetPosition(i, segments[i]);
+            line.SetPosition(i, segments[i]);
     }
 }
 
