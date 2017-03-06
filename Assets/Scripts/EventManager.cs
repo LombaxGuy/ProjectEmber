@@ -7,10 +7,10 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileLaunched(Vector3 direction, float forceStrength);
     public static event ProjectileLaunched OnProjectileLaunched;
 
-    public delegate void ProjectileDead();
+    public delegate void ProjectileDead(int amount);
     public static event ProjectileDead OnProjectileDead;
 
-    public delegate void ProjectileIgnite();
+    public delegate void ProjectileIgnite(int amount);
     public static event ProjectileIgnite OnProjectileIgnite;
 
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
@@ -27,11 +27,11 @@ public class EventManager : MonoBehaviour
     }
 
 
-    public static void InvokeOnProjectileDead()
+    public static void InvokeOnProjectileDead(int amount)
     {
         if (OnProjectileDead != null)
         {
-            OnProjectileDead.Invoke();
+            OnProjectileDead.Invoke(amount);
             Debug.Log("EventManager.cs: The event 'OnProjectileDead' was invoked.");
         }
         else
@@ -40,11 +40,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnProjectileIgnite()
+    public static void InvokeOnProjectileIgnite(int amount)
     {
         if (OnProjectileIgnite != null)
         {
-            OnProjectileIgnite.Invoke();
+            OnProjectileIgnite.Invoke(amount);
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was invoked.");
         }
         else
