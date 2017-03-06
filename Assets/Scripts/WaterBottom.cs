@@ -6,8 +6,25 @@ public class WaterBottom : MonoBehaviour {
 
     Transform go;
 
-	// Use this for initialization
-	void Start () {
+    private void OnEnable()
+    {
+        EventManager.OnProjectileLaunched += OnShot;
+
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnShot;
+
+    }
+
+    private void OnShot(Vector3 dir, float force)
+    {
+        Creep(6);
+    }
+
+    // Use this for initialization
+    void Start () {
         go = gameObject.transform;
 	}
 	
@@ -15,14 +32,6 @@ public class WaterBottom : MonoBehaviour {
 	void Update () {
 		
 	}
-
-    void OnTriggerEnter(Collider other)
-    {
-
-        if (other.gameObject.tag == "Projectile")
-            other.gameObject.GetComponent<ProjectileLife>().Fizzle(false,1);
-        
-    }
 
     public void Creep(int time)
     {
