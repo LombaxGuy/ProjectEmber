@@ -14,6 +14,12 @@ public class CameraController : MonoBehaviour
     private float moveLerpTime = 0.1f;
 
     [SerializeField]
+    private float cameraWaitTime = 2;
+
+    [SerializeField]
+    private bool autoCameraToggle = false;
+
+    [SerializeField]
     private CameraLockState cameraLockState = CameraLockState.FreeMove;
 
     private enum CameraLockState {Disabled, Follow, FreeMove};
@@ -45,6 +51,52 @@ public class CameraController : MonoBehaviour
 
     private float moveZoomCapExtender = 1;
     #endregion
+
+    /// <summary>
+    /// Calls used by camera to interact with projectile
+    /// </summary>
+    private void OnEnable()
+    {
+        EventManager.OnProjectileLaunched += OnShot;
+        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileIgnite += OnIgnite;
+    }
+
+    /// <summary>
+    /// Calls used by camera to interact with projectile
+    /// </summary>
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnShot;
+        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileIgnite -= OnIgnite;
+    }
+
+    /// <summary>
+    /// USed to follow the projecttile when shot
+    /// </summary>
+    /// <param name="dir">none</param>
+    /// <param name="force">none</param>
+    private void OnShot(Vector3 dir, float force)
+    {
+        cameraLockState = CameraLockState.Follow;
+    }
+
+    /// <summary>
+    /// Runs DeathSequence that handles the time between camera moving to new projectile
+    /// </summary>
+    private void OnDeath(int amount)
+    {
+        DeathSequence();
+    }
+    
+    /// <summary>
+    /// Runs DeathSequence that handles the time between camera moving to new projectile
+    /// </summary>
+    private void OnIgnite(int amount)
+    {
+        DeathSequence();
+    }
 
     [Space(10)]
     [Header("Zoom")]
@@ -94,6 +146,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        cameraWaitTime = cameraWaitTime - Time.deltaTime;
         // Updates the soft cap values for the movement
         xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
         xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
@@ -105,6 +158,9 @@ public class CameraController : MonoBehaviour
         xMaxHard = xMaxSoft + margin;
         yMinHard = yMinSoft - margin;
         yMaxHard = yMaxSoft + margin;
+
+        //Handles automatic camera mover
+        SmartReset(autoCameraToggle);
 
         // Handle move function
         HandleCameraMovement();
@@ -345,5 +401,36 @@ public class CameraController : MonoBehaviour
     {
         float percent = 1 - (softCap - transform.position.z) / (softCap - hardCap);
         dynamicSpeed = Mathf.Pow(percent, 2);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void DeathSequence()
+    {
+        cameraWaitTime = 2;
+        autoCameraToggle = true;
+
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="state"></param>
+    private void SmartReset(bool state)
+    {
+        if (state)
+        {
+            if (cameraWaitTime <= 1.5f)
+            {
+                cameraLockState = CameraLockState.Follow;
+            }
+            if (cameraWaitTime <= 0)
+            {
+                cameraLockState = CameraLockState.FreeMove;
+                autoCameraToggle = false;
+            }
+        }
+
+
     }
 }

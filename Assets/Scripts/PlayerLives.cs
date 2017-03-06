@@ -13,12 +13,17 @@ public class PlayerLives : MonoBehaviour
     [SerializeField]
     GameObject water;
 
+    /// <summary>
+    /// Subscribed events
+    /// </summary>
     private void OnEnable()
     {
         EventManager.OnProjectileDead += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
     }
-
+    /// <summary>
+    /// Subscribed events
+    /// </summary>
     private void OnDisable()
     {
         EventManager.OnProjectileDead -= OnDeath;
@@ -26,15 +31,21 @@ public class PlayerLives : MonoBehaviour
     }
 
 
-
-    private void OnDeath()
+    /// <summary>
+    /// Called when a projectile dies
+    /// </summary>
+    /// <param name="amount">none</param>
+    private void OnDeath(int amount)
     {
-        HandleLife(false, 1);
+        HandleLife(false, amount);
     }
-
-    private void OnIgnite()
+    /// <summary>
+    /// Called when a projectile ignites
+    /// </summary>
+    /// <param name="amount">none</param>
+    private void OnIgnite(int amount)
     {
-        HandleLife(true, 1);
+        HandleLife(true, amount);
     }
 
     // Use this for initialization
