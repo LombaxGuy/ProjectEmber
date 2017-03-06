@@ -9,3 +9,5 @@ EditorBuildSettings:
     path: Assets/Baner/Main Menu.unity
   - enabled: 1
     path: Assets/Baner/Testmap.unity
+  - enabled: 1
+    path: Assets/Scenes/Levels/FirstWell/FirstWell_1.unity
