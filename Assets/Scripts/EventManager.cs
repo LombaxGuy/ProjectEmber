@@ -7,6 +7,9 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileLaunched(Vector3 direction, float forceStrength);
     public static event ProjectileLaunched OnProjectileLaunched;
 
+    public delegate void ProjectileUpdated(Vector3 direction, float forceStrength);
+    public static event ProjectileUpdated OnProjectileUpdated;
+
     public delegate void ProjectileDead(int amount);
     public static event ProjectileDead OnProjectileDead;
 
@@ -29,6 +32,18 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public static void InvokeOnProjectileUpdated(Vector3 direction, float forceStrength)
+    {
+        if (OnProjectileUpdated != null)
+        {
+            OnProjectileUpdated.Invoke(direction, forceStrength);
+            Debug.Log("EventManager.cs: The event 'OnProjectileUpdated' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnProjectileUpdated' was not invoked because nothing subscibes to it.");
+        }
+    }
 
     public static void InvokeOnProjectileDead(int amount)
     {

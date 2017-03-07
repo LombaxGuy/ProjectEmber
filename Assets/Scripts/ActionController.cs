@@ -14,7 +14,6 @@ public class ActionController : MonoBehaviour
     private Vector3 touchEndPos;
     private Vector3 direction;
 
-    private float forceStrength;
     private float defaultForceStrength = 10;
 
     private float maxShootMagnitude = 3;
@@ -150,6 +149,8 @@ public class ActionController : MonoBehaviour
         // Updates the two variables.
         touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, activeFlame.transform.position.z));
         direction = touchStartPos - touchEndPos;
+
+        EventManager.InvokeOnProjectileUpdated(direction.normalized, CalculateForceStrenght());
     }
 
     /// <summary>
@@ -161,38 +162,20 @@ public class ActionController : MonoBehaviour
         playerShooting = false;
         shootMode = false;
 
-        // If the length of the pull is between the max and min pull distance...
-        if (direction.magnitude < maxShootMagnitude && direction.magnitude > minShootMagnitude)
-        {
-            //... the forceStrength is calculated from the length of the pull.
-            forceStrength = defaultForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
-        }
-        // If the length of the pull is greater than the max pull distance...
-        else if (direction.magnitude > maxShootMagnitude)
-        {
-            //... the forceStrength is set to the defaultForceStrength
-            forceStrength = defaultForceStrength;
-        }
-        // If the length of the bull is lower than the min pull distance...
-        else
-        {
-            //... the forceStrength is set to 0.
-            forceStrength = 0;
-
-        }
+        float forceStrength = CalculateForceStrenght();
 
         // If the forceStrength is greater than 0...
         if (forceStrength > 0)
         {
             //... the projectile is launched by calling the LaunchProjectile method.
-            LaunchProjectile();
+            LaunchProjectile(forceStrength);
         }
     }
 
     /// <summary>
     /// Used to launch the projectile.
     /// </summary>
-    private void LaunchProjectile()
+    private void LaunchProjectile(float forceStrength)
     {
         EventManager.InvokeOnProjectileLaunched(direction.normalized, forceStrength);
         // Adds a force impulse to the rigidbody of the active flame.
@@ -223,5 +206,31 @@ public class ActionController : MonoBehaviour
                 selectionSphere.SetActive(false);
             }
         }
+    }
+
+    private float CalculateForceStrenght()
+    {
+        float forceStrength = 0;
+
+        // If the length of the pull is between the max and min pull distance...
+        if (direction.magnitude < maxShootMagnitude && direction.magnitude > minShootMagnitude)
+        {
+            //... the forceStrength is calculated from the length of the pull.
+            forceStrength = defaultForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
+        }
+        // If the length of the pull is greater than the max pull distance...
+        else if (direction.magnitude > maxShootMagnitude)
+        {
+            //... the forceStrength is set to the defaultForceStrength
+            forceStrength = defaultForceStrength;
+        }
+        // If the length of the bull is lower than the min pull distance...
+        else
+        {
+            //... the forceStrength is set to 0.
+            forceStrength = 0;
+        }
+
+        return forceStrength;
     }
 }
