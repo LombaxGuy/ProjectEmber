@@ -4,30 +4,34 @@ using UnityEngine;
 
 public class Trajectory : MonoBehaviour
 {
-    // Reference to the LineRenderer we will use to display the simulated path
     private LineRenderer line;
 
     [SerializeField]
     private GameObject flameObject;
+    private SphereCollider flameCollider;
 
-    // Number of segments to calculate - more gives a smoother line
-    public int segmentCount = 250;
+    [SerializeField]
+    private int segmentCount = 250;
 
-    // Length scale for each segment
-    public float segmentScale = 0.1f;
+    [SerializeField]
+    private float segmentScale = 0.1f;
 
-    // gameobject we're actually pointing at (may be useful for highlighting a target, etc.)
-    private Collider hitObject;
-    public Collider HitObject { get { return hitObject; } }
+    [SerializeField]
+    private float numberOfHitRaycasts = 8;
+
+    private Collider hitCollider;
+    public Collider HitCollider { get { return hitCollider; } }
 
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnLaunch;
+        EventManager.OnProjectileUpdated += OnUpdate;
     }
 
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnLaunch;
+        EventManager.OnProjectileUpdated -= OnUpdate;
     }
 
     private void OnLaunch(Vector3 direction, float forceStrenght)
@@ -35,14 +39,15 @@ public class Trajectory : MonoBehaviour
         SimulatePath(direction, forceStrenght);
     }
 
+    private void OnUpdate(Vector3 direction, float forceStrenght)
+    {
+        SimulatePath(direction, forceStrenght);
+    }
+
     private void Start()
     {
         line = GetComponent<LineRenderer>();
-    }
-
-    void FixedUpdate()
-    {
-        //SimulatePath();
+        flameCollider = flameObject.GetComponent<SphereCollider>();
     }
 
     /// <summary>
@@ -53,6 +58,9 @@ public class Trajectory : MonoBehaviour
     {
         Vector3[] segments = new Vector3[segmentCount];
 
+        Vector3[] segments1 = new Vector3[segmentCount];
+        Vector3[] segments2 = new Vector3[segmentCount];
+
         // The first line point is wherever the player's cannon, etc is
         segments[0] = flameObject.transform.position;
 
@@ -60,7 +68,7 @@ public class Trajectory : MonoBehaviour
         Vector3 segmentVelocity = direction * forceStrenght;
 
         // reset our hit object
-        hitObject = null;
+        hitCollider = null;
 
         for (int i = 1; i < segmentCount; i++)
         {
@@ -75,7 +83,7 @@ public class Trajectory : MonoBehaviour
             if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale))
             {
                 // remember who we hit
-                hitObject = hit.collider;
+                hitCollider = hit.collider;
 
                 // set next position to the position where we hit the physics object
                 segments[i] = segments[i - 1] + segmentVelocity.normalized * hit.distance;
@@ -83,15 +91,13 @@ public class Trajectory : MonoBehaviour
                 segmentVelocity = segmentVelocity - Physics.gravity * (segmentScale - hit.distance) / segmentVelocity.magnitude;
 
                 float bounceFactor = 1;
-                if (hitObject.sharedMaterial != null)
+                if (hitCollider.sharedMaterial != null)
                 {
-                    bounceFactor = hitObject.sharedMaterial.bounciness;
+                    bounceFactor = hitCollider.sharedMaterial.bounciness;
                 }
-                    
+
                 // flip the velocity to simulate a bounce
                 segmentVelocity = Vector3.Reflect(segmentVelocity * bounceFactor, hit.normal);
-
-                
 
                 if (hit.transform.tag == "FlammableObject")
                 {
@@ -102,13 +108,10 @@ public class Trajectory : MonoBehaviour
                     break;
                 }
 
-
-                /*
-				 * Here you could check if the object hit by the Raycast had some property - was 
-				 * sticky, would cause the ball to explode, or was another ball in the air for 
-				 * instance. You could then end the simulation by setting all further points to 
-				 * this last point and then breaking this for loop.
-				 */
+               // Here you could check if the object hit by the Raycast had some property -was
+               // sticky, would cause the ball to explode, or was another ball in the air for
+               // instance.You could then end the simulation by setting all further points to
+               // this last point and then breaking this for loop.
             }
             // If our raycast hit no objects, then set the next position to the last one plus v*t
             else
@@ -124,11 +127,15 @@ public class Trajectory : MonoBehaviour
         Color endColor = startColor;
         startColor.a = 1;
         endColor.a = 0;
-        line.SetColors(startColor, endColor);
 
-        line.SetVertexCount(segmentCount);
+        line.startColor = startColor;
+        line.endColor = endColor;
+
+        line.numPositions = segmentCount;
         for (int i = 0; i < segmentCount; i++)
+        {
             line.SetPosition(i, segments[i]);
+        }
     }
 }
 
