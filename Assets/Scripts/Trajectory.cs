@@ -8,16 +8,13 @@ public class Trajectory : MonoBehaviour
 
     [SerializeField]
     private GameObject flameObject;
-    private SphereCollider flameCollider;
+    private Transform rotator;
 
     [SerializeField]
     private int segmentCount = 250;
 
     [SerializeField]
     private float segmentScale = 0.1f;
-
-    [SerializeField]
-    private float numberOfHitRaycasts = 8;
 
     private Collider hitCollider;
     public Collider HitCollider { get { return hitCollider; } }
@@ -47,7 +44,7 @@ public class Trajectory : MonoBehaviour
     private void Start()
     {
         line = GetComponent<LineRenderer>();
-        flameCollider = flameObject.GetComponent<SphereCollider>();
+        rotator = flameObject.transform.Find("Rotater");
     }
 
     /// <summary>
@@ -77,6 +74,9 @@ public class Trajectory : MonoBehaviour
 
             // Add velocity from gravity for this segment's timestep
             segmentVelocity = segmentVelocity + Physics.gravity * segTime;
+
+            // Sets the rotator to the direction of the velocity
+            rotator.forward = segmentVelocity.normalized;
 
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
@@ -136,6 +136,11 @@ public class Trajectory : MonoBehaviour
         {
             line.SetPosition(i, segments[i]);
         }
+    }
+
+    private void CreateRaycast()
+    {
+
     }
 }
 

@@ -7,14 +7,10 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileLaunched(Vector3 direction, float forceStrength);
     public static event ProjectileLaunched OnProjectileLaunched;
 
-<<<<<<< HEAD
     public delegate void ProjectileUpdated(Vector3 direction, float forceStrength);
     public static event ProjectileUpdated OnProjectileUpdated;
 
-    public delegate void ProjectileDead();
-=======
     public delegate void ProjectileDead(int amount);
->>>>>>> 72ec0dbe7aad76fe5989a666e2151e7eb853346a
     public static event ProjectileDead OnProjectileDead;
 
     public delegate void ProjectileIgnite(int amount);
