@@ -19,7 +19,9 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 628b4a421e118604b980500c7db5aa1d
+    name: flameVol
   m_AudioMixerGroupViews:
   - guids:
     - 1ee8c128809f8ef44809257862c76a5f
