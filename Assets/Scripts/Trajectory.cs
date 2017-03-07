@@ -8,7 +8,6 @@ public class Trajectory : MonoBehaviour
 
     [SerializeField]
     private GameObject flameObject;
-    private Transform rotator;
 
     [SerializeField]
     private int segmentCount = 250;
@@ -44,7 +43,6 @@ public class Trajectory : MonoBehaviour
     private void Start()
     {
         line = GetComponent<LineRenderer>();
-        rotator = flameObject.transform.Find("Rotater");
     }
 
     /// <summary>
@@ -61,8 +59,17 @@ public class Trajectory : MonoBehaviour
         // The first line point is wherever the player's cannon, etc is
         segments[0] = flameObject.transform.position;
 
+        Vector3 dirHat = direction.normalized * 0.5f * 0.5f; // 0.5 from radius and 0.5 from scale factor
+        dirHat = new Vector3(-dirHat.y, dirHat.x);
+
+        segments1[0] = segments[0] + dirHat;
+        segments2[0] = segments[0] - dirHat;
+
         // The initial velocity
         Vector3 segmentVelocity = direction * forceStrenght;
+
+        Debug.DrawLine(segments1[0], segments1[0] + segmentVelocity);
+        Debug.DrawLine(segments2[0], segments2[0] + segmentVelocity);
 
         // reset our hit object
         hitCollider = null;
@@ -128,6 +135,8 @@ public class Trajectory : MonoBehaviour
             //    }
             //}
 
+            
+
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
             if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale))
@@ -187,5 +196,11 @@ public class Trajectory : MonoBehaviour
             line.SetPosition(i, segments[i]);
         }
     }
+
+    private bool CreateRaycast()
+    {
+        return true;
+    }
+
 }
 
