@@ -67,6 +67,8 @@ public class Trajectory : MonoBehaviour
         // reset our hit object
         hitCollider = null;
 
+        bool breakLoop = false;
+
         for (int i = 1; i < segmentCount; i++)
         {
             // Time it takes to traverse one segment of length segScale (careful if velocity is zero)
@@ -75,8 +77,56 @@ public class Trajectory : MonoBehaviour
             // Add velocity from gravity for this segment's timestep
             segmentVelocity = segmentVelocity + Physics.gravity * segTime;
 
-            // Sets the rotator to the direction of the velocity
-            rotator.forward = segmentVelocity.normalized;
+            //Vector3 dir;
+
+            //for (int j = 0; j < 8; j++)
+            //{
+            //    dir = new Vector3(Mathf.Cos((2 * Mathf.PI) / 8 * j), Mathf.Sin((2 * Mathf.PI) / 8 * j)).normalized;
+
+            //    Debug.DrawRay(flameObject.transform.position, dir * 0.5f * 0.5f); // 0.5 from radius and 0.5 from scale factor
+
+            //    RaycastHit hit;
+            //    if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, 0.5f * 0.5f)) // 0.5 from radius and 0.5 from scale factor
+            //    {
+            //        hitCollider = hit.collider;
+
+            //        float bounceFactor = 1;
+            //        if (hitCollider.sharedMaterial != null)
+            //        {
+            //            hitCollider = hit.collider;
+
+            //            bounceFactor = hitCollider.sharedMaterial.bounciness;
+            //        }
+
+            //        // flip the velocity to simulate a bounce
+            //        segmentVelocity = Vector3.Reflect(segmentVelocity * bounceFactor, hit.normal);
+
+            //        if (hit.transform.tag == "FlammableObject")
+            //        {
+            //            breakLoop = true;
+            //            break;
+            //        }
+            //        else if (hit.transform.tag == "KillerObject")
+            //        {
+            //            breakLoop = true;
+            //            break;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        segments[i] = segments[i - 1] + segmentVelocity * segTime;
+            //    }
+
+            //    if (breakLoop)
+            //    {
+            //        for (int k = i; k < segmentCount; k++)
+            //        {
+            //            segments[k] = segments[i];
+            //        }
+
+            //        break;
+            //    }
+            //}
 
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
@@ -108,10 +158,10 @@ public class Trajectory : MonoBehaviour
                     break;
                 }
 
-               // Here you could check if the object hit by the Raycast had some property -was
-               // sticky, would cause the ball to explode, or was another ball in the air for
-               // instance.You could then end the simulation by setting all further points to
-               // this last point and then breaking this for loop.
+                // Here you could check if the object hit by the Raycast had some property -was
+                // sticky, would cause the ball to explode, or was another ball in the air for
+                // instance.You could then end the simulation by setting all further points to
+                // this last point and then breaking this for loop.
             }
             // If our raycast hit no objects, then set the next position to the last one plus v*t
             else
@@ -136,11 +186,6 @@ public class Trajectory : MonoBehaviour
         {
             line.SetPosition(i, segments[i]);
         }
-    }
-
-    private void CreateRaycast()
-    {
-
     }
 }
 
