@@ -52,6 +52,15 @@ public class CameraController : MonoBehaviour
     private float moveZoomCapExtender = 1;
     #endregion
 
+    #region Reset
+    float cameraWaitTime_R = 2;
+    bool autoCameraToggle_R = false;
+    Vector3 cameraDefaultPosition;
+    CameraLockState cameraLockState_R;
+    GameObject cameraLockTarget_R;
+
+    #endregion
+
     /// <summary>
     /// Calls used by camera to interact with projectile
     /// </summary>
@@ -60,6 +69,7 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileDead += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnGameWorldReset += OnWorldReset;
     }
 
     /// <summary>
@@ -70,6 +80,8 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileDead -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnGameWorldReset -= OnWorldReset;
+
     }
 
     /// <summary>
@@ -96,6 +108,13 @@ public class CameraController : MonoBehaviour
     private void OnIgnite(int amount)
     {
         DeathSequence();
+    }
+    /// <summary>
+    /// Called when the world is reset
+    /// </summary>
+    private void OnWorldReset()
+    {
+        Reset();
     }
 
     [Space(10)]
@@ -141,6 +160,11 @@ public class CameraController : MonoBehaviour
 
         // Calculate currentZoomPercentage
         currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
+
+        //Reset Values
+        cameraLockTarget_R = cameraLockTarget;
+        cameraLockState_R = CameraLockState.FreeMove;
+        cameraDefaultPosition = new Vector3(cameraLockTarget.transform.position.x, cameraLockTarget.transform.position.y, 0);
     }
 
     // Update is called once per frame
@@ -404,7 +428,19 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Used to reset the camera when a reset call happens
+    /// </summary>
+    private void Reset()
+    {        
+        cameraWaitTime = cameraWaitTime_R;
+        autoCameraToggle = autoCameraToggle_R;
+        cameraLockState = cameraLockState_R;
+        cameraLockTarget = cameraLockTarget_R;
+        gameObject.transform.position = cameraDefaultPosition;
+    }
+
+    /// <summary>
+    /// When a projectile dies this is called
     /// </summary>
     private void DeathSequence()
     {
@@ -413,9 +449,9 @@ public class CameraController : MonoBehaviour
 
     }
     /// <summary>
-    /// 
+    /// Used to make the waiting after a projectile dies
     /// </summary>
-    /// <param name="state"></param>
+    /// <param name="state">used to check when to do the camera state progression</param>
     private void SmartReset(bool state)
     {
         if (state)

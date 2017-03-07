@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public class MenuScript : MonoBehaviour {
+
+    [SerializeField]
+    private AudioMixer[] mixer;
 
     [SerializeField]
     private GameObject popupShop;
@@ -20,7 +24,7 @@ public class MenuScript : MonoBehaviour {
 
     private string currentlyActive = "";
 
-    private bool soundOff = false;
+    private bool sfxOff = false;
     private bool musicOff = false;
 
     public string CurrentlyActive
@@ -36,19 +40,38 @@ public class MenuScript : MonoBehaviour {
 
     }
 
-    public void SoundOnOff()
+    public void SFXOnOff()
     {
-        if (soundOff == true)
+        if (sfxOff == true)
         {
             //Turn sound on 
-            soundOff = false;
+            mixer[0].SetFloat("sfxVol", 0);
+            sfxOff = false;
             PlayerPrefs.SetInt("sound", 0);
         }
         else
         {
             //Turn sound off
-            soundOff = true;
-            PlayerPrefs.SetInt("sound", 1);
+            mixer[0].SetFloat("sfxVol", -144);
+            sfxOff = true;
+            PlayerPrefs.SetInt("sound", -144);
+        }
+
+    }
+
+    public void FlameOnOff()
+    {
+        if (sfxOff == true)
+        {
+            //Turn sound on 
+            sfxOff = false;
+            mixer[2].SetFloat("flameVol", 0);
+        }
+        else
+        {
+            //Turn sound off
+            mixer[2].SetFloat("flameVol", -144);
+            sfxOff = true;
         }
 
     }
@@ -58,14 +81,16 @@ public class MenuScript : MonoBehaviour {
         if (musicOff == true)
         {
             //Turn music on 
+            mixer[1].SetFloat("musicVol", 0);
             musicOff = false;
             PlayerPrefs.SetInt("music", 0);
         }
         else
         {
             //Turn music off
+            mixer[1].SetFloat("musicVol", -144);
             musicOff = true;
-            PlayerPrefs.SetInt("music", 1);
+            PlayerPrefs.SetInt("music", -144);
         }
     }
 

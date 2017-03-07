@@ -20,6 +20,7 @@ public class PlayerLives : MonoBehaviour
     {
         EventManager.OnProjectileDead += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnGameWorldReset += OnWorldReset;
     }
     /// <summary>
     /// Subscribed events
@@ -28,6 +29,12 @@ public class PlayerLives : MonoBehaviour
     {
         EventManager.OnProjectileDead -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnGameWorldReset += OnWorldReset;
+    }
+
+    private void OnWorldReset()
+    {
+        lives = 3;
     }
 
 
@@ -62,7 +69,7 @@ public class PlayerLives : MonoBehaviour
         if (lives <= 0)
         {
             Debug.Log("Gameover");
-            //(Application.Quit();
+            EventManager.InvokeOnGameWorldReset();
         }
     }
 
