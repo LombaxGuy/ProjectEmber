@@ -20,6 +20,14 @@ public class ProjectileLife : MonoBehaviour {
     Vector3 spawnPos;
     Rigidbody projetileBody;
 
+    //All Reset spesific values
+    [SerializeField]
+    bool isAlive_R = true;
+    bool isShot_R = false;
+    bool extState_R = false;
+    float extTimer_R = 0;
+    Vector3 spawnPos_R;
+
 
     /// <summary>
     /// Subscribed events
@@ -29,6 +37,7 @@ public class ProjectileLife : MonoBehaviour {
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileDead += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnGameWorldReset += OnWorldReset;
     }
 
     /// <summary>
@@ -39,6 +48,7 @@ public class ProjectileLife : MonoBehaviour {
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileDead -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnGameWorldReset -= OnWorldReset;
     }
 
     /// <summary>
@@ -67,9 +77,18 @@ public class ProjectileLife : MonoBehaviour {
         Ignite();
     }
 
+    /// <summary>
+    /// Called when the world is reset
+    /// </summary>
+    private void OnWorldReset()
+    {
+        Reset();
+    }
+
     // Use this for initialization
-    void Start () {       
-        spawnPos = gameObject.transform.position;
+    void Start () {
+        spawnPos_R = gameObject.transform.position;
+        spawnPos = spawnPos_R;
         projetileBody = gameObject.GetComponent<Rigidbody>();
     }
 	
@@ -134,6 +153,20 @@ public class ProjectileLife : MonoBehaviour {
     }
 
     /// <summary>
+    /// Used to reset the projectile to standart state (Note this is not death or respawn related)
+    /// </summary>
+    private void Reset()
+    {
+        isAlive = isAlive_R;
+        isShot = isShot_R;
+        extinguishState = extState_R;
+        extinguishTimer = extTimer_R;
+        spawnPos = spawnPos_R;
+        gameObject.transform.position = spawnPos_R;
+
+    }
+
+    /// <summary>
     /// Used to move the flame and reset everything for a new shot
     /// </summary>
     void Respawn()
@@ -144,6 +177,8 @@ public class ProjectileLife : MonoBehaviour {
         isAlive = true;
 
     }
+
+
 
 
     /// <summary>

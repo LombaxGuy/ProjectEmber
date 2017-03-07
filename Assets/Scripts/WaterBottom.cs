@@ -35,10 +35,10 @@ public class WaterBottom : MonoBehaviour {
 
     public void Creep(int time)
     {
-        for (int i = 0; i < time; i++)
-        {
-            go.Translate(Vector3.up * Time.deltaTime);
-        }
+        //for (int i = 0; i < time; i++)
+        //{
+        //    go.Translate(Vector3.up * Time.deltaTime);
+        //}
         
     }
 }
