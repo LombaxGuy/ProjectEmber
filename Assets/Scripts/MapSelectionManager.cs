@@ -3,72 +3,164 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MapSelectionManager : MonoBehaviour {
-
-    //Folder name n, scene name n (n == a number) (for loop)
-    //When well picked generate levels
-    //Load scene
-    //Prefab
-    //
-
-    [SerializeField]
-    private Canvas wellCanvas;
-    [SerializeField]
-    private Canvas levelCanvas;
-    private string wellName;
+    
+    //TODO
+    //Get the right position to the level button so it fits with the screen size
+    //Fix swipe. Distance? something different?
+    //Swipe for wells need to center one of the wells when touch is ended
+    
+    private static string wellName;
     [SerializeField]
     private GameObject buttonGameObject;
+    [SerializeField]
+    private GameObject wellEmpty;
+    [SerializeField]
+    private GameObject levelsEmpty;
+
+    private Vector2 touchStart;
+    private Vector2 touchEnd;
+    private bool inWell;
+    private Vector3 wellEmptyStartLocation;
+    private Vector3 levelsEmptyStartLocation;
 
 	// Use this for initialization
 	void Start ()
     {
-		
+        wellEmptyStartLocation = wellEmpty.transform.position;
+        levelsEmptyStartLocation = levelsEmpty.transform.position;
+        inWell = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+        if(inWell == true)
+        {
+            SwipeLeftOrRight();
+        }else
+        {
+            SwipeUpOrDown();
+        }
 	}
 
+    //Swipe left or right for picking wells
+    private void SwipeLeftOrRight()
+    {
+        if(Input.touchCount == 1)
+        {
+            switch (Input.GetTouch(0).phase)
+            {
+                case TouchPhase.Began:
+                    touchStart = Input.GetTouch(0).position;
+                    break;
+                case TouchPhase.Moved:
+                    //Need better swipe
+                    Vector2 secTouch = Input.GetTouch(0).position;
+                    Vector3 touchTemp = touchStart - secTouch;
+                    touchTemp.Normalize();
+                    wellEmpty.transform.position = new Vector3(wellEmpty.transform.position.x - (touchTemp.x * 3), wellEmpty.transform.position.y, wellEmpty.transform.position.z);
+                    touchStart = Input.GetTouch(0).position;
+                    break;
+                case TouchPhase.Stationary:
+                    break;
+                case TouchPhase.Ended:        
+                    //When touch is ended, one of the wells need to be centeret!       
+                    break;
+                case TouchPhase.Canceled:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    //Swipe up or down for picking levels inside wells
+    private void SwipeUpOrDown()
+    {
+        if (Input.touchCount == 1)
+        {
+            switch (Input.GetTouch(0).phase)
+            {
+                case TouchPhase.Began:
+                    touchStart = Input.GetTouch(0).position;
+                    break;
+                case TouchPhase.Moved:
+                    //Need better swipe
+                    Vector2 secTouch = Input.GetTouch(0).position;
+                    Vector3 touchTemp = touchStart - secTouch;
+                    touchTemp.Normalize();
+                    levelsEmpty.transform.position = new Vector3(levelsEmpty.transform.position.x, levelsEmpty.transform.position.y - (touchTemp.y * 3), levelsEmpty.transform.position.z);
+                    touchStart = Input.GetTouch(0).position;
+                    break;
+                case TouchPhase.Stationary:
+                    break;
+                case TouchPhase.Ended:
+                    break;
+                case TouchPhase.Canceled:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
+    //When there is a well button clicked, this method wil run. It will remove and then populate canvas with new buttons.
     public void PickWell(int numberOfLevels)
     {
         wellName = EventSystem.current.currentSelectedGameObject.name;
-        Debug.Log(wellName);
-        wellCanvas.gameObject.SetActive(false);
-        levelCanvas.gameObject.SetActive(true);
+        wellEmpty.SetActive(false);
+        levelsEmpty.SetActive(true);
+        inWell = false;
         for (int i = 1; i <= numberOfLevels; i++)
         {
             GameObject temp = Instantiate(buttonGameObject);
-            temp.transform.SetParent(levelCanvas.transform);
-            temp.name = i.ToString();
-            temp.transform.position = new Vector3(0, -350 + ( i * 125 ), 0);
+            temp.transform.SetParent(levelsEmpty.transform);
+            temp.name = "Button_" + i.ToString();
+            temp.transform.localScale = new Vector3(1,1,1);
+            Debug.Log("Screen res : " + Screen.currentResolution);
+            //Screen.width;
+            //Screen.height;
+            
+            if(i % 2 == 0)
+            {
+                temp.transform.localPosition = new Vector3(200, -900 + (i * 200), 0);
+            }
+            else
+            {
+                temp.transform.localPosition = new Vector3(-200, -900 + (i * 200), 0);
+            }
+            
+            temp.GetComponentInChildren<Text>().text = i.ToString();
         }
-        
 
-        //Number is picked in the inspector???
-        //Generate levels to the Well that is picked. If it the first well, the number will be 1 (to get the folder name later)
-        //Levels will be generated with a number from 1-X. Prop max 10.
-        //TODO
-        //Prefab with level button (canvas will always be there)
-        //For loop to create all the buttons the right places and give them a name (number) 
-
+        wellEmpty.transform.position = wellEmptyStartLocation;
     }
 
+    //This changes to a level scene
     public void PickScene()
     {
-        Debug.Log(EventSystem.current.currentSelectedGameObject.name);
-        SceneManager.LoadScene(wellName + EventSystem.current.currentSelectedGameObject.name);
-        Debug.Log(wellName + "_" + EventSystem.current.currentSelectedGameObject.name);
-        //Use wellFolder number to get the right folder for the level scenes
-        //Get name, use it to find the right folder and then the name of the scene.
+        Debug.Log(EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
+        SceneManager.LoadScene(wellName + "_" + EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
     }
 
+    //Simple back button method. 
     public void BackFromSceneSelection()
     {
-        levelCanvas.gameObject.SetActive(false);
-        wellCanvas.gameObject.SetActive(true);
-
+        if(inWell == true)
+        {
+            
+        }else
+        {
+            foreach (Transform child in levelsEmpty.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+            levelsEmpty.SetActive(false);
+            wellEmpty.SetActive(true);
+            levelsEmpty.transform.position = levelsEmptyStartLocation;
+            inWell = true;
+        }
+      
     }
 }
