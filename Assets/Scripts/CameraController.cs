@@ -61,6 +61,10 @@ public class CameraController : MonoBehaviour
 
     #endregion
 
+#if (DEBUG)
+    Vector3 oldMousePosition;
+#endif
+
     /// <summary>
     /// Calls used by camera to interact with projectile
     /// </summary>
@@ -259,6 +263,73 @@ public class CameraController : MonoBehaviour
                             transform.position = cameraPosition;
                         }
 
+                        #region MouseDebugging
+#if (DEBUG)
+                        if (Input.GetMouseButtonDown(0))
+                        {
+                            oldMousePosition = Input.mousePosition;
+                        }
+
+                        if (Input.GetMouseButton(0))
+                        {
+
+                            #region xDynamicSpeed
+                            // If the camera is located within the x-bounds of the map...
+                            if (transform.position.x > xMinSoft && transform.position.x < xMaxSoft)
+                            {
+                                //... the dynamic speed on the x-axis is set to 1. 
+                                xDynamicSpeed = 1;
+                            }
+                            // If the camera is out of bounds on the left(-x) side of the map... 
+                            else if (transform.position.x < xMinSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMinSoft, xMinHard, ref xDynamicSpeed, 'x');
+                            }
+                            // If the camera is out of bounds on the right(+x) side of the map... 
+                            else if (transform.position.x > xMaxSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed, 'x');
+                            }
+                            #endregion
+
+                            #region yDynamicSpeed
+                            // Same as in xDynamicSpeed just on the y-axis.
+                            if (transform.position.y > yMinSoft && transform.position.y < yMaxSoft)
+                            {
+                                yDynamicSpeed = 1;
+                            }
+                            else if (transform.position.y < yMinSoft)
+                            {
+                                CalculateDynamicSpeed(yMinSoft, yMinHard, ref yDynamicSpeed, 'y');
+                            }
+                            else if (transform.position.y > yMaxSoft)
+                            {
+                                CalculateDynamicSpeed(yMaxSoft, yMaxHard, ref yDynamicSpeed, 'y');
+                            }
+                            #endregion
+
+                            // Saves the change in position in a Vector2
+                            Vector3 deltaPosition = Input.mousePosition - oldMousePosition;
+
+                            // Moves the camera
+                            transform.Translate(-deltaPosition.x * moveSpeed * xDynamicSpeed, -deltaPosition.y * moveSpeed * yDynamicSpeed, 0);
+
+                            // Clamps the camera's position
+                            cameraPosition.x = Mathf.Clamp(transform.position.x, xMinSoft - margin, xMaxSoft + margin);
+                            cameraPosition.y = Mathf.Clamp(transform.position.y, yMinSoft - margin, yMaxSoft + margin);
+                            cameraPosition.z = transform.position.z;
+
+                            // Sets the position to the clamped values
+                            transform.position = cameraPosition;
+
+
+                            oldMousePosition = Input.mousePosition;
+                        }
+#endif
+                        #endregion
+
                         // If no touch input is received
                         if (Input.touchCount == 0)
                         {
@@ -316,7 +387,6 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void HandleCameraZoom()
     {
-
         // If the number of touch inputs is 2
         if (Input.touchCount == 2)
         {
@@ -364,6 +434,19 @@ public class CameraController : MonoBehaviour
                 transform.position = new Vector3(transform.position.x, transform.position.y, cameraPosition.z);
             }
         }
+
+        #region MouseDebugging
+#if (DEBUG)
+        if (Input.mouseScrollDelta.y > 0)
+        {
+            transform.Translate(0, 0, 20 * zoomSpeed * dynamicZoomSpeed);
+        }
+        else if (Input.mouseScrollDelta.y < 0)
+        {
+            transform.Translate(0, 0, -20 * zoomSpeed * dynamicZoomSpeed);
+        }
+#endif
+        #endregion
 
         // If no touch input is received
         if (Input.touchCount == 0)
