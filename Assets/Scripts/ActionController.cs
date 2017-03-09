@@ -81,6 +81,84 @@ public class ActionController : MonoBehaviour
                 }
             }
         }
+        #region MouseDebugging
+#if (DEBUG)
+        Input.simulateMouseWithTouches = false;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (touchFlameToShoot)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                // Uses the above created Ray and RaycastHit to cast a ray and get the hit information.
+                if (Physics.Raycast(ray, out hit))
+                {
+                    // If the raycast hits the active flames gameobject...
+                    if (hit.collider.gameObject == activeFlame.gameObject)
+                    {
+                        //... the touchStartPos is set and the playerShooting variable is set to true.
+                        touchStartPos = activeFlame.transform.position;
+                        playerShooting = true;
+                    }
+                }
+            }
+            else
+            {
+                // If shootMode is true...
+                if (shootMode)
+                {
+                    //... the touchStartPos is set and the playerShooting variable is set to true.
+                    touchStartPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, activeFlame.transform.position.z));
+                    playerShooting = true;
+                }
+                // If shootMode is false
+                else
+                {
+                    // Creates a Ray and a RaycastHit
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+
+                    // Uses the above created Ray and RaycastHit to cast a ray and get the hit information.
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        // If the ray hits the active flame...
+                        if (hit.collider.gameObject == activeFlame.gameObject)
+                        {
+                            //... the shootMode is set to true.
+                            shootMode = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Input.GetMouseButton(0) && playerShooting)
+        {
+            touchEndPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, activeFlame.transform.position.z));
+            direction = touchStartPos - touchEndPos;
+
+            EventManager.InvokeOnProjectileUpdated(direction.normalized, CalculateForceStrenght());
+        }
+
+        if (Input.GetMouseButtonUp(0) && playerShooting)
+        {
+            // Resets the playerShooting and the shootMode variables to false.
+            playerShooting = false;
+            shootMode = false;
+
+            float forceStrength = CalculateForceStrenght();
+
+            // If the forceStrength is greater than 0...
+            if (forceStrength > 0)
+            {
+                //... the projectile is launched by calling the LaunchProjectile method.
+                LaunchProjectile(forceStrength);
+            }
+        }
+#endif
+        #endregion
 
         // Update the selection marker by calling the method UpdateSelectionSphere.
         UpdateSelectionSphere();
@@ -95,6 +173,7 @@ public class ActionController : MonoBehaviour
         if (touchFlameToShoot)
         {
             // Creates a Ray and a RaycastHit
+
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             RaycastHit hit;
 
