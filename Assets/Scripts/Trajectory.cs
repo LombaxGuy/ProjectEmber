@@ -6,18 +6,16 @@ public class Trajectory : MonoBehaviour
 {
     private LineRenderer line;
 
+    // Temporarily a serialized field. Should be changed later. The flame object should be specified automatically.
     [SerializeField]
     private GameObject flameObject;
-    private Transform rotator;
 
     [SerializeField]
+    private int maxSegmentCount = 250;
     private int segmentCount = 250;
 
     [SerializeField]
     private float segmentScale = 0.1f;
-
-    private Collider hitCollider;
-    public Collider HitCollider { get { return hitCollider; } }
 
     private void OnEnable()
     {
@@ -31,11 +29,21 @@ public class Trajectory : MonoBehaviour
         EventManager.OnProjectileUpdated -= OnUpdate;
     }
 
+    /// <summary>
+    /// Event handler for the OnLaunch event. Simulates the path of the projectile.
+    /// </summary>
+    /// <param name="direction">The direction the projectile was launched in.</param>
+    /// <param name="forceStrenght">The force with which the projectile was launched.</param>
     private void OnLaunch(Vector3 direction, float forceStrenght)
     {
         SimulatePath(direction, forceStrenght);
     }
 
+    /// <summary>
+    /// Event handler for the OnLaunch event. Simulates the path of the projectile.
+    /// </summary>
+    /// <param name="direction">The direction the projectile was launched in.</param>
+    /// <param name="forceStrenght">The force with which the projectile was launched.</param>
     private void OnUpdate(Vector3 direction, float forceStrenght)
     {
         SimulatePath(direction, forceStrenght);
@@ -43,104 +51,61 @@ public class Trajectory : MonoBehaviour
 
     private void Start()
     {
+        // Gets the LineRenderer component.
         line = GetComponent<LineRenderer>();
-        rotator = flameObject.transform.Find("Rotater");
     }
 
     /// <summary>
-    /// Simulate the path of a launched ball.
-    /// Slight errors are inherent in the numerical method used.
+    /// Simulate the path of the launched projectile.
     /// </summary>
+    /// <param name="direction">The direction the projectile was launched in.</param>
+    /// <param name="forceStrenght">The force with which the projectile was launched.</param>
     void SimulatePath(Vector3 direction, float forceStrenght)
     {
-        Vector3[] segments = new Vector3[segmentCount];
+        // Creates an array
+        Vector3[] segments = new Vector3[maxSegmentCount];
 
-        Vector3[] segments1 = new Vector3[segmentCount];
-        Vector3[] segments2 = new Vector3[segmentCount];
-
-        // The first line point is wherever the player's cannon, etc is
+        // The first line point is set to the position of the launch point.
         segments[0] = flameObject.transform.position;
 
-        // The initial velocity
+        // The initial velocity is calculated.
         Vector3 segmentVelocity = direction * forceStrenght;
 
-        // reset our hit object
-        hitCollider = null;
-
-        for (int i = 1; i < segmentCount; i++)
+        for (int i = 1; i < maxSegmentCount; i++)
         {
-            // Time it takes to traverse one segment of length segScale (careful if velocity is zero)
-            float segTime = (segmentVelocity.sqrMagnitude != 0) ? segmentScale / segmentVelocity.magnitude : 0;
+            // Time it takes to traverse one segment of length segmentScale (careful if velocity is zero)
+            float segmentTime = (segmentVelocity.sqrMagnitude != 0) ? segmentScale / segmentVelocity.magnitude : 0;
 
             // Add velocity from gravity for this segment's timestep
-            segmentVelocity = segmentVelocity + Physics.gravity * segTime;
-
-            // Sets the rotator to the direction of the velocity
-            rotator.forward = segmentVelocity.normalized;
+            segmentVelocity = segmentVelocity + Physics.gravity * segmentTime;
 
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
             if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale))
             {
-                // remember who we hit
-                hitCollider = hit.collider;
-
-                // set next position to the position where we hit the physics object
-                segments[i] = segments[i - 1] + segmentVelocity.normalized * hit.distance;
-                // correct ending velocity, since we didn't actually travel an entire segment
-                segmentVelocity = segmentVelocity - Physics.gravity * (segmentScale - hit.distance) / segmentVelocity.magnitude;
-
-                float bounceFactor = 1;
-                if (hitCollider.sharedMaterial != null)
+                // If an object is hit we check if the object is different from the launched object.
+                if (hit.collider.gameObject != flameObject.gameObject)
                 {
-                    bounceFactor = hitCollider.sharedMaterial.bounciness;
-                }
+                    // The number of segments is set.
+                    segmentCount = i;
 
-                // flip the velocity to simulate a bounce
-                segmentVelocity = Vector3.Reflect(segmentVelocity * bounceFactor, hit.normal);
-
-                if (hit.transform.tag == "FlammableObject")
-                {
+                    // The for-loop is broken.
                     break;
                 }
-                else if (hit.transform.tag == "KillerObject")
-                {
-                    break;
-                }
-
-               // Here you could check if the object hit by the Raycast had some property -was
-               // sticky, would cause the ball to explode, or was another ball in the air for
-               // instance.You could then end the simulation by setting all further points to
-               // this last point and then breaking this for loop.
             }
             // If our raycast hit no objects, then set the next position to the last one plus v*t
             else
             {
-                segments[i] = segments[i - 1] + segmentVelocity * segTime;
+                segments[i] = segments[i - 1] + segmentVelocity * segmentTime;
             }
         }
 
         // At the end, apply our simulations to the LineRenderer
-
-        // Set the colour of our path to the colour of the next ball
-        Color startColor = Color.red;
-        Color endColor = startColor;
-        startColor.a = 1;
-        endColor.a = 0;
-
-        line.startColor = startColor;
-        line.endColor = endColor;
-
         line.numPositions = segmentCount;
         for (int i = 0; i < segmentCount; i++)
         {
             line.SetPosition(i, segments[i]);
         }
-    }
-
-    private void CreateRaycast()
-    {
-
     }
 }
 

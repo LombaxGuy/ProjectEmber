@@ -16,6 +16,9 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileIgnite(int amount);
     public static event ProjectileIgnite OnProjectileIgnite;
 
+    public delegate void GameWorldReset();
+    public static event GameWorldReset OnGameWorldReset;
+
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)
@@ -65,6 +68,19 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnGameWorldReset()
+    {
+        if (OnGameWorldReset != null)
+        {
+            OnGameWorldReset.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was not invoked because nothing subscibes to it.");
         }
     }
 }

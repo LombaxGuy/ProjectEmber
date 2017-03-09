@@ -52,6 +52,19 @@ public class CameraController : MonoBehaviour
     private float moveZoomCapExtender = 1;
     #endregion
 
+    #region Reset
+    float cameraWaitTime_R = 2;
+    bool autoCameraToggle_R = false;
+    Vector3 cameraDefaultPosition;
+    CameraLockState cameraLockState_R;
+    GameObject cameraLockTarget_R;
+
+    #endregion
+
+#if (DEBUG)
+    Vector3 oldMousePosition;
+#endif
+
     /// <summary>
     /// Calls used by camera to interact with projectile
     /// </summary>
@@ -60,6 +73,7 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileDead += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnGameWorldReset += OnWorldReset;
     }
 
     /// <summary>
@@ -70,6 +84,8 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileDead -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnGameWorldReset -= OnWorldReset;
+
     }
 
     /// <summary>
@@ -96,6 +112,13 @@ public class CameraController : MonoBehaviour
     private void OnIgnite(int amount)
     {
         DeathSequence();
+    }
+    /// <summary>
+    /// Called when the world is reset
+    /// </summary>
+    private void OnWorldReset()
+    {
+        Reset();
     }
 
     [Space(10)]
@@ -141,6 +164,11 @@ public class CameraController : MonoBehaviour
 
         // Calculate currentZoomPercentage
         currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
+
+        //Reset Values
+        cameraLockTarget_R = cameraLockTarget;
+        cameraLockState_R = CameraLockState.FreeMove;
+        cameraDefaultPosition = new Vector3(cameraLockTarget.transform.position.x, cameraLockTarget.transform.position.y, 0);
     }
 
     // Update is called once per frame
@@ -235,6 +263,73 @@ public class CameraController : MonoBehaviour
                             transform.position = cameraPosition;
                         }
 
+                        #region MouseDebugging
+#if (DEBUG)
+                        if (Input.GetMouseButtonDown(0))
+                        {
+                            oldMousePosition = Input.mousePosition;
+                        }
+
+                        if (Input.GetMouseButton(0))
+                        {
+
+                            #region xDynamicSpeed
+                            // If the camera is located within the x-bounds of the map...
+                            if (transform.position.x > xMinSoft && transform.position.x < xMaxSoft)
+                            {
+                                //... the dynamic speed on the x-axis is set to 1. 
+                                xDynamicSpeed = 1;
+                            }
+                            // If the camera is out of bounds on the left(-x) side of the map... 
+                            else if (transform.position.x < xMinSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMinSoft, xMinHard, ref xDynamicSpeed, 'x');
+                            }
+                            // If the camera is out of bounds on the right(+x) side of the map... 
+                            else if (transform.position.x > xMaxSoft)
+                            {
+                                //... calculate the dynamic speed on the x-axis.
+                                CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed, 'x');
+                            }
+                            #endregion
+
+                            #region yDynamicSpeed
+                            // Same as in xDynamicSpeed just on the y-axis.
+                            if (transform.position.y > yMinSoft && transform.position.y < yMaxSoft)
+                            {
+                                yDynamicSpeed = 1;
+                            }
+                            else if (transform.position.y < yMinSoft)
+                            {
+                                CalculateDynamicSpeed(yMinSoft, yMinHard, ref yDynamicSpeed, 'y');
+                            }
+                            else if (transform.position.y > yMaxSoft)
+                            {
+                                CalculateDynamicSpeed(yMaxSoft, yMaxHard, ref yDynamicSpeed, 'y');
+                            }
+                            #endregion
+
+                            // Saves the change in position in a Vector2
+                            Vector3 deltaPosition = Input.mousePosition - oldMousePosition;
+
+                            // Moves the camera
+                            transform.Translate(-deltaPosition.x * moveSpeed * xDynamicSpeed, -deltaPosition.y * moveSpeed * yDynamicSpeed, 0);
+
+                            // Clamps the camera's position
+                            cameraPosition.x = Mathf.Clamp(transform.position.x, xMinSoft - margin, xMaxSoft + margin);
+                            cameraPosition.y = Mathf.Clamp(transform.position.y, yMinSoft - margin, yMaxSoft + margin);
+                            cameraPosition.z = transform.position.z;
+
+                            // Sets the position to the clamped values
+                            transform.position = cameraPosition;
+
+
+                            oldMousePosition = Input.mousePosition;
+                        }
+#endif
+                        #endregion
+
                         // If no touch input is received
                         if (Input.touchCount == 0)
                         {
@@ -292,7 +387,6 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void HandleCameraZoom()
     {
-
         // If the number of touch inputs is 2
         if (Input.touchCount == 2)
         {
@@ -340,6 +434,19 @@ public class CameraController : MonoBehaviour
                 transform.position = new Vector3(transform.position.x, transform.position.y, cameraPosition.z);
             }
         }
+
+        #region MouseDebugging
+#if (DEBUG)
+        if (Input.mouseScrollDelta.y > 0)
+        {
+            transform.Translate(0, 0, 20 * zoomSpeed * dynamicZoomSpeed);
+        }
+        else if (Input.mouseScrollDelta.y < 0)
+        {
+            transform.Translate(0, 0, -20 * zoomSpeed * dynamicZoomSpeed);
+        }
+#endif
+        #endregion
 
         // If no touch input is received
         if (Input.touchCount == 0)
@@ -404,7 +511,19 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Used to reset the camera when a reset call happens
+    /// </summary>
+    private void Reset()
+    {        
+        cameraWaitTime = cameraWaitTime_R;
+        autoCameraToggle = autoCameraToggle_R;
+        cameraLockState = cameraLockState_R;
+        cameraLockTarget = cameraLockTarget_R;
+        gameObject.transform.position = cameraDefaultPosition;
+    }
+
+    /// <summary>
+    /// When a projectile dies this is called
     /// </summary>
     private void DeathSequence()
     {
@@ -413,9 +532,9 @@ public class CameraController : MonoBehaviour
 
     }
     /// <summary>
-    /// 
+    /// Used to make the waiting after a projectile dies
     /// </summary>
-    /// <param name="state"></param>
+    /// <param name="state">used to check when to do the camera state progression</param>
     private void SmartReset(bool state)
     {
         if (state)

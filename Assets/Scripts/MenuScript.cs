@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public class MenuScript : MonoBehaviour {
+
+    [SerializeField]
+    private AudioMixer[] mixer;
 
     [SerializeField]
     private GameObject popupShop;
@@ -20,7 +24,7 @@ public class MenuScript : MonoBehaviour {
 
     private string currentlyActive = "";
 
-    private bool soundOff = false;
+    private bool sfxOff = false;
     private bool musicOff = false;
 
     public string CurrentlyActive
@@ -35,37 +39,66 @@ public class MenuScript : MonoBehaviour {
         SceneManager.LoadScene(0);
 
     }
-
-    public void SoundOnOff()
+    /// <summary>
+    /// Mutes or unmutes the sound depending on it's current state 
+    /// </summary>
+    public void SFXOnOff()
     {
-        if (soundOff == true)
+        if (sfxOff == true)
         {
-            //Turn sound on 
-            soundOff = false;
+            //Turn sound on by increasing volume to 0
+            mixer[0].SetFloat("sfxVol", 0);
+            sfxOff = false;
             PlayerPrefs.SetInt("sound", 0);
         }
         else
         {
-            //Turn sound off
-            soundOff = true;
-            PlayerPrefs.SetInt("sound", 1);
+            //Turn sound off by lowering the volume to minimum value
+            mixer[0].SetFloat("sfxVol", -144);
+            sfxOff = true;
+            PlayerPrefs.SetInt("sound", -144);
         }
 
     }
 
+    /// <summary>
+    /// Method for testing
+    /// </summary>
+    public void FlameOnOff()
+    {
+        if (sfxOff == true)
+        {
+            //Turn sound on by increasing volume to 0
+            sfxOff = false;
+            mixer[2].SetFloat("flameVol", 0);
+        }
+        else
+        {
+            //Turn sound off by lowering the volume to minimum value
+            mixer[2].SetFloat("flameVol", -144);
+            sfxOff = true;
+        }
+
+    }
+
+    /// <summary>
+    /// Mutes or unmutes the music depending on it's current state 
+    /// </summary>
     public void MusicOnOff()
     {
         if (musicOff == true)
         {
-            //Turn music on 
+            //Turn music on by increasing volume to 0
+            mixer[1].SetFloat("musicVol", 0);
             musicOff = false;
             PlayerPrefs.SetInt("music", 0);
         }
         else
         {
-            //Turn music off
+            //Turn music off by lowering the volume to minimum value
+            mixer[1].SetFloat("musicVol", -144);
             musicOff = true;
-            PlayerPrefs.SetInt("music", 1);
+            PlayerPrefs.SetInt("music", -144);
         }
     }
 

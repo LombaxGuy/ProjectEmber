@@ -16,6 +16,23 @@ public class Flammable : MonoBehaviour {
         
     }
 
+    private void OnEnable()
+    {
+
+        EventManager.OnGameWorldReset += OnWorldReset;
+    }
+
+    private void OnDisable()
+    {
+
+        EventManager.OnGameWorldReset -= OnWorldReset;
+    }
+
+    private void OnWorldReset()
+    {
+        Reset();
+    }
+
     // Use this for initialization
     void Start () {
 
@@ -26,5 +43,10 @@ public class Flammable : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    private void Reset()
+    {
+        gameObject.GetComponent<Collider>().enabled = true;
+    }
 
 }
