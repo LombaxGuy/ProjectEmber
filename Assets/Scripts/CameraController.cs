@@ -14,12 +14,6 @@ public class CameraController : MonoBehaviour
     private float moveLerpTime = 0.1f;
 
     [SerializeField]
-    private float cameraWaitTime = 2;
-
-    [SerializeField]
-    private bool autoCameraToggle = false;
-
-    [SerializeField]
     private CameraLockState cameraLockState = CameraLockState.FreeMove;
 
     private enum CameraLockState {Disabled, Follow, FreeMove};
@@ -53,16 +47,15 @@ public class CameraController : MonoBehaviour
     #endregion
 
     #region Reset
-    float cameraWaitTime_R = 2;
-    bool autoCameraToggle_R = false;
-    Vector3 cameraDefaultPosition;
-    CameraLockState cameraLockState_R;
-    GameObject cameraLockTarget_R;
+    private float cameraWaitTime = 2;
 
+    private Vector3 cameraDefaultPosition;
+    private CameraLockState cameraLockState_R;
+    private GameObject cameraLockTarget_R;
     #endregion
 
 #if (DEBUG)
-    Vector3 oldMousePosition;
+    private Vector3 oldMousePosition;
 #endif
 
     /// <summary>
@@ -85,7 +78,6 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileDead -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnGameWorldReset -= OnWorldReset;
-
     }
 
     /// <summary>
@@ -103,7 +95,7 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void OnDeath(int amount)
     {
-        DeathSequence();
+        StartResetCoroutine();
     }
     
     /// <summary>
@@ -111,14 +103,17 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void OnIgnite(int amount)
     {
-        DeathSequence();
+        StartResetCoroutine();
     }
+
     /// <summary>
-    /// Called when the world is reset
+    /// Called when the world is reset. Used to reset the camera when a reset call happens
     /// </summary>
     private void OnWorldReset()
     {
-        Reset();
+        cameraLockState = cameraLockState_R;
+        cameraLockTarget = cameraLockTarget_R;
+        gameObject.transform.position = cameraDefaultPosition;
     }
 
     [Space(10)]
@@ -144,7 +139,7 @@ public class CameraController : MonoBehaviour
     #endregion
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         // Sets the soft cap values for the movement
         xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
@@ -165,16 +160,15 @@ public class CameraController : MonoBehaviour
         // Calculate currentZoomPercentage
         currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
 
-        //Reset Values
+        // Reset Values
         cameraLockTarget_R = cameraLockTarget;
         cameraLockState_R = CameraLockState.FreeMove;
-        cameraDefaultPosition = new Vector3(cameraLockTarget.transform.position.x, cameraLockTarget.transform.position.y, 0);
+        cameraDefaultPosition = new Vector3(cameraLockTarget.transform.position.x, cameraLockTarget.transform.position.y, cameraLockTarget.transform.position.z);
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        cameraWaitTime = cameraWaitTime - Time.deltaTime;
         // Updates the soft cap values for the movement
         xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
         xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
@@ -187,11 +181,9 @@ public class CameraController : MonoBehaviour
         yMinHard = yMinSoft - margin;
         yMaxHard = yMaxSoft + margin;
 
-        //Handles automatic camera mover
-        SmartReset(autoCameraToggle);
-
         // Handle move function
         HandleCameraMovement();
+
         // Handle zoom function
         HandleCameraZoom();
     }
@@ -511,45 +503,24 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Used to reset the camera when a reset call happens
-    /// </summary>
-    private void Reset()
-    {        
-        cameraWaitTime = cameraWaitTime_R;
-        autoCameraToggle = autoCameraToggle_R;
-        cameraLockState = cameraLockState_R;
-        cameraLockTarget = cameraLockTarget_R;
-        gameObject.transform.position = cameraDefaultPosition;
-    }
-
-    /// <summary>
     /// When a projectile dies this is called
     /// </summary>
-    private void DeathSequence()
+    private void StartResetCoroutine()
     {
-        cameraWaitTime = 2;
-        autoCameraToggle = true;
-
+        // Stats the reset coroutine
+        StartCoroutine(CoroutineReset());
     }
+
     /// <summary>
-    /// Used to make the waiting after a projectile dies
+    /// A coroutine that is used to wait and then set the cameras lock state.
     /// </summary>
-    /// <param name="state">used to check when to do the camera state progression</param>
-    private void SmartReset(bool state)
+    /// <returns></returns>
+    private IEnumerator CoroutineReset()
     {
-        if (state)
-        {
-            if (cameraWaitTime <= 1.5f)
-            {
-                cameraLockState = CameraLockState.Follow;
-            }
-            if (cameraWaitTime <= 0)
-            {
-                cameraLockState = CameraLockState.FreeMove;
-                autoCameraToggle = false;
-            }
-        }
+        // Waits for 2 ingame seconds
+        yield return new WaitForSeconds(cameraWaitTime);
 
-
+        // Sets the lock state of the camera to FreeMove
+        cameraLockState = CameraLockState.FreeMove;
     }
 }

@@ -78,8 +78,6 @@ public class ActionController : MonoBehaviour
 
         // Adds a force impulse to the rigidbody of the active flame.
         flameRigidbody.AddForce(dir.normalized * strength, ForceMode.Impulse);
-
-        GetComponent<ProjectileLife>().Shoot();
     }
 
     // Update is called once per frame

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Flammable : MonoBehaviour {
+public class Flammable : MonoBehaviour
+{
 
     [SerializeField]
     private int health;
@@ -13,7 +14,7 @@ public class Flammable : MonoBehaviour {
         {
             return health;
         }
-        
+
     }
 
     private void OnEnable()
@@ -34,15 +35,17 @@ public class Flammable : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
-        
+
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     private void Reset()
     {

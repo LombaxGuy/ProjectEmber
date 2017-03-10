@@ -16,6 +16,9 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileIgnite(int amount);
     public static event ProjectileIgnite OnProjectileIgnite;
 
+    public delegate void ProjectileRespawn();
+    public static event ProjectileRespawn OnProjectileRespawn;
+
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
 
@@ -68,6 +71,19 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnProjectileRespawn()
+    {
+        if (OnProjectileRespawn != null)
+        {
+            OnProjectileRespawn.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnProjectileRespawn' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnProjectileRespawn' was not invoked because nothing subscibes to it.");
         }
     }
 

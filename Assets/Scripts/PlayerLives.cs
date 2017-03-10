@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class PlayerLives : MonoBehaviour
 {
-
-
     //The Total lives left of the player
     [SerializeField]
     int lives = 3;
+
     //the bottom water object this might need to be moved
     [SerializeField]
     GameObject water;
@@ -32,33 +31,28 @@ public class PlayerLives : MonoBehaviour
         EventManager.OnGameWorldReset += OnWorldReset;
     }
 
+    /// <summary>
+    /// Resets the lives.
+    /// </summary>
     private void OnWorldReset()
     {
         lives = 3;
     }
 
-
     /// <summary>
     /// Called when a projectile dies
     /// </summary>
-    /// <param name="amount">none</param>
     private void OnDeath(int amount)
     {
-        HandleLife(false, amount);
+        HandleLife(amount);
     }
+
     /// <summary>
-    /// Called when a projectile ignites
+    /// Called when a projectile ignites a flammable surface.
     /// </summary>
-    /// <param name="amount">none</param>
     private void OnIgnite(int amount)
     {
-        HandleLife(true, amount);
-    }
-
-    // Use this for initialization
-    void Start()
-    {
-
+        HandleLife(amount);
     }
 
     /// <summary>
@@ -68,23 +62,19 @@ public class PlayerLives : MonoBehaviour
     {
         if (lives <= 0)
         {
-            Debug.Log("Gameover");
+            Debug.Log("PLayerLives.cs: GAMEOVER! Resetting level...");
+
+            // Invokes the on GameWorldReset event.
             EventManager.InvokeOnGameWorldReset();
         }
     }
 
     /// <summary>
-    /// Used to change the players current lives(shot attempts)
+    /// Used to change the players current lives (shot attempts)
     /// </summary>
-    /// <param name="life">True for addition, false for deduction</param>
-    /// <param name="amount">amount to increase og decrease</param>
-    public void HandleLife(bool life, int amount)
+    /// <param name="amount">Amount of lives to increase or decrease with.</param>
+    public void HandleLife(int amount)
     {
-        if (life)
-            lives = lives + amount;
-
-        if (!life)
-            lives = lives - amount;
+        lives = lives + amount;
     }
-
 }
