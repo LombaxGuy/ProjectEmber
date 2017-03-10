@@ -3,8 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: [Projectile, Handler, KillerObject, FlammableObject, Projectile, Handler,
-    KillerObject, FlammableObject]
+  tags:
+  - Projectile
+  - Handler
+  - KillerObject
+  - FlammableObject
   layers:
   - Default
   - TransparentFX
