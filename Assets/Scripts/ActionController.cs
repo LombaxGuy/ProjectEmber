@@ -57,13 +57,13 @@ public class ActionController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileLaunched += OnLaunch;
     }
 
     private void OnDisable()
     {
-        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileLaunched -= OnLaunch;
     }
 

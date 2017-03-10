@@ -47,7 +47,8 @@ public class CameraController : MonoBehaviour
     #endregion
 
     #region Reset
-    private float cameraWaitTime = 2;
+    private float cameraWaitTime = 0.5f;
+    private float cameraCenterTime = 0.5f;
 
     private Vector3 cameraDefaultPosition;
     private CameraLockState cameraLockState_R;
@@ -66,6 +67,7 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
 
@@ -77,6 +79,7 @@ public class CameraController : MonoBehaviour
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnGameWorldReset -= OnWorldReset;
     }
 
@@ -95,7 +98,7 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void OnDeath(int amount)
     {
-        StartResetCoroutine();
+        
     }
     
     /// <summary>
@@ -103,7 +106,12 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private void OnIgnite(int amount)
     {
-        StartResetCoroutine();
+        
+    }
+
+    private void OnRespawn()
+    {
+        StartCoroutine(CoroutineReset());
     }
 
     /// <summary>
@@ -503,24 +511,57 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// When a projectile dies this is called
-    /// </summary>
-    private void StartResetCoroutine()
-    {
-        // Stats the reset coroutine
-        StartCoroutine(CoroutineReset());
-    }
-
-    /// <summary>
     /// A coroutine that is used to wait and then set the cameras lock state.
     /// </summary>
     /// <returns></returns>
     private IEnumerator CoroutineReset()
     {
-        // Waits for 2 ingame seconds
+        cameraLockState = CameraLockState.Disabled;
+
         yield return new WaitForSeconds(cameraWaitTime);
 
-        // Sets the lock state of the camera to FreeMove
+        StartCoroutine(CoroutineReCenterCamera());        
+    }
+
+    private IEnumerator CoroutineReCenterCamera()
+    {
+        float t = 0;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime / cameraCenterTime;
+
+            if (cameraLockTarget.transform.position.x < xMinSoft)
+            {
+                cameraPosition.x = xMinSoft;
+            }
+            else if (cameraLockTarget.transform.position.x > xMaxSoft)
+            {
+                cameraPosition.x = xMaxSoft;
+            }
+            else
+            {
+                cameraPosition.x = cameraLockTarget.transform.position.x;
+            }
+
+            if (cameraLockTarget.transform.position.y < yMinSoft)
+            {
+                cameraPosition.y = yMinSoft;
+            }
+            else if (cameraLockTarget.transform.position.y > yMaxSoft)
+            {
+                cameraPosition.y = yMaxSoft;
+            }
+            else
+            {
+                cameraPosition.y = cameraLockTarget.transform.position.y;
+            }
+
+            transform.position = Vector3.Lerp(transform.position, cameraPosition, t);
+
+            yield return null;
+        }
+
         cameraLockState = CameraLockState.FreeMove;
     }
 }

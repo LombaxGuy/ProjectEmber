@@ -120,6 +120,7 @@ public class ProjectileLife : MonoBehaviour
         if (extinguishState)
         {
             DeathSequence();
+            extinguishState = false;
         }
 
         // Handle when not shot
