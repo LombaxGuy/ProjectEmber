@@ -29,6 +29,12 @@ public class ActionController : MonoBehaviour
 
     private static bool playerShooting = false;
 
+    #region AudioFields
+    private AudioSource flameThrowAudioSource;
+    [SerializeField]
+    private FlameControl flameCtrl;
+    #endregion
+
     public static bool PlayerShooting
     {
         get { return playerShooting; }
@@ -46,6 +52,7 @@ public class ActionController : MonoBehaviour
     {
         // Gets the rigidbody component on the active flame
         flameRigidbody = activeFlame.GetComponent<Rigidbody>();
+        flameThrowAudioSource = gameObject.GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -183,6 +190,12 @@ public class ActionController : MonoBehaviour
             {
                 //... the projectile is launched by calling the LaunchProjectile method.
                 LaunchProjectile(forceStrength);
+
+                // Plays Flame Throw Sound.
+                flameThrowAudioSource.Play();
+
+                // Alters Flame sound after the Flame has been shot.
+                flameCtrl.RecieveForceStrength(0);
             }
         }
 #endif
@@ -276,6 +289,12 @@ public class ActionController : MonoBehaviour
         {
             //... the projectile is launched by calling the LaunchProjectile method.
             LaunchProjectile(forceStrength);
+
+            // Plays Flame Throw Sound.
+            flameThrowAudioSource.Play();
+
+            // Alters Flame sound after the Flame has been shot.
+            flameCtrl.RecieveForceStrength(0);
         }
     }
 
@@ -332,6 +351,9 @@ public class ActionController : MonoBehaviour
             //... the forceStrength is set to 0.
             forceStrength = 0;
         }
+
+        // Alters Flame sound depending on potential forceStrength.
+        flameCtrl.RecieveForceStrength(forceStrength);
 
         return forceStrength;
     }
