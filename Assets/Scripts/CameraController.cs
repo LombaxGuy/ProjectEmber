@@ -64,7 +64,7 @@ public class CameraController : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnShot;
-        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
@@ -75,7 +75,7 @@ public class CameraController : MonoBehaviour
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnShot;
-        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnGameWorldReset -= OnWorldReset;
     }

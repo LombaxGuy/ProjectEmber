@@ -8,10 +8,14 @@ public class WaterBottom : MonoBehaviour {
     [SerializeField]
     GameObject projectile;
     [SerializeField]
-    int health = 3;
+    int hp = 3;
+
+    Vector3 startPosition;
 
     Vector3 currentPossition;
-    Vector3 targetPossition;
+
+    Vector3 currentTargetPossition;
+
     [SerializeField]
     Vector3 checkpointPossition;
 
@@ -20,39 +24,49 @@ public class WaterBottom : MonoBehaviour {
 
     float t = 0.0f;
 
+
+    [SerializeField]
+    float point;
+
+    float[] points;
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnShot;
-        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
     }
 
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnShot;
-        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
     }
 
     private void OnShot(Vector3 dir, float force)
     {
-       
+        
     }
 
     private void OnDeath(int health)
     {
         Creep();
+        //pos();
+        hp = hp - 1;
     }
 
     private void OnIgnite(int health)
     {
-
+        PossitionRecalc();
+        //pos();
     }
 
     // Use this for initialization
     void Start () {
         go = gameObject.transform;
         checkpointPossition = projectile.transform.position;
+        startPosition = go.position;
+        
         //targetPossition = checkpointPossition;
 
 
@@ -63,8 +77,7 @@ public class WaterBottom : MonoBehaviour {
 
         //Updating currentPos;
         currentPossition = go.position;
-
-        //targetPossition = new Vector3(go.position.x, , go.position.z);
+        currentTargetPossition = new Vector3(go.position.x, point, go.position.z);
 
 
 
@@ -80,11 +93,13 @@ public class WaterBottom : MonoBehaviour {
     /// </summary>
     private void Rise()
     {
+
         t += 0.1f * Time.deltaTime;
-        go.position = new Vector3(go.position.x, Mathf.Lerp(currentPossition.y, targetPossition.y, t), go.position.z);
-        if (go.position.y >= targetPossition.y - 0.01f)
+        go.position = new Vector3(go.position.x, Mathf.Lerp(currentPossition.y, point, t), go.position.z);
+        if (currentPossition.y >= currentTargetPossition.y - 0.01f)
         {
             traveling = false;
+            Debug.Log("moved");
         }
     }
 
@@ -95,6 +110,29 @@ public class WaterBottom : MonoBehaviour {
     {
         t = 0;
         traveling = true;
-      
+
+    }
+
+    private void PossitionRecalc()
+    {
+
+        for (int i = 0; i < hp; i++)
+        {
+            if (i > 0)
+            {
+                points[i] = ((startPosition.y + checkpointPossition.y) / i);
+            }
+            else
+            {
+                points[i] = checkpointPossition.y;
+            }
+
+        }
+
+    }
+
+    private void pos()
+    {
+        point = points[hp];
     }
 }

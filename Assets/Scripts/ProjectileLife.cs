@@ -35,7 +35,7 @@ public class ProjectileLife : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnShot;
-        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnGameWorldReset += OnWorldReset;
@@ -47,7 +47,7 @@ public class ProjectileLife : MonoBehaviour
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnShot;
-        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnGameWorldReset -= OnWorldReset;
@@ -146,7 +146,7 @@ public class ProjectileLife : MonoBehaviour
         //Killers
         if (other.gameObject.tag == "KillerObject")
         {
-            EventManager.InvokeOnProjectileDead(1);
+            EventManager.InvokeOnProjectileDeath(1);
         }
     }
 

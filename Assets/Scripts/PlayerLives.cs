@@ -17,7 +17,7 @@ public class PlayerLives : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
-        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
@@ -26,7 +26,7 @@ public class PlayerLives : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
