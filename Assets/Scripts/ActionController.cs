@@ -20,6 +20,7 @@ public class ActionController : MonoBehaviour
     private float minShootMagnitude = 0.5f;
 
     private bool shootMode = false;
+    private bool canShoot = true;
 
     [SerializeField]
     private bool touchFlameToShoot = false;
@@ -54,11 +55,38 @@ public class ActionController : MonoBehaviour
         flameThrowAudioSource = gameObject.GetComponent<AudioSource>();
     }
 
+    private void OnEnable()
+    {
+        EventManager.OnProjectileDead += OnDeath;
+        EventManager.OnProjectileLaunched += OnLaunch;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnProjectileDead -= OnDeath;
+        EventManager.OnProjectileLaunched -= OnLaunch;
+    }
+
+    private void OnDeath(int lives)
+    {
+        canShoot = true;
+    }
+
+    private void OnLaunch(Vector3 dir, float strength)
+    {
+        canShoot = false;
+
+        // Adds a force impulse to the rigidbody of the active flame.
+        flameRigidbody.AddForce(dir.normalized * strength, ForceMode.Impulse);
+
+        GetComponent<ProjectileLife>().Shoot();
+    }
+
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         // If the one finger is touching the screen
-        if (Input.touchCount == 1)
+        if (Input.touchCount == 1 /*&& canShoot*/)
         {
             // If the touch phase is began...
             if (Input.GetTouch(0).phase == TouchPhase.Began)
@@ -276,11 +304,6 @@ public class ActionController : MonoBehaviour
     private void LaunchProjectile(float forceStrength)
     {
         EventManager.InvokeOnProjectileLaunched(direction.normalized, forceStrength);
-        // Adds a force impulse to the rigidbody of the active flame.
-        flameRigidbody.AddForce(direction.normalized * forceStrength, ForceMode.Impulse);
-
-        GetComponent<ProjectileLife>().Shoot();
-
     }
 
     /// <summary>
