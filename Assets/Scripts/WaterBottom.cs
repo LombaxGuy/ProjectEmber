@@ -64,7 +64,7 @@ public class WaterBottom : MonoBehaviour {
         //Updating currentPos;
         currentPossition = go.position;
 
-        targetPossition = new Vector3(go.position.x, , go.position.z);
+        //targetPossition = new Vector3(go.position.x, , go.position.z);
 
 
 
