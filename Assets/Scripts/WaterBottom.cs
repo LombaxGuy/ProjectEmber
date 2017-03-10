@@ -53,7 +53,7 @@ public class WaterBottom : MonoBehaviour {
     void Start () {
         go = gameObject.transform;
         checkpointPossition = projectile.transform.position;
-        targetPossition = checkpointPossition;
+        //targetPossition = checkpointPossition;
 
 
 	}
@@ -63,6 +63,10 @@ public class WaterBottom : MonoBehaviour {
 
         //Updating currentPos;
         currentPossition = go.position;
+
+        targetPossition = new Vector3(go.position.x, , go.position.z);
+
+
 
         //Movement
         if (traveling)
