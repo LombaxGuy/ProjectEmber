@@ -22,9 +22,12 @@ public class MapSelectionManager : MonoBehaviour {
 
     private Vector2 touchStart;
     private Vector2 touchEnd;
+    private Vector2 secTouch;
+    private Vector3 touchTemp;
     private bool inWell;
     private Vector3 wellEmptyStartLocation;
     private Vector3 levelsEmptyStartLocation;
+    private int wellSelected;
 
 	// Use this for initialization
 	void Start ()
@@ -32,7 +35,8 @@ public class MapSelectionManager : MonoBehaviour {
         wellEmptyStartLocation = wellEmpty.transform.position;
         levelsEmptyStartLocation = levelsEmpty.transform.position;
         inWell = true;
-	}
+        wellSelected = 1;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -50,23 +54,34 @@ public class MapSelectionManager : MonoBehaviour {
     {
         if(Input.touchCount == 1)
         {
+
             switch (Input.GetTouch(0).phase)
             {
                 case TouchPhase.Began:
                     touchStart = Input.GetTouch(0).position;
                     break;
                 case TouchPhase.Moved:
-                    //Need better swipe
-                    Vector2 secTouch = Input.GetTouch(0).position;
-                    Vector3 touchTemp = touchStart - secTouch;
+                    secTouch = Input.GetTouch(0).position;
+                    touchTemp = touchStart - secTouch;
                     touchTemp.Normalize();
-                    wellEmpty.transform.position = new Vector3(wellEmpty.transform.position.x - (touchTemp.x * 3), wellEmpty.transform.position.y, wellEmpty.transform.position.z);
-                    touchStart = Input.GetTouch(0).position;
+                    wellEmpty.transform.position = new Vector3(wellEmpty.transform.position.x - (touchTemp.x * 3), wellEmpty.transform.position.y, wellEmpty.transform.position.z);              
                     break;
                 case TouchPhase.Stationary:
                     break;
-                case TouchPhase.Ended:        
-                    //When touch is ended, one of the wells need to be centeret!       
+                case TouchPhase.Ended:
+                    if(touchTemp.x >= 0)
+                    {
+                        wellSelected--;
+                        wellEmpty.transform.position = new Vector3(wellEmptyStartLocation.x + ((Screen.width / 2) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
+                    }
+                    else
+                    {
+                        if (wellSelected > 1)
+                        {
+                            wellSelected--;
+                        }
+                        wellEmpty.transform.position = new Vector3(wellEmptyStartLocation.x - ((Screen.width / 2) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
+                    }
                     break;
                 case TouchPhase.Canceled:
                     break;
@@ -119,16 +134,14 @@ public class MapSelectionManager : MonoBehaviour {
             temp.name = "Button_" + i.ToString();
             temp.transform.localScale = new Vector3(1,1,1);
             Debug.Log("Screen res : " + Screen.currentResolution);
-            //Screen.width;
-            //Screen.height;
             
             if(i % 2 == 0)
             {
-                temp.transform.localPosition = new Vector3(200, -900 + (i * 200), 0);
+                temp.transform.localPosition = new Vector3(Screen.width / 2, -Screen.height * 1.5f + (i * (Screen.height / 3)), 0);
             }
             else
             {
-                temp.transform.localPosition = new Vector3(-200, -900 + (i * 200), 0);
+                temp.transform.localPosition = new Vector3(-(Screen.width / 2), -Screen.height * 1.5f + (i * (Screen.height / 3)), 0);
             }
             
             temp.GetComponentInChildren<Text>().text = i.ToString();
