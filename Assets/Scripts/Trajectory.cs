@@ -60,7 +60,7 @@ public class Trajectory : MonoBehaviour
     /// </summary>
     /// <param name="direction">The direction the projectile was launched in.</param>
     /// <param name="forceStrenght">The force with which the projectile was launched.</param>
-    void SimulatePath(Vector3 direction, float forceStrenght)
+    private void SimulatePath(Vector3 direction, float forceStrenght)
     {
         // Creates an array
         Vector3[] segments = new Vector3[maxSegmentCount];
