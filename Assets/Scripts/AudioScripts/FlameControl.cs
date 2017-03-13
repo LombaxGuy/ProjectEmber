@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class FlameControl : MonoBehaviour {
+public class FlameControl : MonoBehaviour
+{
 
     [SerializeField]
     private AudioMixer mixer;
