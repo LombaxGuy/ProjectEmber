@@ -91,17 +91,13 @@ public class Trajectory : MonoBehaviour
 
             // Check to see if we're going to hit a physics object
             RaycastHit hit;
-            if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale))
+            if (Physics.Raycast(segments[i - 1], segmentVelocity, out hit, segmentScale, LayerMask.GetMask("Environment")))
             {
-                // If an object is hit we check if the object is different from the launched object.
-                if (hit.collider.gameObject != flameObject.gameObject)
-                {
-                    // The number of segments is set.
-                    segmentCount = i;
+                // The number of segments is set.
+                segmentCount = i;
 
-                    // The for-loop is broken.
-                    break;
-                }
+                // The for-loop is broken.
+                break;
             }
             // If our raycast hit no objects, then set the next position to the last one plus v*t
             else
