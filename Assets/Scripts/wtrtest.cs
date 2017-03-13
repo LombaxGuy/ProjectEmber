@@ -17,74 +17,105 @@ public class wtrtest : MonoBehaviour {
 
     [SerializeField]
     float[] points;
+    [SerializeField]
     float distance;
+    [SerializeField]
+    float jump;
 
     public bool go;
 
+    private void OnEnable()
+    {
+        EventManager.OnProjectileLaunched += OnShot;
+        EventManager.OnProjectileDeath += OnDeath;
+        EventManager.OnProjectileIgnite += OnIgnite;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnShot;
+        EventManager.OnProjectileDeath -= OnDeath;
+        EventManager.OnProjectileIgnite -= OnIgnite;
+    }
+
+    private void OnShot(Vector3 dir, float force)
+    {
+
+    }
+
+    private void OnDeath(int health)
+    {
+        health = health - 1;
+        t = 0.01f;
+        StartCoroutine(MoveIt());
+    }
+
+    private void OnIgnite(int health)
+    {
+        udregn();
+    }
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		A = gameObject.transform.position;
         B = target.transform.position;
         health = 3;
-        points = new float[4];
+        points = new float[health];
 
         distance = Vector3.Distance( new Vector3(A.x,A.y,A.z), new Vector3(A.x, B.y, A.z));
-
     }
 	
 	// Update is called once per frame
 	void Update () {
         C = gameObject.transform.position;
 
-        if (Input.GetKey(KeyCode.G))
+        if (Input.GetKeyUp(KeyCode.G))
         {
             udregn();
         }
 
         if (Input.GetKey(KeyCode.H))
         {
-            move();
+            MoveIt();
         }
     }
 
     private void udregn()
     {
-
-        distance = ((distance) / health);
-        Debug.Log("go");
-            for (int i = health; i >= 0; i--)
+            
+            jump = (distance / health);
+            int f = 1;
+            for (int i = health; i > 0; i--)
             {
-
+            
                 if (i > 0)
                 {
-                    points[i] = (A.y + distance) * i;
+                    points[i - 1] = A.y + (jump * f);
                 }
-                else
-                {
-                 points[i] = B.y;
-                }
-                
-             
+
+            f++;        
             }
+    }    
+
+    private void move()
+    {
+
 
     }
 
-    
-
-private void move()
+     private IEnumerator MoveIt()
     {
-        if (C.y <= B.y - 0.01f)
+        Debug.Log("courotine");
+        while (C.y <= B.y - 0.01f)
         {
             t += 0.1f * Time.deltaTime;
-            gameObject.transform.position = new Vector3(A.x, Mathf.Lerp(C.y, points[health], t), A.z);
+            gameObject.transform.position = new Vector3(A.x, Mathf.Lerp(C.y, points[health - 1], t), A.z);
         }
-        else
+        if (C.y >= B.y - 0.01f)
         {
             A.y = C.y;
         }
-
-
+        yield return new WaitForSeconds(0.1f);
     }
 }

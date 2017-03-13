@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -2579,8 +2579,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.01
   moveLerpTime: 0.1
-  cameraWaitTime: 2
-  autoCameraToggle: 0
   cameraLockState: 2
   cameraLockTarget: {fileID: 311448050}
   zoomSpeed: 0.01
@@ -4060,6 +4058,7 @@ GameObject:
   - component: {fileID: 1634840371}
   - component: {fileID: 1634840375}
   - component: {fileID: 1634840374}
+  - component: {fileID: 1634840376}
   m_Layer: 0
   m_Name: Water
   m_TagString: KillerObject
@@ -4138,15 +4137,16 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1634840369}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4726608eb22db154e8805b917bb2b3c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 0}
-  health: 3
+  projectile: {fileID: 2049147004}
+  hp: 3
   checkpointPossition: {x: 0, y: 0, z: 0}
   traveling: 0
+  point: 0
 --- !u!65 &1634840375
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4159,6 +4159,23 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 10, y: 0.56, z: 10}
   m_Center: {x: 0, y: -0.26, z: 0.0000009536743}
+--- !u!114 &1634840376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1634840369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b635a3494e488374ca8a83b50a076bbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2049147004}
+  health: 0
+  points: []
+  distance: 0
+  jump: 0
+  go: 0
 --- !u!1 &1683628850
 GameObject:
   m_ObjectHideFlags: 0
