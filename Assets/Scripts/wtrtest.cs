@@ -5,18 +5,18 @@ using UnityEngine;
 public class wtrtest : MonoBehaviour {
 
     [SerializeField]
-    GameObject target;
+    GameObject currentCheckpoint;
 
-    Vector3 A;
-    Vector3 B;
-    Vector3 C;
+    Vector3 startPosition;
+    Vector3 goalPosition;
+    Vector3 currentPosition;
 
     [SerializeField]
-    int health;
+    int travelSteps = 3;
     float t;
 
     [SerializeField]
-    float[] points;
+    float[] stepPositions;
     [SerializeField]
     float distance;
     [SerializeField]
@@ -45,30 +45,32 @@ public class wtrtest : MonoBehaviour {
 
     private void OnDeath(int health)
     {
-        health = health - 1;
+        travelSteps = travelSteps - 1;
         t = 0.01f;
         StartCoroutine(MoveIt());
     }
 
-    private void OnIgnite(int health)
+    private void OnIgnite(int health, Vector3 newCheckpoint)
     {
+        goalPosition = newCheckpoint;
+        SetTarget();
         udregn();
     }
 
 
     // Use this for initialization
     void Start () {
-		A = gameObject.transform.position;
-        B = target.transform.position;
-        health = 3;
-        points = new float[health];
+		startPosition = gameObject.transform.position;
+        goalPosition = currentCheckpoint.transform.position;
+        travelSteps = 3;
+        stepPositions = new float[travelSteps + 1];
 
-        distance = Vector3.Distance( new Vector3(A.x,A.y,A.z), new Vector3(A.x, B.y, A.z));
+        distance = Vector3.Distance( new Vector3(startPosition.x,startPosition.y,startPosition.z), new Vector3(startPosition.x, goalPosition.y, startPosition.z));
     }
 	
 	// Update is called once per frame
 	void Update () {
-        C = gameObject.transform.position;
+        currentPosition = gameObject.transform.position;
 
         if (Input.GetKeyUp(KeyCode.G))
         {
@@ -81,41 +83,46 @@ public class wtrtest : MonoBehaviour {
         }
     }
 
-    private void udregn()
+    private void SetTarget()
     {
-            
-            jump = (distance / health);
-            int f = 1;
-            for (int i = health; i > 0; i--)
+        startPosition = gameObject.transform.position;
+        //goalPosition = currentCheckpoint.transform.position;
+        travelSteps = 3;
+        stepPositions = new float[travelSteps + 1];
+
+        distance = Vector3.Distance(new Vector3(startPosition.x, startPosition.y, startPosition.z), new Vector3(startPosition.x, goalPosition.y, startPosition.z));
+
+    }
+
+    private void udregn()
+    {            
+            jump = (distance / travelSteps);
+            int f = 0;
+            for (int i = travelSteps; i >= 0; i--)
             {
-            
-                if (i > 0)
-                {
-                    points[i - 1] = A.y + (jump * f);
-                }
+           
+                    stepPositions[i] = startPosition.y + (jump * f);
 
             f++;        
             }
     }    
 
-    private void move()
-    {
-
-
-    }
-
      private IEnumerator MoveIt()
     {
+
         Debug.Log("courotine");
-        while (C.y <= B.y - 0.01f)
+        while (currentPosition.y < stepPositions[travelSteps])
         {
-            t += 0.1f * Time.deltaTime;
-            gameObject.transform.position = new Vector3(A.x, Mathf.Lerp(C.y, points[health - 1], t), A.z);
-        }
-        if (C.y >= B.y - 0.01f)
-        {
-            A.y = C.y;
-        }
-        yield return new WaitForSeconds(0.1f);
+            if (currentPosition.y <= goalPosition.y - 0.01f)
+            {
+                t += 0.1f * Time.deltaTime;
+                gameObject.transform.position = new Vector3(startPosition.x, Mathf.Lerp(currentPosition.y, stepPositions[travelSteps], t), startPosition.z);
+            }
+            else
+            {
+                startPosition.y = currentPosition.y;
+            }
+            yield return null;
+        }     
     }
 }

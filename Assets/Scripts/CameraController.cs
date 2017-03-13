@@ -105,11 +105,11 @@ public class CameraController : MonoBehaviour
     {
         
     }
-    
+
     /// <summary>
     /// Runs DeathSequence that handles the time between camera moving to new projectile
     /// </summary>
-    private void OnIgnite(int amount)
+    private void OnIgnite(int health, Vector3 newCheckpoint)
     {
         
     }

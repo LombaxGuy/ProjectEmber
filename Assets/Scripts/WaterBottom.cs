@@ -55,7 +55,7 @@ public class WaterBottom : MonoBehaviour {
         hp = hp - 1;
     }
 
-    private void OnIgnite(int health)
+    private void OnIgnite(int health, Vector3 newCheckpoint)
     {
         PossitionRecalc();
         //pos();
