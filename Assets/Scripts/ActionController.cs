@@ -64,8 +64,6 @@ public class ActionController : MonoBehaviour
         canShoot = true;
     }
 
-
-
     private void OnLaunch(Vector3 dir, float strength)
     {
         canShoot = false;
