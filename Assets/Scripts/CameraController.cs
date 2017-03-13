@@ -44,12 +44,19 @@ public class CameraController : MonoBehaviour
     private Vector3 cameraPosition;
 
     private float moveZoomCapExtender = 1;
+
+    [SerializeField]
+    [Tooltip("The time in seconds the camera waits before centering after the RespawnEvent is received.")]
+    private float cameraWaitTime = 0.5f;
+
+    [SerializeField]
+    [Tooltip("The time in seconds the camera uses to center on the flame.")]
+    private float cameraCenterTime = 0.5f;
     #endregion
 
-    #region Reset
-    private float cameraWaitTime = 0.5f;
-    private float cameraCenterTime = 0.5f;
 
+
+    #region Reset
     private Vector3 cameraDefaultPosition;
     private CameraLockState cameraLockState_R;
     private GameObject cameraLockTarget_R;

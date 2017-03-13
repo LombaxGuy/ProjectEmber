@@ -4,33 +4,28 @@ using UnityEngine;
 
 public class ProjectileLife : MonoBehaviour
 {
-    [SerializeField]
-    bool isAlive = true;
-    [SerializeField]
-    bool isShot = false;
-
     //Currently unused
     //float aliveTime = 6;
+    //bool isAlive = true;
 
-    [SerializeField]
-    bool extinguishState = false;
-    float extinguishTimer = 1;
+    private bool wasShot = false;
 
-    [SerializeField]
-    Vector3 spawnPos;
-    Rigidbody projetileBody;
+    // The time in seconds the camera is locked before the OnRespawn evnet is called.
+    private float extinguishTimer = 1;
 
-    //All Reset spesific values
-    [SerializeField]
-    bool isAlive_R = true;
-    bool isShot_R = false;
-    bool extState_R = false;
-    float extTimer_R = 0;
-    Vector3 spawnPos_R;
+    private Vector3 spawnPos;
+    private Rigidbody projetileBody;
 
+    #region Reset values
+    //private bool isAlive_R = true;
+
+    private bool isShot_R = false;
+    private float extTimer_R = 0;
+    private Vector3 spawnPos_R;
+    #endregion
 
     /// <summary>
-    /// Subscribed events
+    /// Subscribes to events
     /// </summary>
     private void OnEnable()
     {
@@ -42,7 +37,7 @@ public class ProjectileLife : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscribed events
+    /// Unsubscribes from events
     /// </summary>
     private void OnDisable()
     {
@@ -58,7 +53,7 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnShot(Vector3 dir, float force)
     {
-        isShot = true;
+        wasShot = true;
     }
 
     /// <summary>
@@ -66,9 +61,10 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnDeath(int amount)
     {
-        isAlive = false;
-        isShot = false;
-        extinguishState = true;
+        //isAlive = false;
+        wasShot = false;
+
+        DeathSequence();
     }
 
     /// <summary>
@@ -76,8 +72,9 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnIgnite(int amount)
     {
-        extinguishState = true;
-        isShot = false;
+        wasShot = false;
+
+        DeathSequence();
     }
 
     /// <summary>
@@ -85,9 +82,8 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnWorldReset()
     {
-        isAlive = isAlive_R;
-        isShot = isShot_R;
-        extinguishState = extState_R;
+        //isAlive = isAlive_R;
+        wasShot = isShot_R;
         extinguishTimer = extTimer_R;
         spawnPos = spawnPos_R;
         gameObject.transform.position = spawnPos_R;
@@ -101,7 +97,7 @@ public class ProjectileLife : MonoBehaviour
         projetileBody.Sleep();
 
         gameObject.transform.position = spawnPos;
-        isAlive = true;
+        //isAlive = true;
     }
 
     // Use this for initialization
@@ -115,16 +111,8 @@ public class ProjectileLife : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        // General looking to see if extenguish needs to happen
-        if (extinguishState)
-        {
-            DeathSequence();
-            extinguishState = false;
-        }
-
         // Handle when not shot
-        if (!isShot)
+        if (!wasShot)
         {
             projetileBody.Sleep();
         }
@@ -139,33 +127,61 @@ public class ProjectileLife : MonoBehaviour
         //Checkpoints
         if (other.gameObject.tag == "FlammableObject")
         {
-            spawnPos = other.gameObject.transform.GetChild(0).transform.position;
-            other.gameObject.GetComponent<Collider>().enabled = false;
-            EventManager.InvokeOnProjectileIgnite(other.gameObject.GetComponent<Flammable>().Health);
+            Flammable flammableObject = null;
+
+            try
+            {
+                flammableObject = other.gameObject.GetComponent<Flammable>();
+            }
+            catch
+            {
+                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+            }           
+            
+            try
+            {
+                spawnPos = other.gameObject.transform.GetChild(0).transform.position;
+
+            }
+            catch
+            {
+                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a LaunchPoint child object even though it is tagged as a FlammableObject.");
+            }
+
+            if (flammableObject != null)
+            {
+                EventManager.InvokeOnProjectileIgnite(flammableObject.Health);
+                
+                // Not sure if this is a good idea.
+                other.gameObject.GetComponent<Collider>().enabled = false;
+            }
         }
 
         //Killers
         if (other.gameObject.tag == "KillerObject")
         {
-            EventManager.InvokeOnProjectileDeath(1);
+            EventManager.InvokeOnProjectileDeath(-1);
         }
     }
 
     /// <summary>
-    /// The Extenguish sequence for when fire hits water or a flammable object.
+    /// Starts the death sequence coroutine.
     /// </summary>
     private void DeathSequence()
     {
         StartCoroutine(CoroutineDeathSequence());
     }
 
+    /// <summary>
+    /// Coroutine for the death sequence.
+    /// </summary>
     private IEnumerator CoroutineDeathSequence()
     {
+        // Play sound and animation here
+
         yield return new WaitForSeconds(extinguishTimer);
 
         EventManager.InvokeOnProjectileRespawn();
-
-        extinguishState = false;
     }
 
 }
