@@ -21,12 +21,22 @@ public class Trajectory : MonoBehaviour
     {
         EventManager.OnProjectileLaunched += OnLaunch;
         EventManager.OnProjectileUpdated += OnUpdate;
+        EventManager.OnGameWorldReset += OnReset;
     }
 
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnLaunch;
         EventManager.OnProjectileUpdated -= OnUpdate;
+        EventManager.OnGameWorldReset -= OnReset;
+    }
+
+    /// <summary>
+    /// Used to remove the path on reset.
+    /// </summary>
+    private void OnReset()
+    {
+        segmentCount = 0;
     }
 
     /// <summary>
@@ -108,4 +118,3 @@ public class Trajectory : MonoBehaviour
         }
     }
 }
-

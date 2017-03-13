@@ -54,8 +54,6 @@ public class CameraController : MonoBehaviour
     private float cameraCenterTime = 0.5f;
     #endregion
 
-
-
     #region Reset
     private Vector3 cameraDefaultPosition;
     private CameraLockState cameraLockState_R;
