@@ -70,7 +70,7 @@ public class ProjectileLife : MonoBehaviour
     /// <summary>
     /// Called when projectile hits flammable
     /// </summary>
-    private void OnIgnite(int amount)
+    private void OnIgnite(int health, Vector3 newCheckpoint)
     {
         wasShot = false;
 
@@ -150,7 +150,7 @@ public class ProjectileLife : MonoBehaviour
 
             if (flammableObject != null)
             {
-                EventManager.InvokeOnProjectileIgnite(flammableObject.Health);
+                EventManager.InvokeOnProjectileIgnite(flammableObject.Health, spawnPos);
                 
                 // Not sure if this is a good idea.
                 other.gameObject.GetComponent<Collider>().enabled = false;

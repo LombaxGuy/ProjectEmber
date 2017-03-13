@@ -50,7 +50,7 @@ public class PlayerLives : MonoBehaviour
     /// <summary>
     /// Called when a projectile ignites a flammable surface.
     /// </summary>
-    private void OnIgnite(int amount)
+    private void OnIgnite(int amount, Vector3 newCheckpoint)
     {
         HandleLife(amount);
     }
