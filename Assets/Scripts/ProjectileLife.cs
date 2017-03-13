@@ -10,6 +10,16 @@ public class ProjectileLife : MonoBehaviour
 
     private bool wasShot = false;
 
+    [SerializeField]
+    private int maxCollisions = 6; // Should be 1 more than expected as the object collides with the ground the frame it is launched.
+    private int currentCollisions = 0;
+
+    private float idleVelocityThreshold = 0.5f;
+    private float maxIdleTimeBeforeDeath = 1;
+    private float idleTimeBeforeDeath = 0;
+
+    
+
     // The time in seconds the camera is locked before the OnRespawn evnet is called.
     private float extinguishTimer = 1;
 
@@ -65,6 +75,8 @@ public class ProjectileLife : MonoBehaviour
         wasShot = false;
 
         DeathSequence();
+
+        currentCollisions = 0;
     }
 
     /// <summary>
@@ -75,6 +87,8 @@ public class ProjectileLife : MonoBehaviour
         wasShot = false;
 
         DeathSequence();
+
+        currentCollisions = 0;
     }
 
     /// <summary>
@@ -115,6 +129,34 @@ public class ProjectileLife : MonoBehaviour
         if (!wasShot)
         {
             projetileBody.Sleep();
+        }
+
+        // If the projectile was shot and the magnitude of the velocity is below idle velocity
+        if (projetileBody.velocity.magnitude <= 0.5f && wasShot)
+        {
+            // Increase the idle timer
+            idleTimeBeforeDeath += Time.deltaTime;
+        }
+        // If the speed is above the threshold
+        else
+        {
+            // And the idel timer is not 0
+            if (idleTimeBeforeDeath != 0)
+            {
+                // The idle timer is set to 0
+                idleTimeBeforeDeath = 0;
+            }
+        }
+
+        // If the number of collision exceed the maximum number of allowed collision or if the idle timer exceeds the max idle time
+        if (currentCollisions >= maxCollisions || idleTimeBeforeDeath >= maxIdleTimeBeforeDeath)
+        {
+            // The projectile is killed
+            wasShot = false;
+
+            DeathSequence();
+
+            currentCollisions = 0;
         }
     }
 
@@ -161,6 +203,12 @@ public class ProjectileLife : MonoBehaviour
         if (other.gameObject.tag == "KillerObject")
         {
             EventManager.InvokeOnProjectileDeath(-1);
+        }
+
+        // If neither a KillerObject or a FlammableObject was hit the collision count is increased.
+        if (other.gameObject.tag != "KillerObject" && other.gameObject.tag != "FlammableObject")
+        {
+            currentCollisions++;
         }
     }
 
