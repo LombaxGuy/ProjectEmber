@@ -25,8 +25,6 @@ public class ActionController : MonoBehaviour
     [SerializeField]
     private bool touchFlameToShoot = false;
 
-    //private static bool flameIsMoving;
-
     private static bool playerShooting = false;
 
     #region AudioFields
@@ -41,12 +39,6 @@ public class ActionController : MonoBehaviour
         set { playerShooting = value; }
     }
 
-    //public static bool FlameIsMoving
-    //{
-    //    get { return flameIsMoving; }
-    //    set { flameIsMoving = value; }
-    //}
-
     // Use this for initialization
     private void Start()
     {
@@ -57,20 +49,22 @@ public class ActionController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnProjectileDeath += OnDeath;
+        EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnProjectileLaunched += OnLaunch;
     }
 
     private void OnDisable()
     {
-        EventManager.OnProjectileDeath -= OnDeath;
+        EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnProjectileLaunched -= OnLaunch;
     }
 
-    private void OnDeath(int lives)
+    private void OnRespawn()
     {
         canShoot = true;
     }
+
+
 
     private void OnLaunch(Vector3 dir, float strength)
     {
@@ -84,7 +78,7 @@ public class ActionController : MonoBehaviour
     private void Update()
     {
         // If the one finger is touching the screen
-        if (Input.touchCount == 1 /*&& canShoot*/)
+        if (Input.touchCount == 1 && canShoot)
         {
             // If the touch phase is began...
             if (Input.GetTouch(0).phase == TouchPhase.Began)
@@ -118,7 +112,7 @@ public class ActionController : MonoBehaviour
 #if (DEBUG)
         Input.simulateMouseWithTouches = false;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && canShoot)
         {
             if (touchFlameToShoot)
             {
