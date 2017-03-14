@@ -1500,7 +1500,7 @@ GameObject:
   - component: {fileID: 322212846}
   m_Layer: 8
   m_Name: Cube (18)
-  m_TagString: Untagged
+  m_TagString: FlammableObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5581,11 +5581,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b635a3494e488374ca8a83b50a076bbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentCheckpoint: {fileID: 0}
+  currentCheckpoint: {fileID: 311448050}
   travelSteps: 3
   stepPositions: []
   distance: 0
-  jump: 0
+  calculatedDistance: 0
   go: 0
 --- !u!1 &1642249190
 GameObject:
