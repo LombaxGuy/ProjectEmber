@@ -64,51 +64,6 @@ public class CameraController : MonoBehaviour
     private Vector3 oldMousePosition;
 #endif
 
-    /// <summary>
-    /// Calls used by camera to interact with projectile
-    /// </summary>
-    private void OnEnable()
-    {
-        EventManager.OnProjectileLaunched += OnShot;
-        EventManager.OnProjectileRespawn += OnRespawn;
-        EventManager.OnGameWorldReset += OnWorldReset;
-    }
-
-    /// <summary>
-    /// Calls used by camera to interact with projectile
-    /// </summary>
-    private void OnDisable()
-    {
-        EventManager.OnProjectileLaunched -= OnShot;
-        EventManager.OnProjectileRespawn -= OnRespawn;
-        EventManager.OnGameWorldReset -= OnWorldReset;
-    }
-
-    /// <summary>
-    /// USed to follow the projecttile when shot
-    /// </summary>
-    /// <param name="dir">none</param>
-    /// <param name="force">none</param>
-    private void OnShot(Vector3 dir, float force)
-    {
-        cameraLockState = CameraLockState.Follow;
-    }
-
-    private void OnRespawn()
-    {
-        StartCoroutine(CoroutineReset());
-    }
-
-    /// <summary>
-    /// Called when the world is reset. Used to reset the camera when a reset call happens
-    /// </summary>
-    private void OnWorldReset()
-    {
-        cameraLockState = cameraLockState_R;
-        cameraLockTarget = cameraLockTarget_R;
-        gameObject.transform.position = cameraDefaultPosition;
-    }
-
     [Space(10)]
     [Header("Zoom")]
     #region Zoom
@@ -130,6 +85,54 @@ public class CameraController : MonoBehaviour
 
     private float currentZoomPercentage;
     #endregion
+
+    /// <summary>
+    /// Calls used by camera to interact with projectile.
+    /// </summary>
+    private void OnEnable()
+    {
+        EventManager.OnProjectileLaunched += OnShot;
+        EventManager.OnProjectileRespawn += OnRespawn;
+        EventManager.OnGameWorldReset += OnWorldReset;
+    }
+
+    /// <summary>
+    /// Calls used by camera to interact with projectile.
+    /// </summary>
+    private void OnDisable()
+    {
+        EventManager.OnProjectileLaunched -= OnShot;
+        EventManager.OnProjectileRespawn -= OnRespawn;
+        EventManager.OnGameWorldReset -= OnWorldReset;
+    }
+
+    /// <summary>
+    /// Used to follow the projectile when shot.
+    /// </summary>
+    /// <param name="dir">none</param>
+    /// <param name="force">none</param>
+    private void OnShot(Vector3 dir, float force)
+    {
+        cameraLockState = CameraLockState.Follow;
+    }
+
+    /// <summary>
+    /// Called when the object respawns.
+    /// </summary>
+    private void OnRespawn()
+    {
+        StartCoroutine(CoroutineReset());
+    }
+
+    /// <summary>
+    /// Called when the world is reset. Used to reset the camera when a reset call happens.
+    /// </summary>
+    private void OnWorldReset()
+    {
+        cameraLockState = cameraLockState_R;
+        cameraLockTarget = cameraLockTarget_R;
+        gameObject.transform.position = cameraDefaultPosition;
+    }
 
     // Use this for initialization
     private void Start()
@@ -157,8 +160,6 @@ public class CameraController : MonoBehaviour
         cameraLockTarget_R = cameraLockTarget;
         cameraLockState_R = CameraLockState.FreeMove;
         cameraDefaultPosition = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
-
-        Debug.Log(cameraDefaultPosition);
     }
 
     // Update is called once per frame
