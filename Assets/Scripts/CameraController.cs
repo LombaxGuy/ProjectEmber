@@ -70,8 +70,6 @@ public class CameraController : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnShot;
-        EventManager.OnProjectileDeath += OnDeath;
-        EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
@@ -82,8 +80,6 @@ public class CameraController : MonoBehaviour
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnShot;
-        EventManager.OnProjectileDeath -= OnDeath;
-        EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnGameWorldReset -= OnWorldReset;
     }
@@ -96,22 +92,6 @@ public class CameraController : MonoBehaviour
     private void OnShot(Vector3 dir, float force)
     {
         cameraLockState = CameraLockState.Follow;
-    }
-
-    /// <summary>
-    /// Runs DeathSequence that handles the time between camera moving to new projectile
-    /// </summary>
-    private void OnDeath(int amount)
-    {
-        
-    }
-
-    /// <summary>
-    /// Runs DeathSequence that handles the time between camera moving to new projectile
-    /// </summary>
-    private void OnIgnite(int health, Vector3 newCheckpoint)
-    {
-        
     }
 
     private void OnRespawn()
@@ -176,7 +156,9 @@ public class CameraController : MonoBehaviour
         // Reset Values
         cameraLockTarget_R = cameraLockTarget;
         cameraLockState_R = CameraLockState.FreeMove;
-        cameraDefaultPosition = new Vector3(cameraLockTarget.transform.position.x, cameraLockTarget.transform.position.y, cameraLockTarget.transform.position.z);
+        cameraDefaultPosition = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
+
+        Debug.Log(cameraDefaultPosition);
     }
 
     // Update is called once per frame
