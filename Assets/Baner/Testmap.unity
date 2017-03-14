@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.4616946, g: 0.51241565, b: 0.58993244, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -889,7 +889,7 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 280735688}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -2374,11 +2374,11 @@ GameObject:
   - component: {fileID: 634705900}
   m_Layer: 5
   m_Name: PauseMenuCanvas
-  m_TagString: Untagged
+  m_TagString: PauseMenu
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &634705896
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2422,7 +2422,7 @@ Canvas:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 634705895}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -2476,12 +2476,6 @@ MonoBehaviour:
   - {fileID: 24100000, guid: 8ec07c458224f2d4aad492138c6dbb64, type: 2}
   - {fileID: 24100000, guid: 91ccfdecfb4feef4a80e4ff8aeccc9e1, type: 2}
   - {fileID: 24100000, guid: e420c8835fd19f340b2c6590dd06376f, type: 2}
-  popupShop: {fileID: 0}
-  popupPowerUpShop: {fileID: 0}
-  popupSkinShop: {fileID: 0}
-  popupSettings: {fileID: 0}
-  popupCredits: {fileID: 0}
-  popupMapSelect: {fileID: 0}
 --- !u!1 &646897103
 GameObject:
   m_ObjectHideFlags: 0
@@ -4236,9 +4230,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f72c94091ab6baf429af121931de4cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseCanvas: {fileID: 634705895}
-  dropDownPowerUp: {fileID: 1642249190}
-  powerUpUI: {fileID: 646897103}
 --- !u!114 &1091804916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5605,7 +5596,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1642249191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5669,7 +5660,7 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1642249190}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -6181,7 +6172,7 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1790611885}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 

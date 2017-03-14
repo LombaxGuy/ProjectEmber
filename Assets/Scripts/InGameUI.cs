@@ -31,7 +31,6 @@ public class InGameUI : MonoBehaviour
         if (pauseCanvas.GetComponent<Canvas>().enabled == false)
         {
             pauseCanvas.GetComponent<Canvas>().enabled = true;
-            pauseCanvas.GetComponent<MenuScript>().CurrentlyActive = "pauseMenu";
             OnShowPowerUpUiButtonClick();
         }
         else
@@ -66,7 +65,7 @@ public class InGameUI : MonoBehaviour
     public void OnShowPowerUpUiButtonClick()
     {
         Debug.Log(powerUpUI);
-        if (isHidden == true)
+        if (isHidden == true && pauseCanvas.GetComponent<Canvas>().enabled == false)
         {
             isHidden = false;
             powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, visiblePowerUpUIPosition, powerUpUI.transform.position.z), 500);
