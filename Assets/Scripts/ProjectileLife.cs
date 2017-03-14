@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class ProjectileLife : MonoBehaviour
 {
-    //Currently unused
-    //float aliveTime = 6;
-    //bool isAlive = true;
-
     private bool wasShot = false;
 
     [SerializeField]
@@ -16,9 +12,7 @@ public class ProjectileLife : MonoBehaviour
 
     private float idleVelocityThreshold = 0.5f;
     private float maxIdleTimeBeforeDeath = 1;
-    private float idleTimeBeforeDeath = 0;
-
-    
+    private float idleTimeBeforeDeath = 0;    
 
     // The time in seconds the camera is locked before the OnRespawn evnet is called.
     private float extinguishTimer = 1;
@@ -29,7 +23,7 @@ public class ProjectileLife : MonoBehaviour
     #region Reset values
     //private bool isAlive_R = true;
 
-    private bool isShot_R = false;
+    private bool wasShot_R = false;
     private float extTimer_R = 0;
     private Vector3 spawnPos_R;
     #endregion
@@ -39,7 +33,7 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
-        EventManager.OnProjectileLaunched += OnShot;
+        EventManager.OnProjectileLaunched += OnLaunch;
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnProjectileRespawn += OnRespawn;
@@ -51,7 +45,7 @@ public class ProjectileLife : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        EventManager.OnProjectileLaunched -= OnShot;
+        EventManager.OnProjectileLaunched -= OnLaunch;
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnProjectileRespawn -= OnRespawn;
@@ -61,7 +55,7 @@ public class ProjectileLife : MonoBehaviour
     /// <summary>
     /// Called when projectile is shot
     /// </summary>
-    private void OnShot(Vector3 dir, float force)
+    private void OnLaunch(Vector3 dir, float force)
     {
         wasShot = true;
     }
@@ -82,7 +76,7 @@ public class ProjectileLife : MonoBehaviour
     /// <summary>
     /// Called when projectile hits flammable
     /// </summary>
-    private void OnIgnite(int health, Vector3 newCheckpoint)
+    private void OnIgnite(int amount, Vector3 newCheckpoint)
     {
         wasShot = false;
 
@@ -97,7 +91,7 @@ public class ProjectileLife : MonoBehaviour
     private void OnWorldReset()
     {
         //isAlive = isAlive_R;
-        wasShot = isShot_R;
+        wasShot = wasShot_R;
         extinguishTimer = extTimer_R;
         spawnPos = spawnPos_R;
         gameObject.transform.position = spawnPos_R;

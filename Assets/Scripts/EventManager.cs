@@ -61,11 +61,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnProjectileIgnite(int amount, Vector3 newcheckpoint)
+    public static void InvokeOnProjectileIgnite(int amount, Vector3 newCheckpoint)
     {
         if (OnProjectileIgnite != null)
         {
-            OnProjectileIgnite.Invoke(amount,newcheckpoint);
+            OnProjectileIgnite.Invoke(amount,newCheckpoint);
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was invoked.");
         }
         else
