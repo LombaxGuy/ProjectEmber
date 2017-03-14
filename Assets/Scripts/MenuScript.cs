@@ -1,36 +1,33 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 
-public class MenuScript : MonoBehaviour {
+public class MenuScript : MonoBehaviour
+{
 
     [SerializeField]
     private AudioMixer[] mixer;
 
-    [SerializeField]
-    private GameObject popupShop;
-    [SerializeField]
-    private GameObject popupPowerUpShop;
-    [SerializeField]
-    private GameObject popupSkinShop;
-    [SerializeField]
-    private GameObject popupSettings;
-    [SerializeField]
-    private GameObject popupCredits;
-    [SerializeField]
-    private GameObject popupMapSelect;
+    private GameObject mainMenuObject;
 
     private string currentlyActive = "";
 
     private bool sfxOff = false;
     private bool musicOff = false;
+    private bool mainMenuHidden = false;
 
     public string CurrentlyActive
     {
-        get {return currentlyActive;}
-        set{currentlyActive = value;}
+        get { return currentlyActive; }
+        set { currentlyActive = value; }
+    }
+
+    private void Start()
+    {
+        mainMenuObject = GameObject.Find("MainMenuObject");
     }
 
     public void PauseMenuExitButton()
@@ -105,33 +102,35 @@ public class MenuScript : MonoBehaviour {
 
     public void CloseButton()
     {
-        switch(CurrentlyActive)
+        switch (CurrentlyActive)
         {
-            case "shop":
-                popupShop.SetActive(false);
+            case "ShopObject":
+                ToogleMainMenuWindow("ShopObject", true, true);
                 CurrentlyActive = "none";
                 break;
-            case "powerUp":
-                popupPowerUpShop.SetActive(false);
-                CurrentlyActive = "shop";
+            case "PowerupObject":
+                ToogleMainMenuWindow("PowerupObject", true, false);
+                ToogleMainMenuWindow("ShopObject", false, false);
+                CurrentlyActive = "ShopObject";
                 break;
-            case "skin":
-                popupSkinShop.SetActive(false);
-                CurrentlyActive = "shop";
+            case "SkinObject":
+                ToogleMainMenuWindow("SkinObject", true, false);
+                ToogleMainMenuWindow("ShopObject", false, false);
+                CurrentlyActive = "ShopObject";
                 break;
-            case "settings":
-                popupSettings.SetActive(false);
+            case "SettingsObject":
+                ToogleMainMenuWindow("SettingsObject", true, true);
                 CurrentlyActive = "none";
                 break;
-            case "credits":
-                popupCredits.SetActive(false);
+            case "CreditsObject":
+                ToogleMainMenuWindow("CreditsObject", true, true);
                 CurrentlyActive = "none";
                 break;
-            case "mapSelect":
-                popupMapSelect.SetActive(false);
+            case "MapSelectObject":
+                ToogleMainMenuWindow("MapSelectObject", true, true);
                 CurrentlyActive = "none";
                 break;
-            case "pauseMenu":      
+            case "pauseMenu":
                 this.gameObject.SetActive(false);
                 CurrentlyActive = "none";
                 break;
@@ -154,42 +153,106 @@ public class MenuScript : MonoBehaviour {
 
     public void ShopButton()
     {
-        popupShop.SetActive(true);
-        CurrentlyActive = "shop";
+        ToogleMainMenuWindow("ShopObject", false, false);
+        CurrentlyActive = "ShopObject";
     }
 
     public void PowerUpButton()
     {
-        popupPowerUpShop.SetActive(true);
-        CurrentlyActive = "powerUp";
+        ToogleMainMenuWindow("PowerupObject", false, false);
+        ToogleMainMenuWindow("ShopObject", true, false);
+        CurrentlyActive = "PowerupObject";
     }
 
     public void SkinButton()
     {
-        popupSkinShop.SetActive(true);
-        CurrentlyActive = "skin";
+        ToogleMainMenuWindow("SkinObject", false, false);
+        ToogleMainMenuWindow("ShopObject", true, false);
+        CurrentlyActive = "SkinObject";
     }
 
     public void SettingsButton()
     {
-        popupSettings.SetActive(true);
-        CurrentlyActive = "settings";
+        ToogleMainMenuWindow("SettingsObject", false, false);
+        CurrentlyActive = "SettingsObject";
     }
 
     public void CreditsButton()
     {
-        popupCredits.SetActive(true);
-        CurrentlyActive = "credits";
+        ToogleMainMenuWindow("CreditsObject", false, false);
+        CurrentlyActive = "CreditsObject";
     }
 
     public void MapSelectButton()
     {
-        popupMapSelect.SetActive(true);
-        CurrentlyActive = "mapSelect";
+        ToogleMainMenuWindow("MapSelectObject", false, false);
+        CurrentlyActive = "MapSelectObject";
     }
 
     public void Level1()
     {
         SceneManager.LoadScene(1);
+    }
+
+    private void ToogleMainMenuWindow(string name, bool closeWindow, bool showMainMenu)
+    {
+        Debug.Log("Opening/Closing " + name);
+
+        GameObject tempObject = GameObject.Find(name);
+
+        for (int i = 0; i < tempObject.transform.childCount; i++)
+        {
+            if (closeWindow == false)
+            {
+                tempObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
+                if (tempObject.transform.GetChild(i).transform.childCount > 0)
+                {
+                    tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = true;
+                }
+            }
+            else
+            {
+                tempObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
+                if (tempObject.transform.GetChild(i).transform.childCount > 0)
+                {
+                    tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = false;
+                }
+            }
+        }
+
+        ToogleMainMenu(showMainMenu);
+
+
+    }
+
+    private void ToogleMainMenu(bool state)
+    {
+        if (state == true)
+        {
+            for (int i = 0; i < mainMenuObject.transform.childCount; i++)
+            {
+                mainMenuObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
+                if (mainMenuObject.transform.GetChild(i).transform.childCount > 0)
+                {
+                    mainMenuObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = true;
+                }
+            }
+            mainMenuHidden = false;
+        }
+        else
+        {
+            if (mainMenuHidden == false)
+            {
+                for (int i = 0; i < mainMenuObject.transform.childCount; i++)
+                {
+                    mainMenuObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
+                    if (mainMenuObject.transform.GetChild(i).transform.childCount > 0)
+                    {
+                        mainMenuObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = false;
+                    }
+                }
+                mainMenuHidden = true;
+            }
+        }
     }
 }

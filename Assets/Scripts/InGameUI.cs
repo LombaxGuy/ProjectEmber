@@ -6,12 +6,11 @@ using UnityEngine.UI;
 public class InGameUI : MonoBehaviour
 {
 
-    [SerializeField]
     private GameObject pauseCanvas;
-    [SerializeField]
-    private GameObject dropDownPowerUp;
-    [SerializeField]
-    private GameObject powerUpUI;
+
+    private Transform dropDownPowerUp;
+
+    private Transform powerUpUI;
 
     private float visiblePowerUpUIPosition = 213;
 
@@ -19,21 +18,43 @@ public class InGameUI : MonoBehaviour
 
     private bool isHidden = true;
 
+    private void Start()
+    {
+        pauseCanvas = GameObject.FindGameObjectWithTag("PauseMenu");
+        dropDownPowerUp = this.gameObject.transform.GetChild(1);
+        powerUpUI = this.gameObject.transform.GetChild(2);
+    }
+
     public void OnPauseButtonClick()
     {
-        pauseCanvas.SetActive(true);
-        pauseCanvas.GetComponent<MenuScript>().CurrentlyActive = "pauseMenu";
+        Debug.Log(pauseCanvas);
+        if (pauseCanvas.GetComponent<Canvas>().enabled == false)
+        {
+            pauseCanvas.GetComponent<Canvas>().enabled = true;
+            pauseCanvas.GetComponent<MenuScript>().CurrentlyActive = "pauseMenu";
+            OnShowPowerUpUiButtonClick();
+        }
+        else
+        {
+            pauseCanvas.GetComponent<Canvas>().enabled = false;
+            pauseCanvas.GetComponent<MenuScript>().CurrentlyActive = "";
+        }
     }
 
     public void OnChangePowerUpButtonClick()
     {
-        if (dropDownPowerUp.activeInHierarchy == true)
+        Image image = dropDownPowerUp.GetComponent<Image>();
+        if (image.enabled == true || isHidden == true)
         {
-            dropDownPowerUp.SetActive(false);
+            image.enabled = false;
+            dropDownPowerUp.Find("Arrow").GetComponent<Image>().enabled = false;
+            dropDownPowerUp.GetComponentInChildren<Text>().enabled = false;
         }
         else
         {
-            dropDownPowerUp.SetActive(true);
+            image.enabled = true;
+            dropDownPowerUp.Find("Arrow").GetComponent<Image>().enabled = true;
+            dropDownPowerUp.GetComponentInChildren<Text>().enabled = true;
         }
     }
 
@@ -44,17 +65,17 @@ public class InGameUI : MonoBehaviour
 
     public void OnShowPowerUpUiButtonClick()
     {
+        Debug.Log(powerUpUI);
         if (isHidden == true)
         {
-            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, visiblePowerUpUIPosition, powerUpUI.transform.position.z), 500);
             isHidden = false;
-            Debug.Log(isHidden);
+            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, visiblePowerUpUIPosition, powerUpUI.transform.position.z), 500);
         }
-        else
+        else if (isHidden == false || pauseCanvas.GetComponent<Canvas>().enabled == true)
         {
-            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, hiddenPowerUpUIPosition, powerUpUI.transform.position.z), 500);
-            dropDownPowerUp.SetActive(false);
             isHidden = true;
+            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, hiddenPowerUpUIPosition, powerUpUI.transform.position.z), 500);
+            OnChangePowerUpButtonClick();
         }
 
     }

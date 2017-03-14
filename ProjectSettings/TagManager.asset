@@ -8,6 +8,7 @@ TagManager:
   - Handler
   - KillerObject
   - FlammableObject
+  - PauseMenu
   layers:
   - Default
   - TransparentFX
