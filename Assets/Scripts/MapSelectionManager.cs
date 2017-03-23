@@ -13,14 +13,18 @@ public class MapSelectionManager : MonoBehaviour {
     //Swipe for wells need to center one of the wells when touch is ended
     
     private static string wellName;
+    [Header("Button prefab for levels inside well")]
     [SerializeField]
     private GameObject buttonGameObject;
+    [Header("Well empty GameObject in canvas")]
     [SerializeField]
     private GameObject wellEmpty;
+    [Header("Levels empty GameObject in canvas")]
     [SerializeField]
     private GameObject levelsEmpty;
 
     private Vector2 touchStart;
+    private Vector2 touchStartUpdate;
     private Vector2 touchEnd;
     private Vector2 secTouch;
     private Vector3 touchTemp;
@@ -28,6 +32,9 @@ public class MapSelectionManager : MonoBehaviour {
     private Vector3 wellEmptyStartLocation;
     private Vector3 levelsEmptyStartLocation;
     private int wellSelected;
+    [Header("Number of wells in the scene")]
+    [SerializeField]
+    private int maxWells;
 
 	// Use this for initialization
 	void Start ()
@@ -35,7 +42,8 @@ public class MapSelectionManager : MonoBehaviour {
         wellEmptyStartLocation = wellEmpty.transform.position;
         levelsEmptyStartLocation = levelsEmpty.transform.position;
         inWell = true;
-        wellSelected = 1;
+        wellSelected = 0;
+        maxWells = 3;
     }
 	
 	// Update is called once per frame
@@ -64,24 +72,30 @@ public class MapSelectionManager : MonoBehaviour {
                     secTouch = Input.GetTouch(0).position;
                     touchTemp = touchStart - secTouch;
                     touchTemp.Normalize();
-                    wellEmpty.transform.position = new Vector3(wellEmpty.transform.position.x - (touchTemp.x * 3), wellEmpty.transform.position.y, wellEmpty.transform.position.z);              
+                    wellEmpty.transform.localPosition = new Vector3(wellEmpty.transform.localPosition.x - (touchTemp.x * 50), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);              
                     break;
                 case TouchPhase.Stationary:
                     break;
                 case TouchPhase.Ended:
                     if(touchTemp.x >= 0)
                     {
-                        wellSelected--;
-                        wellEmpty.transform.position = new Vector3(wellEmptyStartLocation.x + ((Screen.width / 2) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
+                        if(wellSelected < maxWells - 1)
+                        {
+                            wellSelected++;
+                        }                    
                     }
                     else
                     {
-                        if (wellSelected > 1)
+                        if (wellSelected > 0)
                         {
                             wellSelected--;
                         }
-                        wellEmpty.transform.position = new Vector3(wellEmptyStartLocation.x - ((Screen.width / 2) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
                     }
+                    wellEmpty.transform.localPosition = new Vector3(wellEmptyStartLocation.x - (((Screen.width / 2) + (Screen.width / 4)) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
+
+                    Debug.Log("WellEmpty position : " + wellEmpty.transform.position);
+                    Debug.Log("wellSelected : " + wellSelected);
+
                     break;
                 case TouchPhase.Canceled:
                     break;
@@ -101,11 +115,15 @@ public class MapSelectionManager : MonoBehaviour {
                     touchStart = Input.GetTouch(0).position;
                     break;
                 case TouchPhase.Moved:
-                    //Need better swipe
-                    Vector2 secTouch = Input.GetTouch(0).position;
-                    Vector3 touchTemp = touchStart - secTouch;
+                    secTouch = Input.GetTouch(0).position;
+                    touchTemp = touchStart - secTouch;
+                    float distance = Vector2.Distance(touchStart, secTouch);
+                    if(distance >= 3)
+                    {
+                        distance = 3;
+                    }
                     touchTemp.Normalize();
-                    levelsEmpty.transform.position = new Vector3(levelsEmpty.transform.position.x, levelsEmpty.transform.position.y - (touchTemp.y * 3), levelsEmpty.transform.position.z);
+                    levelsEmpty.transform.Translate(0, -touchTemp.y * distance, 0);
                     touchStart = Input.GetTouch(0).position;
                     break;
                 case TouchPhase.Stationary:
@@ -137,13 +155,13 @@ public class MapSelectionManager : MonoBehaviour {
             
             if(i % 2 == 0)
             {
-                temp.transform.localPosition = new Vector3(Screen.width / 2, -Screen.height * 1.5f + (i * (Screen.height / 3)), 0);
+                temp.transform.localPosition = new Vector3(Screen.width / 6, -Screen.height / 2 + (i * (Screen.height / 8)), 0);
             }
             else
             {
-                temp.transform.localPosition = new Vector3(-(Screen.width / 2), -Screen.height * 1.5f + (i * (Screen.height / 3)), 0);
+                temp.transform.localPosition = new Vector3(-(Screen.width / 6), -Screen.height / 2 + (i * (Screen.height / 8)), 0);
             }
-            
+            Debug.Log("Screen res : " + Screen.width + "x" + Screen.height);
             temp.GetComponentInChildren<Text>().text = i.ToString();
         }
 
