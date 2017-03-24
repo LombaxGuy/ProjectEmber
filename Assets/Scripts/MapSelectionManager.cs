@@ -5,21 +5,22 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MapSelectionManager : MonoBehaviour {
-    
+public class MapSelectionManager : MonoBehaviour
+{
+
     //TODO
     //Get the right position to the level button so it fits with the screen size
     //Fix swipe. Distance? something different?
     //Swipe for wells need to center one of the wells when touch is ended
-    
+
     private static string wellName;
-    [Header("Button prefab for levels inside well")]
+    [Tooltip("Button prefab for levels inside well")]
     [SerializeField]
     private GameObject buttonGameObject;
-    [Header("Well empty GameObject in canvas")]
+    [Tooltip("Well GameObject in canvas")]
     [SerializeField]
     private GameObject wellEmpty;
-    [Header("Levels empty GameObject in canvas")]
+    [Tooltip("Levels GameObject in canvas")]
     [SerializeField]
     private GameObject levelsEmpty;
 
@@ -32,35 +33,138 @@ public class MapSelectionManager : MonoBehaviour {
     private Vector3 wellEmptyStartLocation;
     private Vector3 levelsEmptyStartLocation;
     private int wellSelected;
-    [Header("Number of wells in the scene")]
+    [Tooltip("Number of wells in the scene")]
     [SerializeField]
     private int maxWells;
 
-	// Use this for initialization
-	void Start ()
+
+    #region Swipe
+    [SerializeField]
+    private GameObject scrollWell;
+
+    private float margin = 200;
+
+    private float xMaxSoft = 0;
+    private float xMinSoft = -1600;
+
+    private float xMinHard;
+    private float xMaxHard;
+
+    private float xDynamicSpeed = 1;
+
+    private Vector3 oldMousePos;
+
+    private Camera menuCamera;
+
+    private float moveLerpTime = 0.1f;
+
+    private float horizontalMoveSpeed = 1.0f;
+
+    private float wellSnapSize = 800;
+    #endregion
+
+    // Use this for initialization
+    void Start()
     {
+        #region Swipe
+        xMinHard = xMinSoft - margin;
+        xMaxHard = xMaxSoft + margin;
+
+        menuCamera = Camera.main;
+        #endregion
+
         wellEmptyStartLocation = wellEmpty.transform.position;
         levelsEmptyStartLocation = levelsEmpty.transform.position;
         inWell = true;
         wellSelected = 0;
         maxWells = 3;
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if(inWell == true)
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (inWell == true)
         {
-            SwipeLeftOrRight();
-        }else
+            HandleSwipeHorizontal();
+            //SwipeLeftOrRight();
+        }
+        else
         {
             SwipeUpOrDown();
         }
-	}
+    }
+
+    private void HandleSwipeHorizontal()
+    {
+#if(DEBUG)
+        float deltaPosX = 0;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            oldMousePos = Input.mousePosition;
+            Debug.Log("DOWN");
+        }
+        else if (Input.GetMouseButton(0) && oldMousePos != Input.mousePosition)
+        {
+            deltaPosX = Input.mousePosition.x - oldMousePos.x;
+
+            // If the camera is located within the x-bounds of the map...
+            if (scrollWell.transform.localPosition.x > xMinSoft && scrollWell.transform.localPosition.x < xMaxSoft)
+            {
+                //... the dynamic speed on the x-axis is set to 1. 
+                xDynamicSpeed = 1;
+            }
+            // If the camera is out of bounds on the left(-x) side of the map... 
+            else if (scrollWell.transform.localPosition.x < xMinSoft)
+            {
+                //xDynamicSpeed = 0;
+                //... calculate the dynamic speed on the x-axis.
+                CalculateDynamicSpeed(xMinSoft, xMinHard, ref xDynamicSpeed);
+            }
+            // If the camera is out of bounds on the right(+x) side of the map... 
+            else if (scrollWell.transform.localPosition.x > xMaxSoft)
+            {
+                //xDynamicSpeed = 0;
+                //... calculate the dynamic speed on the x-axis.
+                CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed);
+            }
+
+            scrollWell.transform.Translate(deltaPosX * horizontalMoveSpeed * xDynamicSpeed, 0, 0);
+
+            oldMousePos = Input.mousePosition;
+
+            Debug.Log("MOVED");
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            // Round to neareset step *** HARD SNAP ATM ***
+            Debug.Log(Mathf.Round(scrollWell.transform.localPosition.x / wellSnapSize));
+
+            scrollWell.transform.localPosition = new Vector3(Mathf.Round(scrollWell.transform.localPosition.x / wellSnapSize) * wellSnapSize, scrollWell.transform.localPosition.y, scrollWell.transform.localPosition.z);
+
+            xDynamicSpeed = 1; 
+        }
+#endif
+    }
+
+    /// <summary>
+    /// Used to calculate the dynamic movement speed of the camera.
+    /// </summary>
+    /// <param name="softCap">The soft cap used in the calculation.</param>
+    /// <param name="hardCap">The hard cap used in the calculation.</param>
+    /// <param name="dynamicSpeed">The speed variable that should be used in the calculation. !!NOTE!! This value is changed during the calculation.</param>
+    private void CalculateDynamicSpeed(float softCap, float hardCap, ref float dynamicSpeed)
+    {
+        float percent = 0;
+
+        percent = 1 - (softCap - scrollWell.transform.localPosition.x) / /*Mathf.Abs*/(softCap - hardCap);
+        dynamicSpeed = Mathf.Pow(percent, 2);
+    }
 
     //Swipe left or right for picking wells
     private void SwipeLeftOrRight()
     {
-        if(Input.touchCount == 1)
+        if (Input.touchCount == 1)
         {
 
             switch (Input.GetTouch(0).phase)
@@ -72,17 +176,17 @@ public class MapSelectionManager : MonoBehaviour {
                     secTouch = Input.GetTouch(0).position;
                     touchTemp = touchStart - secTouch;
                     touchTemp.Normalize();
-                    wellEmpty.transform.localPosition = new Vector3(wellEmpty.transform.localPosition.x - (touchTemp.x * 50), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);              
+                    wellEmpty.transform.localPosition = new Vector3(wellEmpty.transform.localPosition.x - (touchTemp.x * 50), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
                     break;
                 case TouchPhase.Stationary:
                     break;
                 case TouchPhase.Ended:
-                    if(touchTemp.x >= 0)
+                    if (touchTemp.x >= 0)
                     {
-                        if(wellSelected < maxWells - 1)
+                        if (wellSelected < maxWells - 1)
                         {
                             wellSelected++;
-                        }                    
+                        }
                     }
                     else
                     {
@@ -118,7 +222,7 @@ public class MapSelectionManager : MonoBehaviour {
                     secTouch = Input.GetTouch(0).position;
                     touchTemp = touchStart - secTouch;
                     float distance = Vector2.Distance(touchStart, secTouch);
-                    if(distance >= 3)
+                    if (distance >= 3)
                     {
                         distance = 3;
                     }
@@ -150,10 +254,10 @@ public class MapSelectionManager : MonoBehaviour {
             GameObject temp = Instantiate(buttonGameObject);
             temp.transform.SetParent(levelsEmpty.transform);
             temp.name = "Button_" + i.ToString();
-            temp.transform.localScale = new Vector3(1,1,1);
+            temp.transform.localScale = new Vector3(1, 1, 1);
             Debug.Log("Screen res : " + Screen.currentResolution);
-            
-            if(i % 2 == 0)
+
+            if (i % 2 == 0)
             {
                 temp.transform.localPosition = new Vector3(Screen.width / 6, -Screen.height / 2 + (i * (Screen.height / 8)), 0);
             }
@@ -178,10 +282,11 @@ public class MapSelectionManager : MonoBehaviour {
     //Simple back button method. 
     public void BackFromSceneSelection()
     {
-        if(inWell == true)
+        if (inWell == true)
         {
-            
-        }else
+
+        }
+        else
         {
             foreach (Transform child in levelsEmpty.transform)
             {
@@ -192,6 +297,6 @@ public class MapSelectionManager : MonoBehaviour {
             levelsEmpty.transform.position = levelsEmptyStartLocation;
             inWell = true;
         }
-      
+
     }
 }
