@@ -12,12 +12,18 @@ public class MenuScript : MonoBehaviour
     private AudioMixer[] mixer;
 
     private GameObject mainMenuObject;
+    
+    private GameObject shopMenuObject;
 
     private string currentlyActive = "";
 
     private bool sfxOff = false;
     private bool musicOff = false;
     private bool mainMenuHidden = false;
+    private bool moveRight = false;
+    private bool moveLeft = false;
+
+    private int currentItemShown = 0;
 
     public string CurrentlyActive
     {
@@ -27,7 +33,10 @@ public class MenuScript : MonoBehaviour
 
     private void Start()
     {
-        mainMenuObject = GameObject.Find("MainMenuObject");
+        if (SceneManager.GetActiveScene().name == "Main Menu")
+        {
+            mainMenuObject = GameObject.Find("MainMenuObject");
+        }
     }
 
     public void PauseMenuExitButton()
@@ -154,20 +163,30 @@ public class MenuScript : MonoBehaviour
     public void ShopButton()
     {
         ToogleMainMenuWindow("ShopObject", false, false);
+        ToogleMainMenuWindow("SkinObject", false, false);
+        shopMenuObject = GameObject.Find("SkinObject");
         CurrentlyActive = "ShopObject";
     }
 
     public void PowerUpButton()
     {
+        if (CurrentlyActive == "SkinObject")
+        {
+            ToogleMainMenuWindow("SkinObject", true, false);
+        }
         ToogleMainMenuWindow("PowerupObject", false, false);
-        ToogleMainMenuWindow("ShopObject", true, false);
+        shopMenuObject = GameObject.Find("PowerupObject");
         CurrentlyActive = "PowerupObject";
     }
 
     public void SkinButton()
     {
         ToogleMainMenuWindow("SkinObject", false, false);
-        ToogleMainMenuWindow("ShopObject", true, false);
+        if (CurrentlyActive == "PowerupObject")
+        {
+            ToogleMainMenuWindow("PowerupObject", true, false);
+        }
+        shopMenuObject = GameObject.Find("SkinObject");
         CurrentlyActive = "SkinObject";
     }
 
@@ -194,6 +213,12 @@ public class MenuScript : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    private void CurrentlySelected()
+    {
+        //This method should set the item in the middle as the currently displayed item
+        //The method should also update the button and text below the item
+    }
+
     private void ToogleMainMenuWindow(string name, bool closeWindow, bool showMainMenu)
     {
         Debug.Log("Opening/Closing " + name);
@@ -204,7 +229,15 @@ public class MenuScript : MonoBehaviour
         {
             if (closeWindow == false)
             {
-                tempObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
+                Debug.Log(tempObject.transform.childCount);
+                if (tempObject.transform.GetChild(i).GetComponent<Image>() == true)
+                {
+                    tempObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
+                }
+                if (tempObject.transform.GetChild(i).GetComponent<Text>() == true)
+                {
+                    tempObject.transform.GetChild(i).GetComponent<Text>().enabled = true;
+                }
                 if (tempObject.transform.GetChild(i).transform.childCount > 0)
                 {
                     tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = true;
@@ -212,7 +245,14 @@ public class MenuScript : MonoBehaviour
             }
             else
             {
-                tempObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
+                if (tempObject.transform.GetChild(i).GetComponent<Image>() == true)
+                {
+                    tempObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
+                }
+                if (tempObject.transform.GetChild(i).GetComponent<Text>() == true)
+                {
+                    tempObject.transform.GetChild(i).GetComponent<Text>().enabled = false;
+                }
                 if (tempObject.transform.GetChild(i).transform.childCount > 0)
                 {
                     tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = false;
@@ -255,4 +295,5 @@ public class MenuScript : MonoBehaviour
             }
         }
     }
+
 }
