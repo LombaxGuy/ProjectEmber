@@ -58,7 +58,7 @@ public class MapSelectionManager : MonoBehaviour
 
     private float moveLerpTime = 0.1f;
 
-    private float horizontalMoveSpeed = 1.0f;
+    private float horizontalMoveSpeed = 0.5f;
 
     private float wellSnapSize = 800;
     #endregion
@@ -102,12 +102,13 @@ public class MapSelectionManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             oldMousePos = Input.mousePosition;
-            Debug.Log("DOWN");
+            Debug.Log("DOWN: " + oldMousePos);
         }
         else if (Input.GetMouseButton(0) && oldMousePos != Input.mousePosition)
         {
             deltaPosX = Input.mousePosition.x - oldMousePos.x;
 
+            
             // If the camera is located within the x-bounds of the map...
             if (scrollWell.transform.localPosition.x > xMinSoft && scrollWell.transform.localPosition.x < xMaxSoft)
             {
@@ -129,11 +130,19 @@ public class MapSelectionManager : MonoBehaviour
                 CalculateDynamicSpeed(xMaxSoft, xMaxHard, ref xDynamicSpeed);
             }
 
-            scrollWell.transform.Translate(deltaPosX * horizontalMoveSpeed * xDynamicSpeed, 0, 0);
+            Debug.Log("MOVED: " + Input.mousePosition + " . " + oldMousePos + " . " + xDynamicSpeed);
+
+            scrollWell.transform.Translate(deltaPosX * horizontalMoveSpeed * xDynamicSpeed, 0, 0, Space.Self);
+
+            Vector3 pos;
+
+            pos.x = Mathf.Clamp(scrollWell.transform.localPosition.x, xMinHard, xMaxHard);
+            pos.y = scrollWell.transform.localPosition.y;
+            pos.z = scrollWell.transform.localPosition.z;
 
             oldMousePos = Input.mousePosition;
 
-            Debug.Log("MOVED");
+            
         }
         else if (Input.GetMouseButtonUp(0))
         {
