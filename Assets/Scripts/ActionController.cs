@@ -28,7 +28,9 @@ public class ActionController : MonoBehaviour
     private static bool playerShooting = false;
 
     #region AudioFields
+    private AudioSource[] audioSouces;
     private AudioSource flameThrowAudioSource;
+    private AudioSource flameIdleAudioSource;
     [SerializeField]
     private FlameControl flameCtrl;
     #endregion
@@ -44,7 +46,9 @@ public class ActionController : MonoBehaviour
     {
         // Gets the rigidbody component on the active flame
         flameRigidbody = activeFlame.GetComponent<Rigidbody>();
-        flameThrowAudioSource = gameObject.GetComponent<AudioSource>();
+        audioSouces = GetComponents<AudioSource>();
+        flameThrowAudioSource = audioSouces[0];
+        flameIdleAudioSource = audioSouces[1];
     }
 
     private void OnEnable()
@@ -182,7 +186,7 @@ public class ActionController : MonoBehaviour
                 LaunchProjectile(forceStrength);
 
                 // Plays Flame Throw Sound.
-                flameThrowAudioSource.Play();
+                audioSouces[0].Play();
 
                 // Alters Flame sound after the Flame has been shot.
                 flameCtrl.RecieveForceStrength(0);
@@ -193,6 +197,9 @@ public class ActionController : MonoBehaviour
 
         // Update the selection marker by calling the method UpdateSelectionSphere.
         UpdateSelectionSphere();
+
+        //Temp handle of panstereo for idle flame sound
+        audioSouces[1].panStereo = flameRigidbody.position.normalized.x;
     }
 
     /// <summary>
@@ -281,7 +288,7 @@ public class ActionController : MonoBehaviour
             LaunchProjectile(forceStrength);
 
             // Plays Flame Throw Sound.
-            flameThrowAudioSource.Play();
+            audioSouces[0].Play();
 
             // Alters Flame sound after the Flame has been shot.
             flameCtrl.RecieveForceStrength(0);
