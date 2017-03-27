@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine.Advertisements;
 using UnityEngine;
 
-public class AdScript : MonoBehaviour {
+public class AdScript : MonoBehaviour
+{
 
     public void ShowRewardedAd()
     {
