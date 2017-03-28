@@ -43,6 +43,8 @@ public class MapSelectionManager : MonoBehaviour
     [SerializeField]
     private GameObject swipeWell;
 
+    private GameObject swipeLevel;
+
     private float margin = 200;
 
     private float xMaxSoft = 0;
@@ -59,13 +61,12 @@ public class MapSelectionManager : MonoBehaviour
 
     private Vector3 oldMousePos;
 
-    private Camera menuCamera;
-
     private float moveLerpTime = 0.1f;
 
     private float horizontalMoveSpeed = 0.5f;
 
     private float wellSpacing = 800;
+    private float levelSpacing = 200;
 
     Coroutine centeringCoroutine;
     #endregion
@@ -79,7 +80,7 @@ public class MapSelectionManager : MonoBehaviour
         xMinHard = xMinSoft - margin;
         xMaxHard = xMaxSoft + margin;
 
-        menuCamera = Camera.main;
+        swipeLevel = GameObject.Find("LevelSwipeObject");
         #endregion
 
         wellEmptyStartLocation = wellEmpty.transform.position;
@@ -98,7 +99,7 @@ public class MapSelectionManager : MonoBehaviour
         }
         else
         {
-            SwipeUpOrDown();
+            HandleSwipeVertical();
         }
     }
 
@@ -161,7 +162,7 @@ public class MapSelectionManager : MonoBehaviour
             Vector3 fromPos = swipeWell.transform.localPosition;
             Vector3 toPos = new Vector3(Mathf.Round(swipeWell.transform.localPosition.x / wellSpacing) * wellSpacing, swipeWell.transform.localPosition.y, swipeWell.transform.localPosition.z);
 
-            centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, 0.25f));
+            centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, swipeWell, 0.25f));
 
             dynamicSpeed = 1; 
         }
@@ -188,46 +189,56 @@ public class MapSelectionManager : MonoBehaviour
             deltaPosY = Input.mousePosition.y - oldMousePos.y;
 
             // If the camera is located within the x-bounds of the map...
-            if (swipeWell.transform.localPosition.y > xMinSoft && swipeWell.transform.localPosition.y < xMaxSoft)
+            if (swipeLevel.transform.localPosition.y > yMinSoft && swipeLevel.transform.localPosition.y < yMaxSoft)
             {
                 //... the dynamic speed on the x-axis is set to 1. 
                 dynamicSpeed = 1;
             }
             // If the camera is out of bounds on the left(-x) side of the map... 
-            else if (swipeWell.transform.localPosition.y < xMinSoft)
+            else if (swipeLevel.transform.localPosition.y < yMinSoft)
             {
                 //xDynamicSpeed = 0;
                 //... calculate the dynamic speed on the x-axis.
-                CalculateDynamicSpeed(xMinSoft, xMinHard, swipeWell.transform.localPosition.y, ref dynamicSpeed);
+                CalculateDynamicSpeed(yMinSoft, yMinHard, swipeLevel.transform.localPosition.y, ref dynamicSpeed);
             }
             // If the camera is out of bounds on the right(+x) side of the map... 
-            else if (swipeWell.transform.localPosition.y > xMaxSoft)
+            else if (swipeLevel.transform.localPosition.y > yMaxSoft)
             {
                 //xDynamicSpeed = 0;
                 //... calculate the dynamic speed on the x-axis.
-                CalculateDynamicSpeed(xMaxSoft, xMaxHard, swipeWell.transform.localPosition.y, ref dynamicSpeed);
+                CalculateDynamicSpeed(yMaxSoft, yMaxHard, swipeLevel.transform.localPosition.y, ref dynamicSpeed);
             }
 
             Debug.Log("MOVED: " + Input.mousePosition + " . " + oldMousePos + " . " + dynamicSpeed);
 
-            swipeWell.transform.Translate(0, deltaPosY * horizontalMoveSpeed * dynamicSpeed, 0, Space.Self);
+            swipeLevel.transform.Translate(0, deltaPosY * horizontalMoveSpeed * dynamicSpeed, 0, Space.Self);
 
             Vector3 pos;
 
-            pos.x = swipeWell.transform.localPosition.x;
-            pos.y = Mathf.Clamp(swipeWell.transform.localPosition.x, xMinHard, xMaxHard);
-            pos.z = swipeWell.transform.localPosition.z;
+            pos.x = swipeLevel.transform.localPosition.x;
+            pos.y = Mathf.Clamp(swipeLevel.transform.localPosition.y, yMinHard, yMaxHard);
+            pos.z = swipeLevel.transform.localPosition.z;
 
-            swipeWell.transform.localPosition = pos;
+            swipeLevel.transform.localPosition = pos;
 
             oldMousePos = Input.mousePosition;
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            Vector3 fromPos = swipeWell.transform.localPosition;
-            Vector3 toPos = new Vector3(swipeWell.transform.localPosition.x, Mathf.Round(swipeWell.transform.localPosition.y / wellSpacing) * wellSpacing, swipeWell.transform.localPosition.z);
+            Vector3 fromPos = swipeLevel.transform.localPosition;
+            Vector3 toPos;
 
-            centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, 0.25f));
+            if (swipeLevel.transform.localPosition.y > yMaxSoft)
+            {
+                toPos = new Vector3(swipeLevel.transform.localPosition.x, yMaxSoft, swipeLevel.transform.localPosition.z);
+                centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, swipeLevel, 0.1f));
+            }
+            // If the current x-position of the camera is smaller than the x-position soft cap...
+            else if (swipeLevel.transform.localPosition.y < yMinSoft)
+            {
+                toPos = new Vector3(swipeLevel.transform.localPosition.x, yMinSoft, swipeLevel.transform.localPosition.z);
+                centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, swipeLevel, 0.1f));
+            }
 
             dynamicSpeed = 1;
         }
@@ -248,7 +259,7 @@ public class MapSelectionManager : MonoBehaviour
         dynamicSpeed = Mathf.Pow(percent, 2);
     }
 
-    private IEnumerator CoroutineSnapToPosition(Vector3 fromPos, Vector3 toPos, float snapTime)
+    private IEnumerator CoroutineSnapToPosition(Vector3 fromPos, Vector3 toPos, GameObject objectToMove, float snapTime)
     {
         float t = 0;
 
@@ -256,101 +267,25 @@ public class MapSelectionManager : MonoBehaviour
         {
             t += Time.deltaTime / snapTime;
 
-            swipeWell.transform.localPosition = Vector3.Lerp(fromPos, toPos, t);
+            objectToMove.transform.localPosition = Vector3.Lerp(fromPos, toPos, t);
 
             yield return null;
-        }
-    }
-
-
-    //Swipe left or right for picking wells
-    private void SwipeLeftOrRight()
-    {
-        if (Input.touchCount == 1)
-        {
-
-            switch (Input.GetTouch(0).phase)
-            {
-                case TouchPhase.Began:
-                    touchStart = Input.GetTouch(0).position;
-                    break;
-                case TouchPhase.Moved:
-                    secTouch = Input.GetTouch(0).position;
-                    touchTemp = touchStart - secTouch;
-                    touchTemp.Normalize();
-                    wellEmpty.transform.localPosition = new Vector3(wellEmpty.transform.localPosition.x - (touchTemp.x * 50), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
-                    break;
-                case TouchPhase.Stationary:
-                    break;
-                case TouchPhase.Ended:
-                    if (touchTemp.x >= 0)
-                    {
-                        if (wellSelected < maxWells - 1)
-                        {
-                            wellSelected++;
-                        }
-                    }
-                    else
-                    {
-                        if (wellSelected > 0)
-                        {
-                            wellSelected--;
-                        }
-                    }
-                    wellEmpty.transform.localPosition = new Vector3(wellEmptyStartLocation.x - (((Screen.width / 2) + (Screen.width / 4)) * wellSelected), wellEmpty.transform.localPosition.y, wellEmpty.transform.localPosition.z);
-
-                    Debug.Log("WellEmpty position : " + wellEmpty.transform.position);
-                    Debug.Log("wellSelected : " + wellSelected);
-
-                    break;
-                case TouchPhase.Canceled:
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    //Swipe up or down for picking levels inside wells
-    private void SwipeUpOrDown()
-    {
-        if (Input.touchCount == 1)
-        {
-            switch (Input.GetTouch(0).phase)
-            {
-                case TouchPhase.Began:
-                    touchStart = Input.GetTouch(0).position;
-                    break;
-                case TouchPhase.Moved:
-                    secTouch = Input.GetTouch(0).position;
-                    touchTemp = touchStart - secTouch;
-                    float distance = Vector2.Distance(touchStart, secTouch);
-                    if (distance >= 3)
-                    {
-                        distance = 3;
-                    }
-                    touchTemp.Normalize();
-                    levelsEmpty.transform.Translate(0, -touchTemp.y * distance, 0);
-                    touchStart = Input.GetTouch(0).position;
-                    break;
-                case TouchPhase.Stationary:
-                    break;
-                case TouchPhase.Ended:
-                    break;
-                case TouchPhase.Canceled:
-                    break;
-                default:
-                    break;
-            }
         }
     }
 
     //When there is a well button clicked, this method wil run. It will remove and then populate canvas with new buttons.
     public void PickWell(int numberOfLevels)
     {
+        #region Vertical Swipe
+        yMinSoft = -1 * (numberOfLevels - 1) * levelSpacing;
+
+        yMinHard = yMinSoft - margin;
+        yMaxHard = yMaxSoft + margin;
+        #endregion
+
         wellName = EventSystem.current.currentSelectedGameObject.name;
-        wellEmpty.SetActive(false);
-        levelsEmpty.SetActive(true);
+        //wellEmpty.SetActive(false);
+        //levelsEmpty.SetActive(true);
         inWell = false;
         for (int i = 1; i <= numberOfLevels; i++)
         {
@@ -358,17 +293,16 @@ public class MapSelectionManager : MonoBehaviour
             temp.transform.SetParent(levelsEmpty.transform);
             temp.name = "Button_" + i.ToString();
             temp.transform.localScale = new Vector3(1, 1, 1);
-            Debug.Log("Screen res : " + Screen.currentResolution);
 
             if (i % 2 == 0)
             {
-                temp.transform.localPosition = new Vector3(Screen.width / 6, -Screen.height / 2 + (i * (Screen.height / 8)), 0);
+
+                temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
             }
             else
             {
-                temp.transform.localPosition = new Vector3(-(Screen.width / 6), -Screen.height / 2 + (i * (Screen.height / 8)), 0);
+                temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
             }
-            Debug.Log("Screen res : " + Screen.width + "x" + Screen.height);
             temp.GetComponentInChildren<Text>().text = i.ToString();
         }
 
@@ -395,8 +329,8 @@ public class MapSelectionManager : MonoBehaviour
             {
                 GameObject.Destroy(child.gameObject);
             }
-            levelsEmpty.SetActive(false);
-            wellEmpty.SetActive(true);
+            //levelsEmpty.SetActive(false);
+            //wellEmpty.SetActive(true);
             levelsEmpty.transform.position = levelsEmptyStartLocation;
             inWell = true;
         }
