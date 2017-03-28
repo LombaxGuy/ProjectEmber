@@ -73,7 +73,7 @@ public class Flammable : MonoBehaviour
     {
         float t = 0;
 
-        myMaterial.set
+        
 
         while (myMaterial.color != B_color)
         {
