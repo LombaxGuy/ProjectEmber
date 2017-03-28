@@ -11,19 +11,32 @@ public class MenuScript : MonoBehaviour
     [SerializeField]
     private AudioMixer[] mixer;
 
+    private int[] itemArray = new int[20];
+
+    private string[] tempStringArray = new string[20];
+
     private GameObject mainMenuObject;
-    
+
     private GameObject shopMenuObject;
 
+    private Text priceText;
+
     private string currentlyActive = "";
+
+    private int snappedPosInt = 0;
+    private int currentItemShown = 0;
+    private int rngNumber;
 
     private bool sfxOff = false;
     private bool musicOff = false;
     private bool mainMenuHidden = false;
     private bool moveRight = false;
     private bool moveLeft = false;
+    private bool updateObjectPosition = false;
+    private bool snapToPosRunning = false;
 
-    private int currentItemShown = 0;
+
+    private Vector3 oldPos = new Vector3(0, 0, 0);
 
     #region Swipe
     private GameObject swipeSkinObject;
@@ -45,10 +58,12 @@ public class MenuScript : MonoBehaviour
     private float horizontalMoveSpeed = 0.5f;
     private float spacing = 220;
 
-    private int elements = 5;
+    private int skinElements;
+    private int powerupElements;
 
     private Coroutine centeringCoroutine;
     #endregion
+
 
     public string CurrentlyActive
     {
@@ -58,24 +73,82 @@ public class MenuScript : MonoBehaviour
 
     private void Start()
     {
-        xMinSoft = -1 * (elements - 1) * spacing;
-
-        xMinHard = xMinSoft - margin;
-        xMaxHard = xMaxSoft + margin;
-
-        swipeSkinObject = GameObject.Find("SkinObject");
-
         if (SceneManager.GetActiveScene().name == "Main Menu")
         {
+            priceText = GameObject.Find("Pricetag").GetComponent<Text>();
+
+            swipeSkinObject = GameObject.Find("SkinObject");
+
+            swipePowerupObject = GameObject.Find("PowerupObject");
+
+            skinElements = swipeSkinObject.transform.childCount;
+            powerupElements = swipePowerupObject.transform.childCount;
+
+            CalculateCaps(skinElements);
+
+            for (int i = 0; i < 20; i++)
+            {
+                if(i == 0)
+                {
+                    itemArray[i] = 395;
+                }
+                else
+                {
+                    itemArray[i] = itemArray[i - 1] - 220;
+                }
+            }
+
+            
+            
+            for (int i = 0; i < 20; i++)
+            {
+                rngNumber = Random.Range(1, 4);
+                switch(rngNumber)
+                {
+                    case 1:
+                        tempStringArray[i] = "1.50€";
+                        break;
+                    case 2:
+                        tempStringArray[i] = "5€";
+                        break;
+                    case 3:
+                        tempStringArray[i] = "7.50€";
+                        break;
+                    case 4:
+                        tempStringArray[i] = "9.99€";
+                        break;
+                }
+            }
+
             mainMenuObject = GameObject.Find("MainMenuObject");
         }
     }
 
     private void Update()
     {
+        Debug.Log(swipeSkinObject.transform.position.x);
         if (currentlyActive == "SkinObject")
         {
             HandleSwipeHorizontal(swipeSkinObject);
+            CalculateCaps(skinElements);
+        }
+        else if (currentlyActive == "PowerupObject")
+        {
+            HandleSwipeHorizontal(swipePowerupObject);
+            CalculateCaps(powerupElements);
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Debug.Log("Blargh : " + swipeSkinObject.transform.position.x);
+        }
+        if (updateObjectPosition == true)
+        {
+            if (snapToPosRunning == false)
+            {
+                Debug.Log(swipeSkinObject.transform.position);
+                UpdateCurrentlySelected();
+                updateObjectPosition = false;
+            }
         }
     }
 
@@ -141,6 +214,8 @@ public class MenuScript : MonoBehaviour
             centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, swipeObject, 0.25f));
 
             dynamicSpeed = 1;
+
+            updateObjectPosition = true;
         }
 #endif
     }
@@ -161,6 +236,7 @@ public class MenuScript : MonoBehaviour
 
     private IEnumerator CoroutineSnapToPosition(Vector3 fromPos, Vector3 toPos, GameObject objectToMove, float snapTime)
     {
+        snapToPosRunning = true;
         float t = 0;
 
         while (t < 1)
@@ -171,6 +247,16 @@ public class MenuScript : MonoBehaviour
 
             yield return null;
         }
+
+        snapToPosRunning = false;
+    }
+
+    private void CalculateCaps(int elements)
+    {
+        xMinSoft = -1 * (elements - 1) * spacing;
+
+        xMinHard = xMinSoft - margin;
+        xMaxHard = xMaxSoft + margin;
     }
 
     public void PauseMenuExitButton()
@@ -247,19 +333,15 @@ public class MenuScript : MonoBehaviour
     {
         switch (CurrentlyActive)
         {
-            case "ShopObject":
-                ToogleMainMenuWindow("ShopObject", true, true);
-                CurrentlyActive = "none";
-                break;
             case "PowerupObject":
                 ToogleMainMenuWindow("PowerupObject", true, false);
                 ToogleMainMenuWindow("ShopObject", false, false);
-                CurrentlyActive = "ShopObject";
+                CurrentlyActive = "none";
                 break;
             case "SkinObject":
                 ToogleMainMenuWindow("SkinObject", true, false);
                 ToogleMainMenuWindow("ShopObject", false, false);
-                CurrentlyActive = "ShopObject";
+                CurrentlyActive = "none";
                 break;
             case "SettingsObject":
                 ToogleMainMenuWindow("SettingsObject", true, true);
@@ -286,20 +368,13 @@ public class MenuScript : MonoBehaviour
         }
     }
 
-    //private GameObject levelSelectCanvas;
-
-
-    //public void ContinueButton()
-    //{
-    //    levelSelectCanvas.SetActive(true);
-    //}
-
     public void ShopButton()
     {
         ToogleMainMenuWindow("ShopObject", false, false);
         ToogleMainMenuWindow("SkinObject", false, false);
         shopMenuObject = GameObject.Find("SkinObject");
-        CurrentlyActive = "ShopObject";
+        CurrentlyActive = "SkinObject";
+        UpdateCurrentlySelected();
     }
 
     public void PowerUpButton()
@@ -347,10 +422,30 @@ public class MenuScript : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-    private void CurrentlySelected()
+    private void UpdateCurrentlySelected()
     {
-        //This method should set the item in the middle as the currently displayed item
-        //The method should also update the button and text below the item
+        if (currentlyActive == "SkinObject")
+        {
+            snappedPosInt = Mathf.RoundToInt(swipeSkinObject.transform.position.x);
+        }
+        else if (currentlyActive == "PowerupObject")
+        {
+            snappedPosInt = Mathf.RoundToInt(swipePowerupObject.transform.position.x);
+        }
+        Debug.Log("SnappedPos :" + snappedPosInt);
+
+
+        for (int i = 0; i < itemArray.Length; i++)
+        {
+            if (snappedPosInt > itemArray[i] && snappedPosInt < itemArray[i] + 5 || snappedPosInt < itemArray[i] && snappedPosInt > itemArray[i] - 5)
+            {
+                currentItemShown = i;
+                priceText.text = tempStringArray[i];
+            }
+        }
+
+        Debug.Log(currentItemShown);
+
     }
 
     private void ToogleMainMenuWindow(string name, bool closeWindow, bool showMainMenu)
