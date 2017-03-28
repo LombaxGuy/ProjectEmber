@@ -28,13 +28,12 @@ public class MapSelectionManager : MonoBehaviour
     private Vector3 swipeWellStartLocation;
     private Vector3 swipeLevelStartLocation;
 
-
     [Tooltip("Number of wells in the menu.")]
     [SerializeField]
     private int numberOfWells = 3;
 
     #region Added in QA
-    private List<GameObject[]> levelMenusList = new List<GameObject[]>();
+    private GameObject[] levelMenuArray;
 
     private UIVisibilityControl wellMenuUIControl;
     private UIVisibilityControl levelMenuUIControl;
@@ -87,9 +86,15 @@ public class MapSelectionManager : MonoBehaviour
         wellMenuUIControl = GameObject.Find("WellMenuObject").GetComponent<UIVisibilityControl>();
         levelMenuUIControl = GameObject.Find("LevelMenuObject").GetComponent<UIVisibilityControl>();
 
+        levelMenuArray = new GameObject[numberOfWells];
+
         for (int i = 0; i < numberOfWells; i++)
         {
-            levelMenusList.Add(new GameObject[0]);
+            levelMenuArray[i] = new GameObject("LevelMenu" + (i + 1), typeof(RectTransform));
+            levelMenuArray[i].transform.SetParent(swipeLevel.transform);
+            levelMenuArray[i].AddComponent<UIVisibilityControl>();
+            levelMenuArray[i].transform.localScale = Vector3.one;
+            levelMenuArray[i].transform.localPosition = Vector3.zero;
         }
 
         swipeWellStartLocation = swipeWell.transform.position;
@@ -289,25 +294,47 @@ public class MapSelectionManager : MonoBehaviour
         {
             case "1stWell":
 
-                levelMenusList[0] = CreateLevels(levelMenusList[0], numberOfLevels);
+                if (levelMenuArray[0].transform.childCount != numberOfLevels)
+                {
+                    CreateLevels(levelMenuArray[0], numberOfLevels);
+                }
+                else
+                {
+                    levelMenuArray[0].GetComponent<UIVisibilityControl>().ShowUI();
+                }
 
-                Debug.Log(levelMenusList[0].Length);
+                inWell = false;
+
                 break;
 
             case "2ndWell":
 
-                levelMenusList[1] = CreateLevels(levelMenusList[1], numberOfLevels);
+                if (levelMenuArray[1].transform.childCount != numberOfLevels)
+                {
+                    CreateLevels(levelMenuArray[1], numberOfLevels);
+                }
+                else
+                {
+                    levelMenuArray[1].GetComponent<UIVisibilityControl>().ShowUI();
+                }
 
+                inWell = false;
 
-                Debug.Log(levelMenusList[1].Length);
                 break;
 
             case "3rdWell":
 
-                levelMenusList[2] = CreateLevels(levelMenusList[2], numberOfLevels);
+                if (levelMenuArray[2].transform.childCount != numberOfLevels)
+                {
+                    CreateLevels(levelMenuArray[2], numberOfLevels);
+                }
+                else
+                {
+                    levelMenuArray[2].GetComponent<UIVisibilityControl>().ShowUI();
+                }
 
+                inWell = false;
 
-                Debug.Log(levelMenusList[2].Length);
                 break;
 
             default:
@@ -320,39 +347,30 @@ public class MapSelectionManager : MonoBehaviour
         swipeWell.transform.position = swipeWellStartLocation;
     }
 
-    private GameObject[] CreateLevels(GameObject[] levelMenuElements, int numberOfLevels)
+    private void CreateLevels(GameObject levelMenuElement, int numberOfLevels)
     {
-        if (levelMenuElements.Length == 0)
+        for (int i = 1; i < numberOfLevels + 1; i++)
         {
-            levelMenuElements = new GameObject[numberOfLevels];
+            GameObject temp = Instantiate(buttonGameObject);
+            temp.transform.SetParent(levelMenuElement.transform);
+            temp.name = "Button_" + i.ToString();
+            temp.transform.localScale = new Vector3(1, 1, 1);
 
-            for (int i = 1; i < numberOfLevels + 1; i++)
+            if (i % 2 == 0)
             {
-                GameObject temp = Instantiate(buttonGameObject);
-                temp.transform.SetParent(swipeLevel.transform);
-                temp.name = "Button_" + i.ToString();
-                temp.transform.localScale = new Vector3(1, 1, 1);
-
-                if (i % 2 == 0)
-                {
-                    temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
-                }
-                else
-                {
-                    temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
-                }
-
-                temp.GetComponentInChildren<Text>().text = i.ToString();
-
-                levelMenuElements[i - 1] = temp;
-
-                levelMenuUIControl.Reinitialize();
+                temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
             }
+            else
+            {
+                temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
+            }
+
+            temp.GetComponentInChildren<Text>().text = i.ToString();
+
+            levelMenuElement.GetComponent<UIVisibilityControl>().Reinitialize();
+
+            levelMenuUIControl.Reinitialize();
         }
-
-        inWell = false;
-
-        return levelMenuElements;
     }
 
     //This changes to a level scene
