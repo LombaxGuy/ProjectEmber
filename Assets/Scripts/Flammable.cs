@@ -8,6 +8,14 @@ public class Flammable : MonoBehaviour
     [SerializeField]
     private int health;
 
+    [SerializeField]
+    private Texture charrrd;
+
+    private Color B_color;
+    private Color W_color;
+
+    private Material myMaterial;
+
     public int Health
     {
         get
@@ -21,12 +29,14 @@ public class Flammable : MonoBehaviour
     {
 
         EventManager.OnGameWorldReset += OnWorldReset;
+        EventManager.OnProjectileIgnite += OnIgnite;
     }
 
     private void OnDisable()
     {
 
         EventManager.OnGameWorldReset -= OnWorldReset;
+        EventManager.OnProjectileIgnite -= OnIgnite;
     }
 
     private void OnWorldReset()
@@ -34,11 +44,17 @@ public class Flammable : MonoBehaviour
         Reset();
     }
 
+    private void OnIgnite(int amount, Vector3 newCheckpoint)
+    {
+        StartCoroutine("Burn");
+    }
+
     // Use this for initialization
     void Start()
     {
-
-
+        myMaterial = gameObject.GetComponent<Renderer>().material;
+        B_color = new Color(0,0,0,1);
+        W_color = new Color(255,255,255,1);
     }
 
     // Update is called once per frame
@@ -50,6 +66,36 @@ public class Flammable : MonoBehaviour
     private void Reset()
     {
         gameObject.GetComponent<Collider>().enabled = true;
+    }
+
+
+    private IEnumerator Burn()
+    {
+        float t = 0;
+
+        
+
+        while (myMaterial.color != B_color)
+        {
+            t += Time.deltaTime / 4f;
+            myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
+
+            yield return null;
+        }
+            
+            yield return new WaitForSeconds(0.1f);
+            myMaterial.mainTexture = charrrd;
+            t = 0;
+        while (myMaterial.color != W_color)
+        {
+            t += Time.deltaTime / 4f;
+            myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.1f);
+        Debug.Log("Done");
     }
 
 }
