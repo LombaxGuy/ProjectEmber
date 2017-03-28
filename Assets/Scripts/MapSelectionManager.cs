@@ -14,33 +14,33 @@ public class MapSelectionManager : MonoBehaviour
     //Swipe for wells need to center one of the wells when touch is ended
 
     private static string wellName;
+
     [Tooltip("Button prefab for levels inside well")]
     [SerializeField]
     private GameObject buttonGameObject;
-    [Tooltip("Well GameObject in canvas")]
-    [SerializeField]
-    private GameObject wellEmpty;
-    [Tooltip("Levels GameObject in canvas")]
-    [SerializeField]
-    private GameObject levelsEmpty;
 
-    private Vector2 touchStart;
-    private Vector2 touchStartUpdate;
-    private Vector2 touchEnd;
-    private Vector2 secTouch;
-    private Vector3 touchTemp;
-    private bool inWell;
-    private Vector3 wellEmptyStartLocation;
-    private Vector3 levelsEmptyStartLocation;
-    private int wellSelected;
-    [Tooltip("Number of wells in the scene")]
-    [SerializeField]
-    private int maxWells = 3;
+    //private Vector2 touchStart;
+    //private Vector2 touchStartUpdate;
+    //private Vector2 touchEnd;
+    //private Vector2 secTouch;
+    //private Vector3 touchTemp;
+    private bool inWell = true;
+    private Vector3 swipeWellStartLocation;
+    private Vector3 swipeLevelStartLocation;
 
-    
+
+    [Tooltip("Number of wells in the menu.")]
+    [SerializeField]
+    private int numberOfWells = 3;
+
+    #region Added in QA
+    private List<GameObject[]> levelMenusList = new List<GameObject[]>();
+
+    private UIVisibilityControl wellMenuUIControl;
+    private UIVisibilityControl levelMenuUIControl;
+    #endregion
 
     #region Swipe
-    [SerializeField]
     private GameObject swipeWell;
 
     private GameObject swipeLevel;
@@ -75,19 +75,25 @@ public class MapSelectionManager : MonoBehaviour
     void Start()
     {
         #region Swipe
-        xMinSoft = -1 * (maxWells - 1) * wellSpacing;
+        swipeWell = GameObject.Find("WellSwipeObject");
+        swipeLevel = GameObject.Find("LevelSwipeObject");
+
+        xMinSoft = -1 * (numberOfWells - 1) * wellSpacing;
 
         xMinHard = xMinSoft - margin;
         xMaxHard = xMaxSoft + margin;
-
-        swipeLevel = GameObject.Find("LevelSwipeObject");
         #endregion
 
-        wellEmptyStartLocation = wellEmpty.transform.position;
-        levelsEmptyStartLocation = levelsEmpty.transform.position;
-        inWell = true;
-        wellSelected = 0;
-        maxWells = 3;
+        wellMenuUIControl = GameObject.Find("WellMenuObject").GetComponent<UIVisibilityControl>();
+        levelMenuUIControl = GameObject.Find("LevelMenuObject").GetComponent<UIVisibilityControl>();
+
+        for (int i = 0; i < numberOfWells; i++)
+        {
+            levelMenusList.Add(new GameObject[0]);
+        }
+
+        swipeWellStartLocation = swipeWell.transform.position;
+        swipeLevelStartLocation = swipeLevel.transform.position;
     }
 
     // Update is called once per frame
@@ -114,9 +120,8 @@ public class MapSelectionManager : MonoBehaviour
             {
                 StopCoroutine(centeringCoroutine);
             }
-   
+
             oldMousePos = Input.mousePosition;
-            Debug.Log("DOWN: " + oldMousePos);
         }
         else if (Input.GetMouseButton(0) && oldMousePos != Input.mousePosition)
         {
@@ -143,8 +148,6 @@ public class MapSelectionManager : MonoBehaviour
                 CalculateDynamicSpeed(xMaxSoft, xMaxHard, swipeWell.transform.localPosition.x, ref dynamicSpeed);
             }
 
-            Debug.Log("MOVED: " + Input.mousePosition + " . " + oldMousePos + " . " + dynamicSpeed);
-
             swipeWell.transform.Translate(deltaPosX * horizontalMoveSpeed * dynamicSpeed, 0, 0, Space.Self);
 
             Vector3 pos;
@@ -155,7 +158,7 @@ public class MapSelectionManager : MonoBehaviour
 
             swipeWell.transform.localPosition = pos;
 
-            oldMousePos = Input.mousePosition; 
+            oldMousePos = Input.mousePosition;
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -164,7 +167,7 @@ public class MapSelectionManager : MonoBehaviour
 
             centeringCoroutine = StartCoroutine(CoroutineSnapToPosition(fromPos, toPos, swipeWell, 0.25f));
 
-            dynamicSpeed = 1; 
+            dynamicSpeed = 1;
         }
 #endif
     }
@@ -182,7 +185,6 @@ public class MapSelectionManager : MonoBehaviour
             }
 
             oldMousePos = Input.mousePosition;
-            Debug.Log("DOWN: " + oldMousePos);
         }
         else if (Input.GetMouseButton(0) && oldMousePos != Input.mousePosition)
         {
@@ -208,8 +210,6 @@ public class MapSelectionManager : MonoBehaviour
                 //... calculate the dynamic speed on the x-axis.
                 CalculateDynamicSpeed(yMaxSoft, yMaxHard, swipeLevel.transform.localPosition.y, ref dynamicSpeed);
             }
-
-            Debug.Log("MOVED: " + Input.mousePosition + " . " + oldMousePos + " . " + dynamicSpeed);
 
             swipeLevel.transform.Translate(0, deltaPosY * horizontalMoveSpeed * dynamicSpeed, 0, Space.Self);
 
@@ -274,7 +274,7 @@ public class MapSelectionManager : MonoBehaviour
     }
 
     //When there is a well button clicked, this method wil run. It will remove and then populate canvas with new buttons.
-    public void PickWell(int numberOfLevels)
+    public void OnWellSelected(int numberOfLevels)
     {
         #region Vertical Swipe
         yMinSoft = -1 * (numberOfLevels - 1) * levelSpacing;
@@ -284,33 +284,79 @@ public class MapSelectionManager : MonoBehaviour
         #endregion
 
         wellName = EventSystem.current.currentSelectedGameObject.name;
-        //wellEmpty.SetActive(false);
-        //levelsEmpty.SetActive(true);
-        inWell = false;
-        for (int i = 1; i <= numberOfLevels; i++)
+
+        switch (wellName)
         {
-            GameObject temp = Instantiate(buttonGameObject);
-            temp.transform.SetParent(levelsEmpty.transform);
-            temp.name = "Button_" + i.ToString();
-            temp.transform.localScale = new Vector3(1, 1, 1);
+            case "1stWell":
 
-            if (i % 2 == 0)
-            {
+                levelMenusList[0] = CreateLevels(levelMenusList[0], numberOfLevels);
 
-                temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
-            }
-            else
-            {
-                temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
-            }
-            temp.GetComponentInChildren<Text>().text = i.ToString();
+                Debug.Log(levelMenusList[0].Length);
+                break;
+
+            case "2ndWell":
+
+                levelMenusList[1] = CreateLevels(levelMenusList[1], numberOfLevels);
+
+
+                Debug.Log(levelMenusList[1].Length);
+                break;
+
+            case "3rdWell":
+
+                levelMenusList[2] = CreateLevels(levelMenusList[2], numberOfLevels);
+
+
+                Debug.Log(levelMenusList[2].Length);
+                break;
+
+            default:
+                break;
         }
 
-        wellEmpty.transform.position = wellEmptyStartLocation;
+        // Hides the well buttons.
+        wellMenuUIControl.HideUI();
+
+        swipeWell.transform.position = swipeWellStartLocation;
+    }
+
+    private GameObject[] CreateLevels(GameObject[] levelMenuElements, int numberOfLevels)
+    {
+        if (levelMenuElements.Length == 0)
+        {
+            levelMenuElements = new GameObject[numberOfLevels];
+
+            for (int i = 1; i < numberOfLevels + 1; i++)
+            {
+                GameObject temp = Instantiate(buttonGameObject);
+                temp.transform.SetParent(swipeLevel.transform);
+                temp.name = "Button_" + i.ToString();
+                temp.transform.localScale = new Vector3(1, 1, 1);
+
+                if (i % 2 == 0)
+                {
+                    temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
+                }
+                else
+                {
+                    temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
+                }
+
+                temp.GetComponentInChildren<Text>().text = i.ToString();
+
+                levelMenuElements[i - 1] = temp;
+
+                levelMenuUIControl.Reinitialize();
+            }
+        }
+
+        inWell = false;
+
+        return levelMenuElements;
     }
 
     //This changes to a level scene
-    public void PickScene()
+    public void OnLevelSelected()
     {
         Debug.Log(EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
         SceneManager.LoadScene(wellName + "_" + EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
@@ -325,15 +371,13 @@ public class MapSelectionManager : MonoBehaviour
         }
         else
         {
-            foreach (Transform child in levelsEmpty.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-            //levelsEmpty.SetActive(false);
-            //wellEmpty.SetActive(true);
-            levelsEmpty.transform.position = levelsEmptyStartLocation;
+            levelMenuUIControl.HideUI();
+
+            wellMenuUIControl.ShowUI();
+
+            swipeLevel.transform.position = swipeLevelStartLocation;
+
             inWell = true;
         }
-
     }
 }
