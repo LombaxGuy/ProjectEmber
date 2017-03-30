@@ -25,8 +25,8 @@ public class MapSelectionManager : MonoBehaviour
     //private Vector2 secTouch;
     //private Vector3 touchTemp;
     private bool inWell = true;
-    private Vector3 swipeWellStartLocation;
-    private Vector3 swipeLevelStartLocation;
+    private Vector3 swipeWellStartPos;
+    private Vector3 swipeLevelStartPos;
 
     [Tooltip("Number of wells in the menu.")]
     [SerializeField]
@@ -40,6 +40,8 @@ public class MapSelectionManager : MonoBehaviour
 
     private Button[] wellButtons;
     private Button[][] levelButtons;
+
+    private Button backButton;
     #endregion
 
     #region Swipe
@@ -93,7 +95,6 @@ public class MapSelectionManager : MonoBehaviour
         wellButtons = new Button[numberOfWells];
         levelButtons = new Button[numberOfWells][];
 
-
         for (int i = 0; i < numberOfWells; i++)
         {
             wellButtons[i] = swipeWell.transform.GetChild(i).gameObject.GetComponent<Button>();
@@ -116,15 +117,16 @@ public class MapSelectionManager : MonoBehaviour
             }
         }
 
-        swipeWellStartLocation = swipeWell.transform.position;
-        swipeLevelStartLocation = swipeLevel.transform.position;
+        backButton = GameObject.Find("BackButton").GetComponent<Button>();
+        backButton.onClick.AddListener(() => OnBack());
+
+        swipeWellStartPos = swipeWell.transform.position;
+        swipeLevelStartPos = swipeLevel.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(levelMenuArray.Length);
-
         if (inWell)
         {
             HandleSwipeHorizontal();
@@ -308,7 +310,7 @@ public class MapSelectionManager : MonoBehaviour
 
         for (int i = 0; i < numberOfWells; i++)
         {
-            if (wellName == "Well_" + i.ToString())
+            if (wellName == "Well_" + (i + 1).ToString())
             {
                 numberOfLevels = levelMenuArray[i].transform.childCount;
 
@@ -326,30 +328,31 @@ public class MapSelectionManager : MonoBehaviour
         // Hides the well buttons.
         wellMenuUIControl.HideUI();
 
-        swipeWell.transform.position = swipeWellStartLocation;
+        //swipeWell.transform.position = swipeWellStartPos;
+
+        inWell = false;
     }
 
-    //This changes to a level scene
+    
     public void OnLevelSelected()
     {
         Debug.Log(EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
         SceneManager.LoadScene(wellName + "_" + EventSystem.current.currentSelectedGameObject.GetComponentInChildren<Text>().text);
     }
 
-    //Simple back button method. 
-    public void BackFromSceneSelection()
+    
+    public void OnBack()
     {
         if (inWell == true)
         {
-
+            Debug.Log("Nothing to go back to at the moment.");
         }
         else
         {
             levelMenuUIControl.HideUI();
-
             wellMenuUIControl.ShowUI();
 
-            swipeLevel.transform.position = swipeLevelStartLocation;
+            swipeLevel.transform.position = swipeLevelStartPos;
 
             inWell = true;
         }

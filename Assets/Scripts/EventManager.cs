@@ -22,12 +22,6 @@ public class EventManager : MonoBehaviour
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
 
-    public delegate void MenuWellSelected(int wellIndex);
-    public static event MenuWellSelected OnMenuWellSelected;
-
-    public delegate void MenuLevelSelected(int wellIndex, int levelIndex);
-    public static event MenuLevelSelected OnMenuLevelSelected;
-
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)
@@ -103,32 +97,6 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was not invoked because nothing subscibes to it.");
-        }
-    }
-
-    public static void InvokeOnMenuWellSelected(int wellIndex)
-    {
-        if (OnMenuWellSelected != null)
-        {
-            OnMenuWellSelected.Invoke(wellIndex);
-            Debug.Log("EventManager.cs: The event 'OnMenuWellSelected' was invoked.");
-        }
-        else
-        {
-            Debug.Log("EventManager.cs: The event 'OnMenuWellSelected' was not invoked because nothing subscibes to it.");
-        }
-    }
-
-    public static void InvokeOnMenuLevelSelected(int wellIndex, int levelIndex)
-    {
-        if (OnMenuLevelSelected != null)
-        {
-            OnMenuLevelSelected.Invoke(wellIndex, levelIndex);
-            Debug.Log("EventManager.cs: The event 'OnMenuLevelSelected' was invoked.");
-        }
-        else
-        {
-            Debug.Log("EventManager.cs: The event 'OnMenuLevelSelected' was not invoked because nothing subscibes to it.");
         }
     }
 }
