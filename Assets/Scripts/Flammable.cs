@@ -46,7 +46,7 @@ public class Flammable : MonoBehaviour
 
     private void OnIgnite(int amount, Vector3 newCheckpoint)
     {
-        StartCoroutine("Burn");
+        
     }
 
     // Use this for initialization
@@ -66,6 +66,12 @@ public class Flammable : MonoBehaviour
     private void Reset()
     {
         gameObject.GetComponent<Collider>().enabled = true;
+    }
+
+    public void FlameHitTransition()
+    {
+        StartCoroutine("Burn");
+        gameObject.GetComponent<Collider>().enabled = false;
     }
 
 
