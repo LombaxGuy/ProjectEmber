@@ -147,7 +147,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 114491156454753546, guid: 35bf7d4360052d54487bed898b1cad40,
           type: 2}
-        m_MethodName: PickScene
+        m_MethodName: OnLevelSelected
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
