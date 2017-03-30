@@ -90,12 +90,12 @@ public class MapSelectionManager : MonoBehaviour
 
         for (int i = 0; i < numberOfWells; i++)
         {
-            levelMenuArray[i] = new GameObject("LevelMenu" + (i + 1), typeof(RectTransform));
-            levelMenuArray[i].transform.SetParent(swipeLevel.transform);
-            levelMenuArray[i].AddComponent<UIVisibilityControl>();
-            levelMenuArray[i].transform.localScale = Vector3.one;
-            levelMenuArray[i].transform.localPosition = Vector3.zero;
+            levelMenuArray[i] = swipeLevel.transform.GetChild(i).gameObject;
+
+            levelMenuArray[i].GetComponent<UIVisibilityControl>().HideUI();
         }
+
+        Debug.Log(levelMenuArray.Length);
 
         swipeWellStartLocation = swipeWell.transform.position;
         swipeLevelStartLocation = swipeLevel.transform.position;
@@ -104,6 +104,8 @@ public class MapSelectionManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(levelMenuArray.Length);
+
         if (inWell)
         {
             HandleSwipeHorizontal();
@@ -279,8 +281,26 @@ public class MapSelectionManager : MonoBehaviour
     }
 
     //When there is a well button clicked, this method wil run. It will remove and then populate canvas with new buttons.
-    public void OnWellSelected(int numberOfLevels)
+    public void OnWellSelected()
     {
+        int numberOfLevels = 0;
+
+        wellName = EventSystem.current.currentSelectedGameObject.name;
+
+        Debug.Log(levelMenuArray.Length);
+
+        for (int i = 0; i < numberOfWells; i++)
+        {
+            if (wellName == "Well_" + i.ToString())
+            {
+                numberOfLevels = levelMenuArray[i].transform.childCount;
+
+                levelMenuArray[i].GetComponent<UIVisibilityControl>().ShowUI();
+            }
+        }
+
+        
+
         #region Vertical Swipe
         yMinSoft = -1 * (numberOfLevels - 1) * levelSpacing;
 
@@ -288,90 +308,37 @@ public class MapSelectionManager : MonoBehaviour
         yMaxHard = yMaxSoft + margin;
         #endregion
 
-        wellName = EventSystem.current.currentSelectedGameObject.name;
-
-        switch (wellName)
-        {
-            case "1stWell":
-
-                if (levelMenuArray[0].transform.childCount != numberOfLevels)
-                {
-                    CreateLevels(levelMenuArray[0], numberOfLevels);
-                }
-                else
-                {
-                    levelMenuArray[0].GetComponent<UIVisibilityControl>().ShowUI();
-                }
-
-                inWell = false;
-
-                break;
-
-            case "2ndWell":
-
-                if (levelMenuArray[1].transform.childCount != numberOfLevels)
-                {
-                    CreateLevels(levelMenuArray[1], numberOfLevels);
-                }
-                else
-                {
-                    levelMenuArray[1].GetComponent<UIVisibilityControl>().ShowUI();
-                }
-
-                inWell = false;
-
-                break;
-
-            case "3rdWell":
-
-                if (levelMenuArray[2].transform.childCount != numberOfLevels)
-                {
-                    CreateLevels(levelMenuArray[2], numberOfLevels);
-                }
-                else
-                {
-                    levelMenuArray[2].GetComponent<UIVisibilityControl>().ShowUI();
-                }
-
-                inWell = false;
-
-                break;
-
-            default:
-                break;
-        }
-
         // Hides the well buttons.
         wellMenuUIControl.HideUI();
 
         swipeWell.transform.position = swipeWellStartLocation;
     }
 
-    private void CreateLevels(GameObject levelMenuElement, int numberOfLevels)
-    {
-        for (int i = 1; i < numberOfLevels + 1; i++)
-        {
-            GameObject temp = Instantiate(buttonGameObject);
-            temp.transform.SetParent(levelMenuElement.transform);
-            temp.name = "Button_" + i.ToString();
-            temp.transform.localScale = new Vector3(1, 1, 1);
+    //private void CreateLevels(GameObject levelMenuElement, int numberOfLevels)
+    //{
+    //    for (int i = 1; i < numberOfLevels + 1; i++)
+    //    {
+    //        GameObject temp = Instantiate(buttonGameObject);
+    //        temp.transform.SetParent(levelMenuElement.transform);
+    //        temp.name = "Button_" + i.ToString();
+    //        temp.transform.localScale = new Vector3(1, 1, 1);
 
-            if (i % 2 == 0)
-            {
-                temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
-            }
-            else
-            {
-                temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
-            }
+    //        if (i % 2 == 0)
+    //        {
+    //            temp.transform.localPosition = new Vector3(levelSpacing, i * levelSpacing, 0);
+    //        }
+    //        else
+    //        {
+    //            temp.transform.localPosition = new Vector3(-levelSpacing, i * levelSpacing, 0);
+    //        }
 
-            temp.GetComponentInChildren<Text>().text = i.ToString();
+    //        temp.GetComponentInChildren<Text>().text = i.ToString();
 
-            levelMenuElement.GetComponent<UIVisibilityControl>().Reinitialize();
+    //        levelMenuElement.GetComponent<UIVisibilityControl>().Reinitialize();
 
-            levelMenuUIControl.Reinitialize();
-        }
-    }
+    //        levelMenuUIControl.Reinitialize();
+    //    }
+    //}
 
     //This changes to a level scene
     public void OnLevelSelected()
