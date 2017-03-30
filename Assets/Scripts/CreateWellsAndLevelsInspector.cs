@@ -12,6 +12,8 @@ public class CreateWellsAndLevelsInspector : Editor
 
         CreateWellsAndLevels script = (CreateWellsAndLevels)target;
 
+        EditorGUILayout.Space();
+
         if (GUILayout.Button("Build wells and levels"))
         {
             script.Build();

@@ -59,23 +59,28 @@ public class CreateWellsAndLevels : MonoBehaviour
         }
     }
 
-    public void Build()
+    private void DestroyOldInstances()
     {
-        if (levelMenuArray != null && levelMenuArray.Length != 0)
+        if (levelSwipeObject.transform.childCount != 0)
         {
-            for (int i = 0; i < levelMenuArray.Length; i++)
+            for (int i = levelSwipeObject.transform.childCount - 1; i >= 0; i--)
             {
-                DestroyImmediate(levelMenuArray[i]);
+                DestroyImmediate(levelSwipeObject.transform.GetChild(i).gameObject);
             }
         }
 
-        if (wellButtonArray != null && wellButtonArray.Length != 0)
+        if (wellSwipeObject.transform.childCount != 0)
         {
-            for (int i = 0; i < wellButtonArray.Length; i++)
+            for (int i = wellSwipeObject.transform.childCount - 1; i >= 0; i--)
             {
-                DestroyImmediate(wellButtonArray[i]);
+                DestroyImmediate(wellSwipeObject.transform.GetChild(i).gameObject);
             }
         }
+    }
+
+    public void Build()
+    {
+        DestroyOldInstances();
 
         wellButtonArray = new GameObject[numberOfWells];
         levelMenuArray = new GameObject[numberOfWells];
