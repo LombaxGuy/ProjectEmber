@@ -31,7 +31,9 @@ public class Spawner : MonoBehaviour {
 
     private bool spawnerOn = false;
 
+    [SerializeField]
     private int currentProjectile = 0;
+    [SerializeField]
     private int currentProjectileCount = 0;
 
     //Projetile
@@ -47,6 +49,11 @@ public class Spawner : MonoBehaviour {
         targetPos = targetMark.transform.position;
         dir = createPos + targetPos;
         projectiles = new GameObject[p_MaxP];
+        for (int i = 0; i < projectiles.Length; i++)
+        {
+            projectiles[i] = Instantiate(projectile, createPos, Quaternion.identity);
+            projectiles[i].SetActive(false);
+        }
 
 	}
 	
@@ -62,87 +69,72 @@ public class Spawner : MonoBehaviour {
         
     }
 
-    private void Prep()
-    {
-        for (int i = 0; i < projectiles.Length; i++)
-        {
-            
-        }
-    }
 
 
     private void Launch()
     {
-
-        //projectiles[0] = Instantiate(projectile, createPos, Quaternion.identity);
-        StartCoroutine("Drip");
-        
+        StartCoroutine("Drip");       
     }
 
-    private IEnumerator move()
-    {
-        float t = 0;
-        Debug.Log("called");
-        while (t < 1)
-        {
-            t += Time.deltaTime / 2;
-            projectiles[0].GetComponent<Rigidbody>().AddForce(dir.normalized,ForceMode.Acceleration);
-            yield return null;
-        }
+    //private IEnumerator move()
+    //{
+    //    float t = 0;
+    //    Debug.Log("called");
+    //    while (t < 1)
+    //    {
+    //        t += Time.deltaTime / 2;
+    //        projectiles[0].GetComponent<Rigidbody>().AddForce(dir.normalized,ForceMode.Acceleration);
+    //        yield return null;
+    //    }
        
-    }
+    //}
 
-    private IEnumerator Fade(GameObject go)
-    {
-        float t = 0;
-        
-            while (go != null)
-            {
-                t += Time.deltaTime / 2;
-                if (t > p_LifeTime)
-                {
-                Destroy(go);
-                currentProjectileCount--;
-                }
-                yield return null;
-            }        
-        yield return null;
-    }
+
 
     private IEnumerator Drip()
     {
         float t = 0;
-
         while (spawnerOn)
         {
             t += Time.deltaTime / 2;
-
             //Spawn
-            if (currentProjectileCount < p_MaxP)
-            {
+
                 if (currentProjectile == p_MaxP)
                 {
                     currentProjectile = 0;
-                    projectiles[currentProjectile] = Instantiate(projectile, createPos, Quaternion.identity);
+                    projectiles[currentProjectile].SetActive(true);
                     StartCoroutine(Fade(projectiles[currentProjectile]));
-                    currentProjectileCount++;
-                    
-                    yield return new WaitForSeconds(interval);
+                    currentProjectile++;
+    
                 }
                 else
                 {
-                    projectiles[currentProjectile] = Instantiate(projectile, createPos, Quaternion.identity);
+                    projectiles[currentProjectile].SetActive(true);
                     StartCoroutine(Fade(projectiles[currentProjectile]));
                     currentProjectile++;
-                    currentProjectileCount++;
-                    yield return new WaitForSeconds(interval);
+
                 }
-                yield return null;
-            }
-
-            yield return null;
+                yield return new WaitForSeconds(interval);
         }
-
     }
 
+
+    //Put i droplet frem for andet
+    private IEnumerator Fade(GameObject go)
+    {
+        float t = 0;
+
+        while (go.activeInHierarchy)
+        {
+            t += Time.deltaTime / 2;
+
+            if (t > p_LifeTime)
+            {
+                go.SetActive(false);
+                go.transform.position = createPos;
+            }
+            yield return null;
+        }
+        
+    }
 }
