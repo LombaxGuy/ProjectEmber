@@ -11,10 +11,6 @@ public class MapSelectionManager : MonoBehaviour
     private bool inWell = true;
     private int numberOfWells;
 
-    [Tooltip("Button prefab for levels inside well")]
-    [SerializeField]
-    private GameObject buttonGameObject;
-
     private Vector3 swipeWellStartPos;
     private Vector3 swipeLevelStartPos;
 
@@ -32,7 +28,6 @@ public class MapSelectionManager : MonoBehaviour
 
     #region Swipe
     private GameObject swipeWell;
-
     private GameObject swipeLevel;
 
     private float margin = 200;
@@ -51,9 +46,8 @@ public class MapSelectionManager : MonoBehaviour
 
     private Vector3 oldMousePos;
 
-    private float moveLerpTime = 0.1f;
-
     private float horizontalMoveSpeed = 0.5f;
+    private float verticalMoveSpeed = 0.5f;
 
     private float wellSpacing = 800;
     private float levelSpacing = 200;
@@ -62,7 +56,7 @@ public class MapSelectionManager : MonoBehaviour
     #endregion
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         // Finds GameObjects by name.
         swipeWell = GameObject.Find("WellSwipeObject");
@@ -126,7 +120,7 @@ public class MapSelectionManager : MonoBehaviour
     /// <summary>
     /// Update is called once per frame
     /// </summary>
-    void Update()
+    private void Update()
     {
         // If we are in the well menu.
         if (inWell)
@@ -252,7 +246,7 @@ public class MapSelectionManager : MonoBehaviour
                 CalculateDynamicSpeed(yMaxSoft, yMaxHard, swipeLevel.transform.localPosition.y, ref dynamicSpeed);
             }
 
-            swipeLevel.transform.Translate(0, deltaPosY * horizontalMoveSpeed * dynamicSpeed, 0, Space.Self);
+            swipeLevel.transform.Translate(0, deltaPosY * verticalMoveSpeed * dynamicSpeed, 0, Space.Self);
 
             Vector3 pos;
 
