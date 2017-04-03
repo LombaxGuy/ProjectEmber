@@ -187,9 +187,9 @@ public class ProjectileLife : MonoBehaviour
             if (flammableObject != null)
             {
                 EventManager.InvokeOnProjectileIgnite(flammableObject.Health, spawnPos);
-                
+
                 // Not sure if this is a good idea.
-                other.gameObject.GetComponent<Collider>().enabled = false;
+                other.gameObject.GetComponent<Flammable>().FlameHitTransition();
             }
         }
 
