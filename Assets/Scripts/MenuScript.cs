@@ -126,7 +126,7 @@ public class MenuScript : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(swipeSkinObject.transform.position.x);
+        //Debug.Log(swipeSkinObject.transform.position.x);
         if (currentlyActive == "SkinObject")
         {
             HandleSwipeHorizontal(swipeSkinObject);
