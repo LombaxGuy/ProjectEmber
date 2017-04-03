@@ -7,12 +7,13 @@ public class Droplet : MonoBehaviour {
     //private bool alive;
     private Vector3 startPos;
 
+    [SerializeField]
+    private float lifeTime = 2;
+
 	// Use this for initialization
 	void Start () {
-        //alive = true;
-        //StartCoroutine("Disperse");
-
         startPos = gameObject.transform.position;
+        
 	}
 	
 	// Update is called once per frame
@@ -20,21 +21,31 @@ public class Droplet : MonoBehaviour {
 		
 	}
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="other"></param>
     private void OnCollisionEnter(Collision other)
     {
         gameObject.SetActive(false);
         gameObject.transform.position = startPos;
     }
 
-    //private IEnumerator Disperse()
-    //{
-    //    while (alive)
-    //    {
-           
+    private IEnumerator Fade()
+    {
+        float t = 0;
 
-    //        yield return new WaitForSeconds(0.5f);
-    //    }
+        while(gameObject.activeInHierarchy)
+        {
+            t += Time.deltaTime / 2;
 
-    //    yield return null;
-    //}
+            if (t > lifeTime)
+            {
+                gameObject.SetActive(false);
+                gameObject.transform.position = startPos;
+            }
+            yield return null;
+        }
+
+    }
 }
