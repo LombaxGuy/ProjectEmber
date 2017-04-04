@@ -6,7 +6,6 @@ public class Droplet : MonoBehaviour {
 
     //private bool alive;
     private Vector3 startPos;
-
     [SerializeField]
     private float lifeTime = 2;
 
@@ -15,22 +14,22 @@ public class Droplet : MonoBehaviour {
         startPos = gameObject.transform.position;
         
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
     /// <summary>
-    /// 
+    /// This resets the gameobject whevener it hits another gamepbject
     /// </summary>
-    /// <param name="other"></param>
+    /// <param name="other">any gameobject</param>
     private void OnCollisionEnter(Collision other)
     {
         gameObject.SetActive(false);
         gameObject.transform.position = startPos;
     }
 
+    /// <summary>
+    /// This coroutine makes the object dissapear after a set time.
+    /// This gets called in the script that spawns this object o´r handles placements
+    /// </summary>
+    /// <returns>null</returns>
     private IEnumerator Fade()
     {
         float t = 0;
