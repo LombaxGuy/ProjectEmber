@@ -51,7 +51,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c31300cdbccc8184883ca67266ad60ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wellCanvas: {fileID: 0}
-  levelCanvas: {fileID: 0}
-  buttonGameObject: {fileID: 1751733465915806, guid: 19b68905556858c41b759e4254d6744d,
-    type: 2}
