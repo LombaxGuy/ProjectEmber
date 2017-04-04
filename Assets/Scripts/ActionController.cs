@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ActionController : MonoBehaviour
 {
-    [SerializeField]
+    private WorldManager worldManager;
+
     private GameObject activeFlame;
-    [SerializeField]
     private GameObject selectionSphere;
     private Rigidbody flameRigidbody;
 
@@ -44,6 +44,12 @@ public class ActionController : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
+        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+        worldManager.ActiveFlame = gameObject;
+
+        activeFlame = gameObject;
+        selectionSphere = transform.GetChild(0).gameObject;
+
         // Gets the rigidbody component on the active flame
         flameRigidbody = activeFlame.GetComponent<Rigidbody>();
         audioSouces = GetComponents<AudioSource>();

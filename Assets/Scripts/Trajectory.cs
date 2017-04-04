@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Trajectory : MonoBehaviour
 {
+    private WorldManager worldManager;
+
     private LineRenderer line;
 
-    // Temporarily a serialized field. Should be changed later. The flame object should be specified automatically.
-    [SerializeField]
     private GameObject flameObject;
 
     [SerializeField]
@@ -63,6 +63,16 @@ public class Trajectory : MonoBehaviour
     {
         // Gets the LineRenderer component.
         line = GetComponent<LineRenderer>();
+        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+        flameObject = worldManager.ActiveFlame;
+    }
+
+    private void Update()
+    {
+        if (flameObject != worldManager.ActiveFlame)
+        {
+            flameObject = worldManager.ActiveFlame;
+        }
     }
 
     /// <summary>
