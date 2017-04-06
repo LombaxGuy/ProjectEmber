@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 135367800304352702}
   - component: {fileID: 23266198593460112}
   - component: {fileID: 54307502185102076}
-  - component: {fileID: 114289259845976908}
+  - component: {fileID: 114145927650253330}
   m_Layer: 0
   m_Name: Droplet
   m_TagString: KillerObject
@@ -38,7 +38,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1993469063991306}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.41, y: -2.643, z: 4.968825}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_Children: []
   m_Father: {fileID: 0}
@@ -97,7 +97,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
---- !u!114 &114289259845976908
+--- !u!114 &114145927650253330
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -105,9 +105,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1993469063991306}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0741c14e52bacd44834b5f986f8bc77, type: 3}
+  m_Script: {fileID: 11500000, guid: 172125ec8a80786468dea1156953b951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lifeTime: 2
 --- !u!135 &135367800304352702
 SphereCollider:
   m_ObjectHideFlags: 1
