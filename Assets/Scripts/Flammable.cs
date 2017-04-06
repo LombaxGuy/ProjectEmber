@@ -9,7 +9,7 @@ public class Flammable : MonoBehaviour
     private int health;
 
     [SerializeField]
-    private Texture charrrd;
+    private Texture burntTexture;
 
     private Color B_color;
     private Color W_color;
@@ -70,7 +70,8 @@ public class Flammable : MonoBehaviour
 
     public void FlameHitTransition()
     {
-        StartCoroutine("Burn");
+        StartCoroutine(Burn());
+        
         gameObject.GetComponent<Collider>().enabled = false;
     }
 
@@ -78,8 +79,6 @@ public class Flammable : MonoBehaviour
     private IEnumerator Burn()
     {
         float t = 0;
-
-        
 
         while (myMaterial.color != B_color)
         {
@@ -90,8 +89,9 @@ public class Flammable : MonoBehaviour
         }
             
             yield return new WaitForSeconds(0.1f);
-            myMaterial.mainTexture = charrrd;
+            myMaterial.mainTexture = burntTexture;
             t = 0;
+
         while (myMaterial.color != W_color)
         {
             t += Time.deltaTime / 4f;

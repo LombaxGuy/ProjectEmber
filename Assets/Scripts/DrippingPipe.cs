@@ -2,44 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spawner : MonoBehaviour {
-
-    [SerializeField]
-    private GameObject spawnMark;
-    [SerializeField]
-    private Vector3 createPos;
-    [SerializeField]
-    private GameObject[] projectiles;
+public class Spawner : MonoBehaviour
+{
+    private Vector3 spawnPosition;
+    private GameObject[] spawnObjects;
 
     //Settings
     [Header("Settings")]
+
+    [Tooltip("The maximum number of objects in the array.")]
     [SerializeField]
-    private int p_MaxP;
+    private int maxObjectCount = 5;
+
     [SerializeField]
-    private float interval;
+    private float interval = 0.5f;
 
     //Can be used to turn spawning on and off if that is needed in future map creation
     private bool spawnerOn = false;
 
-    [SerializeField]
     private int currentProjectile = 0;
 
-    //Projetile
+    [Tooltip("The prefab that the spawner should spawn.")]
     [SerializeField]
-    private GameObject projectile;
+    private GameObject spawnObject;
 
-	// Use this for initialization
-	void Start () {
+    private Coroutine spawnerCoroutine;
 
-        createPos = spawnMark.transform.position;
-        projectiles = new GameObject[p_MaxP];
-        for (int i = 0; i < projectiles.Length; i++)
+    // Use this for initialization
+    void Start()
+    {
+        spawnPosition = transform.Find("SpawnPoint").position;
+
+        spawnObjects = new GameObject[maxObjectCount];
+
+        for (int i = 0; i < spawnObjects.Length; i++)
         {
-            projectiles[i] = Instantiate(projectile, createPos, Quaternion.identity);
-            projectiles[i].SetActive(false);
+            spawnObjects[i] = Instantiate(spawnObject, spawnPosition, Quaternion.identity);
+            spawnObjects[i].SetActive(false);
         }
+
+        spawnerCoroutine = StartCoroutine(CoroutineSpawn());
+
+
         Launch();
-	}
+    }
 
     /// <summary>
     /// USed to launch the coroutine
@@ -47,7 +53,7 @@ public class Spawner : MonoBehaviour {
     private void Launch()
     {
         spawnerOn = !spawnerOn;
-        StartCoroutine("Drip");       
+        StartCoroutine("Drip");
     }
 
 
@@ -55,29 +61,29 @@ public class Spawner : MonoBehaviour {
     /// Handles the spawning of the projectiles
     /// </summary>
     /// <returns>Waits for the interval</returns>
-    private IEnumerator Drip()
+    private IEnumerator CoroutineSpawn()
     {
         float t = 0;
         while (spawnerOn)
         {
             t += Time.deltaTime / 2;
 
-                if (currentProjectile == p_MaxP)
-                {
-                    currentProjectile = 0;
-                    projectiles[currentProjectile].SetActive(true);
-                    projectiles[currentProjectile].GetComponent<Droplet>().StartCoroutine("Fade");
-                    currentProjectile++;
-    
-                }
-                else
-                {
-                projectiles[currentProjectile].SetActive(true);
-                projectiles[currentProjectile].GetComponent<Droplet>().StartCoroutine("Fade");
+            if (currentProjectile == maxObjectCount)
+            {
+                currentProjectile = 0;
+                spawnObjects[currentProjectile].SetActive(true);
+                spawnObjects[currentProjectile].GetComponent<Droplet>().StartCoroutine("Fade");
                 currentProjectile++;
 
-                }
-                yield return new WaitForSeconds(interval);
+            }
+            else
+            {
+                spawnObjects[currentProjectile].SetActive(true);
+                spawnObjects[currentProjectile].GetComponent<Droplet>().StartCoroutine("Fade");
+                currentProjectile++;
+
+            }
+            yield return new WaitForSeconds(interval);
         }
     }
 }

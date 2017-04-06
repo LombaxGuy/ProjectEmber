@@ -21,6 +21,9 @@ public class TestPowerUp : Powerup {
 		
 	}
 
+    /// <summary>
+    /// Sets the values of the powerup before using it.
+    /// </summary>
     private void PreStart()
     {
         Turns = 3;
@@ -30,6 +33,9 @@ public class TestPowerUp : Powerup {
         newValue = 0;
     }
 
+    /// <summary>
+    /// This method makes the powerup do its thing
+    /// </summary>
     public override void UsePowerup()
     {
         PreStart();
@@ -47,7 +53,9 @@ public class TestPowerUp : Powerup {
         EventManager.OnProjectileRespawn -= NextTurn;
     }
 
-
+    /// <summary>
+    /// This will make the powerup stop after there is no more turns.
+    /// </summary>
     public override void NextTurn()
     {
 
@@ -62,6 +70,9 @@ public class TestPowerUp : Powerup {
         Debug.Log("Turns : " + Turns);
     }
 
+    /// <summary>
+    /// This method is runned as the last method before destroying the object. It will reset values back to the origin.
+    /// </summary>
     public override void ResetValues()
     {
         player.GetComponent<AudioSource>().volume = oldValue;
