@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class wtrtest : MonoBehaviour
+public class WaterRising : MonoBehaviour
 {
 
     [SerializeField]
@@ -87,6 +87,11 @@ public class wtrtest : MonoBehaviour
         currentPosition = gameObject.transform.position;
     }
 
+
+    //All of this needs a rework hlyshit this is bad
+
+
+
     private void SetTarget()
     {
         startPosition = gameObject.transform.position;
@@ -110,7 +115,6 @@ public class wtrtest : MonoBehaviour
     private IEnumerator MoveIt()
     {
         float t = 0;
-        Debug.Log("courotine");
         while (t < 1)
         {
             t += Time.deltaTime / 2f;

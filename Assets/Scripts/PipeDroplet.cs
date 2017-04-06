@@ -48,4 +48,28 @@ public class PipeDroplet : MonoBehaviour
             yield return null;
         }
     }
+
+    /// <summary>
+    /// This coroutine makes the object dissapear after a set time.
+    /// This gets called in the script that spawns this object or handles placements, can take a custom time
+    /// </summary>
+    /// <param name="lifeTime">The time it takes for the droplet to get disabled</param>
+    /// <returns>null</returns>
+    private IEnumerator Fade(float lifeTime)
+    {
+        float t = 0;
+
+        while (gameObject.activeInHierarchy)
+        {
+            t += Time.deltaTime / 2;
+
+            if (t > lifeTime)
+            {
+                gameObject.SetActive(false);
+                gameObject.transform.position = startPos;
+            }
+            yield return null;
+        }
+
+    }
 }
