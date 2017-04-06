@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Droplet : MonoBehaviour {
+public class Droplet : MonoBehaviour
+{
 
     //private bool alive;
     private Vector3 startPos;
     [SerializeField]
     private float lifeTime = 2;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         startPos = gameObject.transform.position;
-        
-	}
+
+    }
 
     /// <summary>
     /// This resets the gameobject whevener it hits another gamepbject
@@ -34,7 +36,7 @@ public class Droplet : MonoBehaviour {
     {
         float t = 0;
 
-        while(gameObject.activeInHierarchy)
+        while (gameObject.activeInHierarchy)
         {
             t += Time.deltaTime / 2;
 

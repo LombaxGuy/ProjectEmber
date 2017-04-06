@@ -54,6 +54,8 @@ public class FlameAudio : MonoBehaviour
 
         audioSources[0].clip = flameIdleSound;
         audioSources[1].clip = flameThrowSound;
+
+        audioSources[0].Play();
     }
 
     // Update is called once per frame
