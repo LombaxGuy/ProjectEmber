@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Droplet : MonoBehaviour
+public class PipeDroplet : MonoBehaviour
 {
-
     //private bool alive;
     private Vector3 startPos;
     [SerializeField]
@@ -45,8 +44,8 @@ public class Droplet : MonoBehaviour
                 gameObject.SetActive(false);
                 gameObject.transform.position = startPos;
             }
+
             yield return null;
         }
-
     }
 }
