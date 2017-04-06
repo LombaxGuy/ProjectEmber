@@ -13,11 +13,17 @@ public class MenuScript : MonoBehaviour
 
     private ShopItem[] skinItemArray;
     private ShopItem[] powerupItemArray;
+    private ShopItem[] coinItemArray;
     private Text priceText;
     private Button buyButton;
+    private Text coinText;
     private Text buyButtonText;
+    private Text currentlyOwnedText;
     private int rngNumber;
 
+    private int coins = 0;
+
+    private TransactionScript transactionScript = new TransactionScript();
 
 
     private GameObject mainMenuObject;
@@ -43,6 +49,7 @@ public class MenuScript : MonoBehaviour
     #region Swipe
     private GameObject swipeSkinObject;
     private GameObject swipePowerupObject;
+    private GameObject swipeCoinObject;
 
     private float margin = 50;
 
@@ -62,15 +69,41 @@ public class MenuScript : MonoBehaviour
 
     private int skinElements;
     private int powerupElements;
+    private int coinElements;
 
     private Coroutine centeringCoroutine;
     #endregion
 
 
+    private int powerup0Count = 0;
+    private int powerup1Count = 0;
+    private int powerup2Count = 0;
+    private int powerup3Count = 0;
+    private int powerup4Count = 0;
+    private int powerup5Count = 0;
+    private int powerup6Count = 0;
+    private int powerup7Count = 0;
+    private int powerup8Count = 0;
+
+    private List<string> itemIDList = new List<string>();
+
     public string CurrentlyActive
     {
         get { return currentlyActive; }
         set { currentlyActive = value; }
+    }
+
+    public int Coins
+    {
+        get
+        {
+            return coins;
+        }
+
+        set
+        {
+            coins = value;
+        }
     }
 
     private void Start()
@@ -79,16 +112,21 @@ public class MenuScript : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "Main Menu")
         {
             priceText = GameObject.Find("Pricetag").GetComponent<Text>();
+            coinText = GameObject.Find("CoinText").GetComponent<Text>();
             buyButton = GameObject.Find("BuyEquipButton").GetComponent<Button>();
             buyButtonText = GameObject.Find("BuyEquipText").GetComponent<Text>();
             swipeSkinObject = GameObject.Find("SkinObject");
             swipePowerupObject = GameObject.Find("PowerupObject");
+            swipeCoinObject = GameObject.Find("CoinObject");
+            currentlyOwnedText = GameObject.Find("CurrentlyOwned").GetComponent<Text>();
 
             skinElements = swipeSkinObject.transform.childCount;
             powerupElements = swipePowerupObject.transform.childCount;
+            coinElements = swipeCoinObject.transform.childCount;
 
             skinItemArray = new ShopItem[skinElements];
             powerupItemArray = new ShopItem[powerupElements];
+            coinItemArray = new ShopItem[coinElements];
 
             CalculateCaps(skinElements);
 
@@ -100,7 +138,7 @@ public class MenuScript : MonoBehaviour
                 skinItemArray[i] = new ShopItem();
                 if (i == 0)
                 {
-                    skinItemArray[i].ItemPosition = 395;
+                    skinItemArray[i].ItemPosition = 118;
                     skinItemArray[i].Unlocked = true;
                     skinItemArray[i].Equipped = true;
                 }
@@ -134,7 +172,7 @@ public class MenuScript : MonoBehaviour
                 powerupItemArray[i] = new ShopItem();
                 if (i == 0)
                 {
-                    powerupItemArray[i].ItemPosition = 395;
+                    powerupItemArray[i].ItemPosition = 118;
                 }
                 else
                 {
@@ -160,12 +198,46 @@ public class MenuScript : MonoBehaviour
 
             }
 
+            for (int i = 0; i < coinElements; i++)
+            {
+                coinItemArray[i] = new ShopItem();
+
+                if (i == 0)
+                {
+                    coinItemArray[i].ItemPosition = 118;
+                }
+                else
+                {
+                    coinItemArray[i].ItemPosition = coinItemArray[i - 1].ItemPosition - 220;
+                }
+
+                rngNumber = Random.Range(1, 5);
+                switch (rngNumber)
+                {
+                    case 1:
+                        coinItemArray[i].Price = "1.50€";
+                        break;
+                    case 2:
+                        coinItemArray[i].Price = "5€";
+                        break;
+                    case 3:
+                        coinItemArray[i].Price = "7.50€";
+                        break;
+                    case 4:
+                        coinItemArray[i].Price = "9.99€";
+                        break;
+
+                }
+            }
+
             mainMenuObject = GameObject.Find("MainMenuObject");
+            transactionScript.OnStartUp(skinElements, powerupElements, coinElements);
         }
     }
 
     private void Update()
     {
+        Debug.Log(CurrentlyActive);
         if (currentlyActive == "SkinObject")
         {
             HandleSwipeHorizontal(swipeSkinObject);
@@ -175,6 +247,42 @@ public class MenuScript : MonoBehaviour
         {
             HandleSwipeHorizontal(swipePowerupObject);
             CalculateCaps(powerupElements);
+            switch (currentItemShown)
+            {
+                case 0:
+                    currentlyOwnedText.text = powerup0Count.ToString();
+                    break;
+                case 1:
+                    currentlyOwnedText.text = powerup1Count.ToString();
+                    break;
+                case 2:
+                    currentlyOwnedText.text = powerup2Count.ToString();
+                    break;
+                case 3:
+                    currentlyOwnedText.text = powerup3Count.ToString();
+                    break;
+                case 4:
+                    currentlyOwnedText.text = powerup4Count.ToString();
+                    break;
+                case 5:
+                    currentlyOwnedText.text = powerup5Count.ToString();
+                    break;
+                case 6:
+                    currentlyOwnedText.text = powerup6Count.ToString();
+                    break;
+                case 7:
+                    currentlyOwnedText.text = powerup7Count.ToString();
+                    break;
+                case 8:
+                    currentlyOwnedText.text = powerup8Count.ToString();
+                    break;
+
+            }
+        }
+        else if(CurrentlyActive == "CoinObject")
+        {
+            HandleSwipeHorizontal(swipeCoinObject);
+            CalculateCaps(coinElements);
         }
         if (updateObjectPosition == true)
         {
@@ -184,6 +292,8 @@ public class MenuScript : MonoBehaviour
                 updateObjectPosition = false;
             }
         }
+
+        coinText.text = Coins.ToString();
     }
 
     /// <summary>
@@ -395,6 +505,11 @@ public class MenuScript : MonoBehaviour
                 ToogleMainMenuWindow("ShopObject", true, true);
                 CurrentlyActive = "none";
                 break;
+            case "CoinObject":
+                ToogleMainMenuWindow("CoinObject", true, false);
+                ToogleMainMenuWindow("ShopObject", true, true);
+                CurrentlyActive = "none";
+                break;
             case "SettingsObject":
                 ToogleMainMenuWindow("SettingsObject", true, true);
                 CurrentlyActive = "none";
@@ -440,6 +555,10 @@ public class MenuScript : MonoBehaviour
         {
             ToogleMainMenuWindow("SkinObject", true, false);
         }
+        else if (CurrentlyActive == "CoinObject")
+        {
+            ToogleMainMenuWindow("CoinObject", true, false);
+        }
         ToogleMainMenuWindow("PowerupObject", false, false);
         shopMenuObject = GameObject.Find("PowerupObject");
         CurrentlyActive = "PowerupObject";
@@ -454,8 +573,29 @@ public class MenuScript : MonoBehaviour
         {
             ToogleMainMenuWindow("PowerupObject", true, false);
         }
+        else if(CurrentlyActive == "CoinObject")
+        {
+            ToogleMainMenuWindow("CoinObject", true, false);
+        }
         shopMenuObject = GameObject.Find("SkinObject");
         CurrentlyActive = "SkinObject";
+        currentlyOwnedText.text = "";
+    }
+
+    public void CoinButton()
+    {
+        ToogleMainMenuWindow("CoinObject", false, false);
+        if(CurrentlyActive == "SkinObject")
+        {
+            ToogleMainMenuWindow("SkinObject", true, false);
+        }
+        else if(CurrentlyActive == "PowerupObject")
+        {
+            ToogleMainMenuWindow("PowerupObject", true, false);
+        }
+        shopMenuObject = GameObject.Find("CoinObject");
+        CurrentlyActive = "CoinObject";
+        currentlyOwnedText.text = "";
     }
     /// <summary>
     /// Opens settingsmenu
@@ -486,6 +626,7 @@ public class MenuScript : MonoBehaviour
     /// </summary>
     public void BuyEquipButton()
     {
+        Debug.Log(currentlyActive);
         if (currentlyActive == "SkinObject")
         {
             if (skinItemArray[currentItemShown].Unlocked == true)
@@ -498,13 +639,18 @@ public class MenuScript : MonoBehaviour
             else
             {
                 //Unlocks an item
-                skinItemArray[currentItemShown].Unlocked = true;
+                transactionScript.BuyShopItem(currentItemShown, currentlyActive, skinItemArray[currentItemShown]);
                 priceText.text = "";
+                Debug.Log(skinItemArray[currentItemShown].Unlocked);
             }
         }
         else if (currentlyActive == "PowerupObject")
         {
-            
+            transactionScript.BuyShopItem(currentItemShown, currentlyActive, powerupItemArray[currentItemShown]);
+        }
+        else if(currentlyActive == "CoinObject")
+        {
+            transactionScript.BuyShopItem(currentItemShown, currentlyActive, coinItemArray[currentItemShown]);
         }
         UpdateButton();
     }
@@ -526,11 +672,13 @@ public class MenuScript : MonoBehaviour
         if (currentlyActive == "SkinObject")
         {
             snappedPosInt = Mathf.RoundToInt(swipeSkinObject.transform.position.x);
-
+            Debug.Log(snappedPosInt);
             for (int i = 0; i < skinItemArray.Length; i++)
             {
-                if (snappedPosInt > skinItemArray[i].ItemPosition && snappedPosInt < skinItemArray[i].ItemPosition + 5 || snappedPosInt < skinItemArray[i].ItemPosition && snappedPosInt > skinItemArray[i].ItemPosition - 5)
+                Debug.Log("ITEM POSITION" + skinItemArray[i].ItemPosition);
+                if (snappedPosInt >= skinItemArray[i].ItemPosition && snappedPosInt <= skinItemArray[i].ItemPosition + 5 || snappedPosInt <= skinItemArray[i].ItemPosition && snappedPosInt >= skinItemArray[i].ItemPosition - 5)
                 {
+                    Debug.Log("BLARGH");
                     currentItemShown = i;
                     if (!skinItemArray[currentItemShown].Unlocked)
                     {
@@ -546,21 +694,24 @@ public class MenuScript : MonoBehaviour
         else if (currentlyActive == "PowerupObject")
         {
             snappedPosInt = Mathf.RoundToInt(swipePowerupObject.transform.position.x);
-
             for (int i = 0; i < powerupItemArray.Length; i++)
             {
-                Debug.Log(powerupItemArray[i].ItemPosition);
-                if (snappedPosInt > powerupItemArray[i].ItemPosition && snappedPosInt < powerupItemArray[i].ItemPosition + 5 || snappedPosInt < powerupItemArray[i].ItemPosition && snappedPosInt > powerupItemArray[i].ItemPosition - 5)
+                if (snappedPosInt >= powerupItemArray[i].ItemPosition && snappedPosInt <= powerupItemArray[i].ItemPosition + 5 || snappedPosInt <= powerupItemArray[i].ItemPosition && snappedPosInt >= powerupItemArray[i].ItemPosition - 5)
                 {
                     currentItemShown = i;
-                    if (!powerupItemArray[currentItemShown].Unlocked)
-                    {
-                        priceText.text = powerupItemArray[i].Price;
-                    }
-                    else
-                    {
-                        priceText.text = "";
-                    }
+                    priceText.text = powerupItemArray[i].Price;
+                }
+            }
+        }
+        else if(currentlyActive == "CoinObject")
+        {
+            snappedPosInt = Mathf.RoundToInt(swipeCoinObject.transform.position.x);
+            for (int i = 0; i < coinItemArray.Length; i++)
+            {
+                if(snappedPosInt >= coinItemArray[i].ItemPosition && snappedPosInt <= coinItemArray[i].ItemPosition + 5 || snappedPosInt <= coinItemArray[i].ItemPosition && snappedPosInt >= coinItemArray[i].ItemPosition - 5)
+                {
+                    currentItemShown = i;
+                    priceText.text = coinItemArray[i].Price;
                 }
             }
         }
@@ -597,6 +748,14 @@ public class MenuScript : MonoBehaviour
             }
         }
         else if (currentlyActive == "PowerupObject")
+        {
+            buyButtonText.text = "Buy";
+            if (buyButton.interactable == false)
+            {
+                buyButton.interactable = true;
+            }
+        }
+        else if (currentlyActive == "CoinObject")
         {
             buyButtonText.text = "Buy";
             if (buyButton.interactable == false)
@@ -691,4 +850,45 @@ public class MenuScript : MonoBehaviour
         }
     }
 
+    private void UpdatePowerupCounts()
+    {
+        switch (itemIDList[itemIDList.Count - 1])
+        {
+            case "powerup00":
+                powerup0Count++;
+                break;
+            case "powerup01":
+                powerup1Count++;
+                break;
+            case "powerup02":
+                powerup2Count++;
+                break;
+            case "powerup03":
+                powerup3Count++;
+                break;
+            case "powerup04":
+                powerup4Count++;
+                break;
+            case "powerup05":
+                powerup5Count++;
+                break;
+            case "powerup06":
+                powerup6Count++;
+                break;
+            case "powerup07":
+                powerup7Count++;
+                break;
+            case "powerup08":
+                powerup8Count++;
+                break;
+
+        }
+    }
+
+    public void AddToList(string itemID)
+    {
+        itemIDList.Add(itemID);
+        Debug.Log(itemIDList.Count);
+        UpdatePowerupCounts();
+    }
 }
