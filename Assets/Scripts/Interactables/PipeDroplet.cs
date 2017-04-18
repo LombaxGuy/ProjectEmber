@@ -5,7 +5,7 @@ using UnityEngine;
 public class PipeDroplet : MonoBehaviour
 {
     private Vector3 startPos;
-    private const float lifeTime = 2f;
+    private const float LIFETIME = 2f;
 
     private Rigidbody dropletBody;
 
@@ -57,7 +57,7 @@ public class PipeDroplet : MonoBehaviour
     /// Coroutine that waits for a set amount of time and then disables the droplet.
     /// </summary>
     /// <param name="time">Time in seconds. Set this to use another time than the lifeTime.</param>
-    private IEnumerator CoroutineTimer(float time = lifeTime)
+    private IEnumerator CoroutineTimer(float time = LIFETIME)
     {
         // Waits for a specified amount of time.
         yield return new WaitForSeconds(time);

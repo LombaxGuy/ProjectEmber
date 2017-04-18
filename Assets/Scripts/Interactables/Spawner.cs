@@ -33,7 +33,7 @@ public class Spawner : MonoBehaviour
     private bool isRunning = false;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         // Finds the spawn point.
         spawnPoint = transform.Find("SpawnPoint").position;
