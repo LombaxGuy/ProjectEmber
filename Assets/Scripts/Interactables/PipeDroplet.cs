@@ -6,14 +6,12 @@ public class PipeDroplet : MonoBehaviour
 {
     //private bool alive;
     private Vector3 startPos;
-    [SerializeField]
     private float lifeTime = 2;
 
     // Use this for initialization
     void Start()
     {
         startPos = gameObject.transform.position;
-
     }
 
     /// <summary>
