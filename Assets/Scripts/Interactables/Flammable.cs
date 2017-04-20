@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿// #############################################################################
+// Look at Material.Lerp
+// #############################################################################
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
