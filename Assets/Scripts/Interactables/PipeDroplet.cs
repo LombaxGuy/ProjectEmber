@@ -4,70 +4,79 @@ using UnityEngine;
 
 public class PipeDroplet : MonoBehaviour
 {
-    //private bool alive;
     private Vector3 startPos;
-    private float lifeTime = 2;
+    private const float LIFETIME = 2f;
+
+    private Rigidbody dropletBody;
+
+    private Coroutine fadeCoroutine;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
+        dropletBody = GetComponent<Rigidbody>();
+        
         startPos = gameObject.transform.position;
     }
 
     /// <summary>
-    /// This resets the gameobject whevener it hits another gamepbject
+    /// Used to start the timer coroutine when the droplet is activated.
     /// </summary>
-    /// <param name="other">any gameobject</param>
+    private void OnEnable()
+    {
+        fadeCoroutine = StartCoroutine(CoroutineTimer());
+    }
+
+    /// <summary>
+    /// Used to reset the droplet when it is disabled.
+    /// </summary>
+    private void OnDisable()
+    {
+        Reset();
+    }
+
+    /// <summary>
+    /// If the droplet collides with any other objects in the scene the timer is stoped and the droplet is disabled.
+    /// </summary>
+    /// <param name="other">The gameobject the droplet collides with.</param>
     private void OnCollisionEnter(Collision other)
     {
+        // If the fade coroutine is set
+        if (fadeCoroutine != null)
+        {
+            // The coroutine is stopped and the variable is set to null.
+            StopCoroutine(fadeCoroutine);
+            fadeCoroutine = null;
+        }
+
+        // Disables the droplet.
         gameObject.SetActive(false);
-        gameObject.transform.position = startPos;
     }
 
     /// <summary>
-    /// This coroutine makes the object dissapear after a set time.
-    /// This gets called in the script that spawns this object o´r handles placements
+    /// Coroutine that waits for a set amount of time and then disables the droplet.
     /// </summary>
-    /// <returns>null</returns>
-    private IEnumerator Fade()
+    /// <param name="time">Time in seconds. Set this to use another time than the lifeTime.</param>
+    private IEnumerator CoroutineTimer(float time = LIFETIME)
     {
-        float t = 0;
+        // Waits for a specified amount of time.
+        yield return new WaitForSeconds(time);
 
-        while (gameObject.activeInHierarchy)
-        {
-            t += Time.deltaTime / 2;
-
-            if (t > lifeTime)
-            {
-                gameObject.SetActive(false);
-                gameObject.transform.position = startPos;
-            }
-
-            yield return null;
-        }
+        // Disables the droplet gameobject.
+        gameObject.SetActive(false);
     }
 
     /// <summary>
-    /// This coroutine makes the object dissapear after a set time.
-    /// This gets called in the script that spawns this object or handles placements, can take a custom time
+    /// Resets the droplets position and velocity.
     /// </summary>
-    /// <param name="lifeTime">The time it takes for the droplet to get disabled</param>
-    /// <returns>null</returns>
-    private IEnumerator Fade(float lifeTime)
+    private void Reset()
     {
-        float t = 0;
-
-        while (gameObject.activeInHierarchy)
+        // If the dropletBody is set...
+        if (dropletBody)
         {
-            t += Time.deltaTime / 2;
-
-            if (t > lifeTime)
-            {
-                gameObject.SetActive(false);
-                gameObject.transform.position = startPos;
-            }
-            yield return null;
+            //... reset position and velocity.
+            gameObject.transform.position = startPos;
+            dropletBody.velocity = Vector3.zero;
         }
-
     }
 }
