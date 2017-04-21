@@ -81,16 +81,16 @@ public class FlameAudio : MonoBehaviour
         audioSources[1].Play();
 
         // Alters Flame sound after the Flame has been shot.
-        RecieveForceStrength(0);
+        ReceiveForceStrength(0);
     }
 
     private void OnProjectileUpdated(Vector3 dir, float forceStrength)
     {
         // Alters Flame sound depending on potential forceStrength.
-        RecieveForceStrength(forceStrength);
+        ReceiveForceStrength(forceStrength);
     }
 
-    public void RecieveForceStrength(float forceStrength)
+    public void ReceiveForceStrength(float forceStrength)
     {
         if (forceStrength <= 3.5f)
         {
@@ -114,9 +114,9 @@ public class FlameAudio : MonoBehaviour
         }
     }
 
-    private void BlendSnapshot(int forceStrengthIndent)
+    private void BlendSnapshot(int forceStrengthID)
     {
-        switch (forceStrengthIndent)
+        switch (forceStrengthID)
         {
             case 1:
                 weights[0] = 1.0f;
