@@ -360,11 +360,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1635296166}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ee63c2ef9a69734e9b889b08cdc2ba2, type: 3}
+  m_Script: {fileID: 11500000, guid: 6345d22424f866a4ead0edcf3828618c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLeft: 0
-  timerCD: 10
+  timerCD: 2
 --- !u!114 &1635296169
 MonoBehaviour:
   m_ObjectHideFlags: 0
