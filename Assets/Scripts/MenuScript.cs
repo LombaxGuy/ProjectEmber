@@ -7,44 +7,59 @@ using UnityEngine.Audio;
 
 public class MenuScript : MonoBehaviour
 {
-
+    #region SoundVariables
     [SerializeField]
     private AudioMixer[] mixer;
+    private bool sfxOff = false;
+    private bool musicOff = false;
+    #endregion
 
-    private ShopItem[] skinItemArray;
-    private ShopItem[] powerupItemArray;
-    private ShopItem[] coinItemArray;
+    #region UIVariables
     private Text priceText;
     private Button buyButton;
     private Text coinText;
     private Text buyButtonText;
     private Text currentlyOwnedText;
+    private GameObject mainMenuObject;
+    private GameObject shopMenuObject;
+    private bool mainMenuHidden = false;
+    #endregion
+
+    #region ShopVariables
+    private bool updateObjectPosition = false;
+
+    private string currentlyActive = "";
+
+    private ShopItem[] skinItemArray;
+    private ShopItem[] powerupItemArray;
+    private ShopItem[] coinItemArray;
+
+    //Used until we determine prices for stuff, then becomes obsolete and needs deletion
     private int rngNumber;
 
+    private int currentSkinEquipped = 0;
+    private int currentItemShown = 0;
+    private int snappedPosInt = 0;
+    #endregion
+
+    //Items in this region becomes obsolete when a proper inventory system is made
+    #region BogusInventoryVariables
     private int coins = 0;
 
     private TransactionScript transactionScript = new TransactionScript();
 
+    private int powerup0Count = 0;
+    private int powerup1Count = 0;
+    private int powerup2Count = 0;
+    private int powerup3Count = 0;
+    private int powerup4Count = 0;
+    private int powerup5Count = 0;
+    private int powerup6Count = 0;
+    private int powerup7Count = 0;
+    private int powerup8Count = 0;
 
-    private GameObject mainMenuObject;
-    private GameObject shopMenuObject;
-
-    private string currentlyActive = "";
-
-    private int snappedPosInt = 0;
-    private int currentItemShown = 0;
-    private int currentSkinEquipped = 0;
-
-    private bool sfxOff = false;
-    private bool musicOff = false;
-    private bool mainMenuHidden = false;
-    private bool moveRight = false;
-    private bool moveLeft = false;
-    private bool updateObjectPosition = false;
-    private bool snapToPosRunning = false;
-
-
-    private Vector3 oldPos = new Vector3(0, 0, 0);
+    private List<string> itemIDList = new List<string>();
+    #endregion
 
     #region Swipe
     private GameObject swipeSkinObject;
@@ -71,22 +86,12 @@ public class MenuScript : MonoBehaviour
     private int powerupElements;
     private int coinElements;
 
+    private bool snapToPosRunning = false;
+
     private Coroutine centeringCoroutine;
     #endregion
 
-
-    private int powerup0Count = 0;
-    private int powerup1Count = 0;
-    private int powerup2Count = 0;
-    private int powerup3Count = 0;
-    private int powerup4Count = 0;
-    private int powerup5Count = 0;
-    private int powerup6Count = 0;
-    private int powerup7Count = 0;
-    private int powerup8Count = 0;
-
-    private List<string> itemIDList = new List<string>();
-
+    #region Properties
     public string CurrentlyActive
     {
         get { return currentlyActive; }
@@ -105,6 +110,7 @@ public class MenuScript : MonoBehaviour
             coins = value;
         }
     }
+    #endregion
 
     private void Start()
     {
@@ -130,105 +136,7 @@ public class MenuScript : MonoBehaviour
 
             CalculateCaps(skinElements);
 
-            //Sets up an array containing all of the shopitems. Here their position is set which is used later for determining which skin is in the center
-            //Here the price for the skins is also set tempoarily. System will be updated later on
-            //The normal skin will currently be equipped here, will be changed to the game equipping whatever is saved
-            for (int i = 0; i < skinElements; i++)
-            {
-                skinItemArray[i] = new ShopItem();
-                if (i == 0)
-                {
-                    skinItemArray[i].ItemPosition = 118;
-                    skinItemArray[i].Unlocked = true;
-                    skinItemArray[i].Equipped = true;
-                }
-                else
-                {
-                    skinItemArray[i].ItemPosition = skinItemArray[i - 1].ItemPosition - 220;
-                }
-                Debug.Log(i + " " + skinItemArray[i].ItemPosition);
-                //Currently rnging the price for each object
-                rngNumber = Random.Range(1, 5);
-                switch (rngNumber)
-                {
-                    case 1:
-                        skinItemArray[i].Price = "1.50€";
-                        break;
-                    case 2:
-                        skinItemArray[i].Price = "5€";
-                        break;
-                    case 3:
-                        skinItemArray[i].Price = "7.50€";
-                        break;
-                    case 4:
-                        skinItemArray[i].Price = "9.99€";
-                        break;
-                }
-
-            }
-            //Setting up powerups much like the skins is set up
-            for (int i = 0; i < powerupElements; i++)
-            {
-                powerupItemArray[i] = new ShopItem();
-                if (i == 0)
-                {
-                    powerupItemArray[i].ItemPosition = 118;
-                }
-                else
-                {
-                    powerupItemArray[i].ItemPosition = powerupItemArray[i - 1].ItemPosition - 220;
-                }
-                Debug.Log(i + " " + powerupItemArray[i].ItemPosition);
-                rngNumber = Random.Range(1, 5);
-                switch (rngNumber)
-                {
-                    case 1:
-                        powerupItemArray[i].Price = "1.50€";
-                        break;
-                    case 2:
-                        powerupItemArray[i].Price = "5€";
-                        break;
-                    case 3:
-                        powerupItemArray[i].Price = "7.50€";
-                        break;
-                    case 4:
-                        powerupItemArray[i].Price = "9.99€";
-                        break;
-                }
-
-            }
-
-            for (int i = 0; i < coinElements; i++)
-            {
-                coinItemArray[i] = new ShopItem();
-
-                if (i == 0)
-                {
-                    coinItemArray[i].ItemPosition = 118;
-                }
-                else
-                {
-                    coinItemArray[i].ItemPosition = coinItemArray[i - 1].ItemPosition - 220;
-                }
-
-                rngNumber = Random.Range(1, 5);
-                switch (rngNumber)
-                {
-                    case 1:
-                        coinItemArray[i].Price = "1.50€";
-                        break;
-                    case 2:
-                        coinItemArray[i].Price = "5€";
-                        break;
-                    case 3:
-                        coinItemArray[i].Price = "7.50€";
-                        break;
-                    case 4:
-                        coinItemArray[i].Price = "9.99€";
-                        break;
-
-                }
-            }
+            SetupShopItems();
 
             mainMenuObject = GameObject.Find("MainMenuObject");
             transactionScript.OnStartUp(skinElements, powerupElements, coinElements);
@@ -296,6 +204,215 @@ public class MenuScript : MonoBehaviour
         coinText.text = Coins.ToString();
     }
 
+    #region Sound
+    /// <summary>
+    /// Mutes or unmutes the sound depending on it's current state 
+    /// </summary>
+    public void SFXOnOff()
+    {
+        if (sfxOff == true)
+        {
+            //Turn sound on by increasing volume to 0
+            mixer[0].SetFloat("sfxVol", 0);
+            sfxOff = false;
+            PlayerPrefs.SetInt("sound", 0);
+        }
+        else
+        {
+            //Turn sound off by lowering the volume to minimum value
+            mixer[0].SetFloat("sfxVol", -144);
+            sfxOff = true;
+            PlayerPrefs.SetInt("sound", -144);
+        }
+
+    }
+
+    /// <summary>
+    /// Method for testing
+    /// </summary>
+    public void FlameOnOff()
+    {
+        if (sfxOff == true)
+        {
+            //Turn sound on by increasing volume to 0
+            sfxOff = false;
+            mixer[2].SetFloat("flameVol", 0);
+        }
+        else
+        {
+            //Turn sound off by lowering the volume to minimum value
+            mixer[2].SetFloat("flameVol", -144);
+            sfxOff = true;
+        }
+
+    }
+
+    /// <summary>
+    /// Mutes or unmutes the music depending on it's current state 
+    /// </summary>
+    public void MusicOnOff()
+    {
+        if (musicOff == true)
+        {
+            //Turn music on by increasing volume to 0
+            mixer[1].SetFloat("musicVol", 0);
+            musicOff = false;
+            PlayerPrefs.SetInt("music", 0);
+        }
+        else
+        {
+            //Turn music off by lowering the volume to minimum value
+            mixer[1].SetFloat("musicVol", -144);
+            musicOff = true;
+            PlayerPrefs.SetInt("music", -144);
+        }
+    }
+    #endregion
+
+    #region Shop
+    private void SetupShopItems()
+    {
+        //Sets up an array containing all of the shopitems. Here their position is set which is used later for determining which skin is in the center
+        //Here the price for the skins is also set tempoarily. System will be updated later on
+        //The normal skin will currently be equipped here, will be changed to the game equipping whatever is saved
+        for (int i = 0; i < skinElements; i++)
+        {
+            skinItemArray[i] = new ShopItem();
+            if (i == 0)
+            {
+                skinItemArray[i].ItemPosition = 118;
+                skinItemArray[i].Unlocked = true;
+                skinItemArray[i].Equipped = true;
+            }
+            else
+            {
+                skinItemArray[i].ItemPosition = skinItemArray[i - 1].ItemPosition - 220;
+            }
+            Debug.Log(i + " " + skinItemArray[i].ItemPosition);
+            //Currently rnging the price for each object
+            rngNumber = Random.Range(1, 5);
+            switch (rngNumber)
+            {
+                case 1:
+                    skinItemArray[i].Price = "1.50€";
+                    break;
+                case 2:
+                    skinItemArray[i].Price = "5€";
+                    break;
+                case 3:
+                    skinItemArray[i].Price = "7.50€";
+                    break;
+                case 4:
+                    skinItemArray[i].Price = "9.99€";
+                    break;
+            }
+
+        }
+        //Setting up powerups much like the skins is set up
+        for (int i = 0; i < powerupElements; i++)
+        {
+            powerupItemArray[i] = new ShopItem();
+            if (i == 0)
+            {
+                powerupItemArray[i].ItemPosition = 118;
+            }
+            else
+            {
+                powerupItemArray[i].ItemPosition = powerupItemArray[i - 1].ItemPosition - 220;
+            }
+            Debug.Log(i + " " + powerupItemArray[i].ItemPosition);
+            rngNumber = Random.Range(1, 5);
+            switch (rngNumber)
+            {
+                case 1:
+                    powerupItemArray[i].Price = "1.50€";
+                    break;
+                case 2:
+                    powerupItemArray[i].Price = "5€";
+                    break;
+                case 3:
+                    powerupItemArray[i].Price = "7.50€";
+                    break;
+                case 4:
+                    powerupItemArray[i].Price = "9.99€";
+                    break;
+            }
+
+        }
+
+        for (int i = 0; i < coinElements; i++)
+        {
+            coinItemArray[i] = new ShopItem();
+
+            if (i == 0)
+            {
+                coinItemArray[i].ItemPosition = 118;
+            }
+            else
+            {
+                coinItemArray[i].ItemPosition = coinItemArray[i - 1].ItemPosition - 220;
+            }
+
+            rngNumber = Random.Range(1, 5);
+            switch (rngNumber)
+            {
+                case 1:
+                    coinItemArray[i].Price = "1.50€";
+                    break;
+                case 2:
+                    coinItemArray[i].Price = "5€";
+                    break;
+                case 3:
+                    coinItemArray[i].Price = "7.50€";
+                    break;
+                case 4:
+                    coinItemArray[i].Price = "9.99€";
+                    break;
+
+            }
+        }
+    }
+
+    public void BuyEquipButton()
+    {
+        Debug.Log(currentlyActive);
+        if (currentlyActive == "SkinObject")
+        {
+            if (skinItemArray[currentItemShown].Unlocked == true)
+            {
+                //Unequips the currently equipped item and equips the item currently in center
+                skinItemArray[currentSkinEquipped].Equipped = false;
+                skinItemArray[currentItemShown].Equipped = true;
+                currentSkinEquipped = currentItemShown;
+            }
+            else
+            {
+                //Unlocks an item
+                transactionScript.BuyShopItem(currentItemShown, currentlyActive, skinItemArray[currentItemShown]);
+                priceText.text = "";
+                Debug.Log(skinItemArray[currentItemShown].Unlocked);
+            }
+        }
+        else if (currentlyActive == "PowerupObject")
+        {
+            transactionScript.BuyShopItem(currentItemShown, currentlyActive, powerupItemArray[currentItemShown]);
+        }
+        else if (currentlyActive == "CoinObject")
+        {
+            transactionScript.BuyShopItem(currentItemShown, currentlyActive, coinItemArray[currentItemShown]);
+        }
+        UpdateButton();
+    }
+
+    public void AddToList(string itemID)
+    {
+        itemIDList.Add(itemID);
+        Debug.Log(itemIDList.Count);
+        UpdatePowerupCounts();
+    }
+    #endregion
+
+    #region UI
     /// <summary>
     /// Handles all swiping
     /// </summary>
@@ -425,68 +542,7 @@ public class MenuScript : MonoBehaviour
         SceneManager.LoadScene(0);
 
     }
-    /// <summary>
-    /// Mutes or unmutes the sound depending on it's current state 
-    /// </summary>
-    public void SFXOnOff()
-    {
-        if (sfxOff == true)
-        {
-            //Turn sound on by increasing volume to 0
-            mixer[0].SetFloat("sfxVol", 0);
-            sfxOff = false;
-            PlayerPrefs.SetInt("sound", 0);
-        }
-        else
-        {
-            //Turn sound off by lowering the volume to minimum value
-            mixer[0].SetFloat("sfxVol", -144);
-            sfxOff = true;
-            PlayerPrefs.SetInt("sound", -144);
-        }
 
-    }
-
-    /// <summary>
-    /// Method for testing
-    /// </summary>
-    public void FlameOnOff()
-    {
-        if (sfxOff == true)
-        {
-            //Turn sound on by increasing volume to 0
-            sfxOff = false;
-            mixer[2].SetFloat("flameVol", 0);
-        }
-        else
-        {
-            //Turn sound off by lowering the volume to minimum value
-            mixer[2].SetFloat("flameVol", -144);
-            sfxOff = true;
-        }
-
-    }
-
-    /// <summary>
-    /// Mutes or unmutes the music depending on it's current state 
-    /// </summary>
-    public void MusicOnOff()
-    {
-        if (musicOff == true)
-        {
-            //Turn music on by increasing volume to 0
-            mixer[1].SetFloat("musicVol", 0);
-            musicOff = false;
-            PlayerPrefs.SetInt("music", 0);
-        }
-        else
-        {
-            //Turn music off by lowering the volume to minimum value
-            mixer[1].SetFloat("musicVol", -144);
-            musicOff = true;
-            PlayerPrefs.SetInt("music", -144);
-        }
-    }
 
     /// <summary>
     /// A method for all close buttons in our menus
@@ -624,36 +680,7 @@ public class MenuScript : MonoBehaviour
     /// <summary>
     /// The OnClick method for buying/equipping. Handles both skins and powerups
     /// </summary>
-    public void BuyEquipButton()
-    {
-        Debug.Log(currentlyActive);
-        if (currentlyActive == "SkinObject")
-        {
-            if (skinItemArray[currentItemShown].Unlocked == true)
-            {
-                //Unequips the currently equipped item and equips the item currently in center
-                skinItemArray[currentSkinEquipped].Equipped = false;
-                skinItemArray[currentItemShown].Equipped = true;
-                currentSkinEquipped = currentItemShown;
-            }
-            else
-            {
-                //Unlocks an item
-                transactionScript.BuyShopItem(currentItemShown, currentlyActive, skinItemArray[currentItemShown]);
-                priceText.text = "";
-                Debug.Log(skinItemArray[currentItemShown].Unlocked);
-            }
-        }
-        else if (currentlyActive == "PowerupObject")
-        {
-            transactionScript.BuyShopItem(currentItemShown, currentlyActive, powerupItemArray[currentItemShown]);
-        }
-        else if(currentlyActive == "CoinObject")
-        {
-            transactionScript.BuyShopItem(currentItemShown, currentlyActive, coinItemArray[currentItemShown]);
-        }
-        UpdateButton();
-    }
+
 
     /// <summary>
     /// Temp method for starting a lvl
@@ -884,11 +911,5 @@ public class MenuScript : MonoBehaviour
 
         }
     }
-
-    public void AddToList(string itemID)
-    {
-        itemIDList.Add(itemID);
-        Debug.Log(itemIDList.Count);
-        UpdatePowerupCounts();
-    }
+    #endregion
 }
