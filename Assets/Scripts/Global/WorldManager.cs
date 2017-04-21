@@ -20,7 +20,14 @@ public class WorldManager : MonoBehaviour
     private int lives = 3;
 
     // The current number of lives the player has.
+    [SerializeField]
     private int currentLives;
+
+    public int CurrentLives
+    {
+        get { return currentLives; }
+        set { currentLives = value; }
+    }
     #endregion
 
     /// <summary>
