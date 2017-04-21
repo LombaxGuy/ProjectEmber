@@ -33,12 +33,15 @@ public class ActionController : MonoBehaviour
         set { playerShooting = value; }
     }
 
-    // Use this for initialization
-    private void Start()
+    private void Awake()
     {
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
         worldManager.ActiveFlame = gameObject;
+    }
 
+    // Use this for initialization
+    private void Start()
+    {
         activeFlame = gameObject;
         selectionSphere = transform.GetChild(0).gameObject;
 

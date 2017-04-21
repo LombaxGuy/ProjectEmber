@@ -5,28 +5,37 @@ using UnityEngine;
 public class RisingWater : MonoBehaviour
 {
     private WorldManager worldManager;
-    private Vector3[] steps;
 
-    private Vector3 currentGoal;
+    [SerializeField]
+    private float[] steps;
+
+    private float startGoal;
+    private float currentGoal;
+    private float offset = 50;
     private float distanceToGoal;
-    
+    private float distanceToStep;
+
+    private int currentIndex = 0;
+
     private void OnEnable()
     {
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnGameWorldReset += OnReset;
     }
 
     private void OnDisable()
     {
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnGameWorldReset -= OnReset;
     }
 
     private void OnDeath(int amount)
     {
         //Move
         MoveWater();
-
+        
         // other stuff
     }
 
@@ -35,7 +44,19 @@ public class RisingWater : MonoBehaviour
         //Move
         MoveWater();
 
-        currentGoal = checkpoint;
+        currentGoal = checkpoint.y + offset;
+
+        CalculateSteps();
+    }
+
+    private void OnReset()
+    {
+        InitializeVariables();
+    }
+
+    private void InitializeVariables()
+    {
+        currentGoal = startGoal;
 
         CalculateSteps();
     }
@@ -45,31 +66,34 @@ public class RisingWater : MonoBehaviour
     {
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
 
-        CalculateSteps();
+        startGoal = worldManager.ActiveFlame.transform.position.y;
+
+        InitializeVariables(); 
     }
 
     // Update is called once per frame
     private void Update()
     {
-
     }
 
     private void MoveWater()
     {
-        transform.position = steps[worldManager.CurrentLives];
+        if (steps.Length >= 1)
+        {
+            transform.position = new Vector3(transform.position.x, steps[worldManager.CurrentLives - 1], transform.position.z);
+        }
     }
 
     private void CalculateSteps()
     {
-        steps = new Vector3[worldManager.CurrentLives];
+        steps = new float[worldManager.CurrentLives];
 
-        distanceToGoal = Vector3.Distance(transform.position, currentGoal);
+        distanceToGoal = currentGoal - transform.position.y;
+        distanceToStep = distanceToGoal / worldManager.CurrentLives;
 
-        for (int i = 0; i <= worldManager.CurrentLives; i++)
+        for (int i = 0; i < worldManager.CurrentLives; i++)
         {
-            steps[i - 1] = transform.position + new Vector3(0, distanceToGoal * i);
+            steps[i] = transform.position.y + distanceToStep * (i + 1);
         }
-
-        steps[worldManager.CurrentLives] += new Vector3(0, 50);
     }
 }

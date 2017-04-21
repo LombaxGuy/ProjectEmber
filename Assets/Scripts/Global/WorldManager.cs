@@ -49,9 +49,14 @@ public class WorldManager : MonoBehaviour
         EventManager.OnGameWorldReset -= OnWorldReset;
     }
 
-    private void Start()
+    private void Awake()
     {
         currentLives = lives;
+    }
+
+    private void Start()
+    {
+        
     }
 
     /// <summary>
