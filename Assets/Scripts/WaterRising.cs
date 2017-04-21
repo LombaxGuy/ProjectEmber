@@ -6,56 +6,49 @@ public class WaterRising : MonoBehaviour
 {
 
     [SerializeField]
-    GameObject currentCheckpoint;
+    private GameObject currentCheckpoint;
 
-    Vector3 startPosition;
-    Vector3 goalPosition;
-    Vector3 currentPosition;
-
-    [SerializeField]
-    int travelSteps = 3;
-
-
+    private Vector3 startPosition;
+    private Vector3 goalPosition;
+    private Vector3 currentPosition;
 
     [SerializeField]
-    float[] stepPositions;
-    [SerializeField]
-    float distance;
-    [SerializeField]
-    float calculatedDistance;
+    private int travelSteps = 3;
 
-    public bool go;
+    [SerializeField]
+    private float[] stepPositions;
+    [SerializeField]
+    private float distance;
+    [SerializeField]
+    private float calculatedDistance;
 
     private void OnEnable()
     {
-        EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
-        EventManager.OnProjectileRespawn += OnProRespawn;
     }
 
     private void OnDisable()
     {
-        EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
-        EventManager.OnProjectileRespawn -= OnProRespawn;
-    }
-
-    private void OnShot(Vector3 dir, float force)
-    {
-
     }
 
     private void OnDeath(int health)
     {
+        // move one step
+
         travelSteps = travelSteps - 1;
         StartCoroutine(MoveIt());
-
     }
 
     private void OnIgnite(int health, Vector3 newCheckpoint)
     {
+        // set new target pos
+        // get current amount of lives
+        // calculate increments
+        // move water one step
+
         travelSteps = travelSteps + 1;
         goalPosition = newCheckpoint;
         SetTarget();
@@ -64,14 +57,9 @@ public class WaterRising : MonoBehaviour
 
     }
 
-    private void OnProRespawn()
-    {
-
-    }
-
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         startPosition = gameObject.transform.position;
         goalPosition = currentCheckpoint.transform.position;
@@ -82,7 +70,7 @@ public class WaterRising : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         currentPosition = gameObject.transform.position;
     }

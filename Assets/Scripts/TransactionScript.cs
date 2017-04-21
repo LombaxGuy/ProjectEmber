@@ -10,11 +10,11 @@ public class TransactionScript : MonoBehaviour, IStoreListener
     private static IStoreController m_StoreController;
     private static IExtensionProvider m_StoreExtensionProvider;
 
-    private static int skinElements;
+    private int skinElements;
 
-    private static int powerupElements;
+    private int powerupElements;
 
-    private static int coinElements;
+    private int coinElements;
 
     private static string kSkinElementID = "skin0";
     private static string kPowerupElementID = "powerup0";
@@ -22,9 +22,9 @@ public class TransactionScript : MonoBehaviour, IStoreListener
 
     private static string purchasedItemID;
 
-    private static ShopItem itemForPurchasing;
+    private ShopItem itemForPurchasing;
 
-    private static MenuScript blargh;
+    private MenuScript blargh;
 
     // Use this for initialization
 
@@ -34,6 +34,12 @@ public class TransactionScript : MonoBehaviour, IStoreListener
 
     }
 
+    /// <summary>
+    /// This method is basically a Start method but has to be run in MenuScript's start method since this script needs the amount of shop elements 
+    /// </summary>
+    /// <param name="shopSkinElements">Number of buyable skins</param>
+    /// <param name="shopPowerupElements">Number of buyable powerups</param>
+    /// <param name="shopCoinElements">Number of buyable coins</param>
     public void OnStartUp(int shopSkinElements, int shopPowerupElements, int shopCoinElements)
     {
         skinElements = shopSkinElements;
@@ -47,9 +53,11 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         }
     }
 
+    /// <summary>
+    /// Adds all buyable objects to a thing from the InAppPurchasing package. Gives all objects ID's and a product type
+    /// </summary>
     public void InitializePurchasing()
     {
-        Debug.Log("Blargh");
         if (IsInitialized())
         {
             return;
@@ -77,11 +85,20 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         UnityPurchasing.Initialize(this, builder);
     }
 
+    /// <summary>
+    /// In case Initializing fails this will pickup the error
+    /// </summary>
+    /// <param name="error"></param>
     public void OnInitializeFailed(InitializationFailureReason error)
     {
         Debug.Log("Initialization Failed. Reason: " + error);
     }
 
+    /// <summary>
+    /// If the registrered purchased ID matches the ID of the item intended to be purchased the game gives the user the purchased object
+    /// </summary>
+    /// <param name="e">The purchase event</param>
+    /// <returns></returns>
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     {
         if (String.Equals(e.purchasedProduct.definition.id, purchasedItemID))
@@ -96,17 +113,33 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         return PurchaseProcessingResult.Complete;
     }
 
+    /// <summary>
+    /// If the purchase fails this method prints an error message
+    /// </summary>
+    /// <param name="i">The Product which failed to be purchased</param>
+    /// <param name="p">The reason why it failed</param>
     public void OnPurchaseFailed(Product i, PurchaseFailureReason p)
     {
         Debug.Log("Purchase of Product " + i + "failed because of " + p);
     }
 
+    /// <summary>
+    /// This method is run on initialization 
+    /// </summary>
+    /// <param name="controller"></param>
+    /// <param name="extensions"></param>
     public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
     {
         m_StoreController = controller;
         m_StoreExtensionProvider = extensions;
     }
 
+    /// <summary>
+    /// The method which needs to be called in order to initialize a purchase
+    /// </summary>
+    /// <param name="currentItemShown">The variable of the same name in MenuScript</param>
+    /// <param name="currentlyActive">The variable of the same name in MenuScript</param>
+    /// <param name="item">The item intended to be bought</param>
     public void BuyShopItem(int currentItemShown, string currentlyActive, ShopItem item)
     {
         itemForPurchasing = item;
@@ -114,13 +147,15 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         BuyProductID(purchasedItemID);
     }
 
+    /// <summary>
+    /// Checks if the object intended to be bought is a coin item or not and then runs the correct methods for buying
+    /// </summary>
+    /// <param name="productID">The ID of the object intended to be bought</param>
     private void BuyProductID(string productID)
     {
         if (IsInitialized())
         {
             Product product = m_StoreController.products.WithID(productID);
-
-            Debug.Log(product);
             if (!productID.Contains("coin"))
             {
                 BuyWithCoins(product);
@@ -132,12 +167,21 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         }
     }
 
-
+    /// <summary>
+    /// Checks if the Initialize method has been run
+    /// </summary>
+    /// <returns></returns>
     public bool IsInitialized()
     {
         return m_StoreController != null && m_StoreExtensionProvider != null;
     }
 
+    /// <summary>
+    /// Gets the currently selected object based on the information received from the BuyShopItem method
+    /// </summary>
+    /// <param name="currentItemShown"></param>
+    /// <param name="currentlyActive"></param>
+    /// <returns></returns>
     public string GetSelected(int currentItemShown, string currentlyActive)
     {
         if (currentlyActive == "SkinObject")
@@ -183,6 +227,10 @@ public class TransactionScript : MonoBehaviour, IStoreListener
         }
     }
 
+    /// <summary>
+    /// A simple method for buying stuff with coins. May or may not be used in final product based on tests after Google implementation
+    /// </summary>
+    /// <param name="product"></param>
     public void BuyWithCoins(Product product)
     {
         if (blargh.Coins >= 50)

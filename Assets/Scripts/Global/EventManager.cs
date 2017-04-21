@@ -22,6 +22,12 @@ public class EventManager : MonoBehaviour
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
 
+    public delegate void LevelLost();
+    public static event LevelLost OnLevelLost;
+
+    public delegate void LevelCompleted();
+    public static event LevelCompleted OnLevelCompleted;
+
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)
@@ -97,6 +103,32 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnLevelLost()
+    {
+        if (OnLevelLost != null)
+        {
+            OnLevelLost.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnLevelLost' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnLevelLost' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnLevelCompleted()
+    {
+        if (OnLevelCompleted != null)
+        {
+            OnLevelCompleted.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnLevelCompleted' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnLevelCompleted' was not invoked because nothing subscibes to it.");
         }
     }
 }

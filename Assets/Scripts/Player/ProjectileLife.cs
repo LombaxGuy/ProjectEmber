@@ -17,7 +17,7 @@ public class ProjectileLife : MonoBehaviour
     // The time in seconds the camera is locked before the OnRespawn evnet is called.
     private float extinguishTimer = 1;
 
-    private Vector3 spawnPos;
+    private Vector3 spawnPoint;
     private Rigidbody projetileBody;
 
     #region Reset values
@@ -25,7 +25,7 @@ public class ProjectileLife : MonoBehaviour
 
     private bool wasShot_R = false;
     private float extTimer_R = 0;
-    private Vector3 spawnPos_R;
+    private Vector3 spawnPoint_R;
     #endregion
 
     /// <summary>
@@ -93,8 +93,8 @@ public class ProjectileLife : MonoBehaviour
         //isAlive = isAlive_R;
         wasShot = wasShot_R;
         extinguishTimer = extTimer_R;
-        spawnPos = spawnPos_R;
-        gameObject.transform.position = spawnPos_R;
+        spawnPoint = spawnPoint_R;
+        gameObject.transform.position = spawnPoint_R;
     }
 
     /// <summary>
@@ -104,15 +104,15 @@ public class ProjectileLife : MonoBehaviour
     {
         projetileBody.Sleep();
 
-        gameObject.transform.position = spawnPos;
+        gameObject.transform.position = spawnPoint;
         //isAlive = true;
     }
 
     // Use this for initialization
     void Start()
     {
-        spawnPos_R = gameObject.transform.position;
-        spawnPos = spawnPos_R;
+        spawnPoint_R = gameObject.transform.position;
+        spawnPoint = spawnPoint_R;
         projetileBody = gameObject.GetComponent<Rigidbody>();
     }
 
@@ -176,7 +176,7 @@ public class ProjectileLife : MonoBehaviour
             
             try
             {
-                spawnPos = other.gameObject.transform.GetChild(0).transform.position;
+                spawnPoint = other.gameObject.transform.GetChild(0).transform.position;
 
             }
             catch
@@ -186,7 +186,7 @@ public class ProjectileLife : MonoBehaviour
 
             if (flammableObject != null)
             {
-                EventManager.InvokeOnProjectileIgnite(flammableObject.Health, spawnPos);
+                EventManager.InvokeOnProjectileIgnite(flammableObject.Health, spawnPoint);
 
                 // Not sure if this is a good idea.
                 other.gameObject.GetComponent<Flammable>().FlameHitTransition();
