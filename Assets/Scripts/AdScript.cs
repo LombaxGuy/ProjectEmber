@@ -7,40 +7,71 @@ using System.IO;
 
 public class AdScript : MonoBehaviour {
 
-    //Cooldown on ads
 
+    private bool adCanBeWatched = false;
     private bool adClicked = false;
-    private bool cdActivated = false;
-    private float timeLeft = 0;
-    [SerializeField] private float timerCD;
+    //private float timeLeft = 0;
+    //[SerializeField] private float timerCD;
+    [Header("Turns before a Player can see ad.")]
+    [SerializeField]private int turnsBeforeAd;
+
+    public bool AdCanBeWatched
+    {
+        get { return adCanBeWatched; }
+    }
 
     void Awake()
     {
+        adCanBeWatched = false;
+
         // Ads getting initialized, android and testmode only
         if (Advertisement.isInitialized == false)
         {
             Advertisement.Initialize("1359445", true);
             //initialize without testmode
             //Advertisement.Initialize("1359445", false);
-
         }
     }
 
     /// <summary>
     /// When ad is watched this method will make another ad ready when timeLeft is 0
     /// </summary>
-    void Update()
+   // void Update()
+   // {
+        //if(cdActivated == true)
+        //{
+            //timeLeft -= Time.deltaTime;
+            //if(timeLeft <= 0)
+            //{
+                //adClicked = false;
+                //cdActivated = false;
+            //}
+        //}
+    //}
+
+    void OnEnable()
     {
-        if(cdActivated == true)
+        //EventManager.LevelLost += AdCountdown;
+    }
+
+    void OnDisable()
+    {
+        //EventManager.LevelLost -= AdCountdown;
+    }
+
+    private void AdCountdown()
+    {
+        turnsBeforeAd--;
+        if (turnsBeforeAd <= 0)
         {
-            timeLeft -= Time.deltaTime;
-            if(timeLeft <= 0)
-            {
-                adClicked = false;
-                cdActivated = false;
-            }
+            adCanBeWatched = true;
+            turnsBeforeAd = 5;
+            //or
+            //Gør en knap klar til at blive trykket på?
         }
     }
+
+    
 
     /// <summary>
     /// Starts a coroutine with ad
@@ -61,22 +92,22 @@ public class AdScript : MonoBehaviour {
     /// <param name="result"></param>
     private void HandleShowResult(ShowResult result)
     {
+        adClicked = false;
         switch (result)
         {
             case ShowResult.Finished:
                 Debug.Log("The ad was successfully shown.");
-                cdActivated = true;
-                timeLeft = timerCD;
+                //cdActivated = true;
+                //timeLeft = timerCD;
                 //Add xx coins
+                adCanBeWatched = false;               
                 break;
             case ShowResult.Skipped:
                 Debug.Log("The ad was skipped before reaching the end.");
-                adClicked = false;
                 //Message popup?
                 break;
             case ShowResult.Failed:
                 Debug.LogError("The ad failed to be shown.");
-                adClicked = false;
                 //Message popup?
                 break;
         }
@@ -84,7 +115,7 @@ public class AdScript : MonoBehaviour {
 
     /// <summary>
     /// Making a web requst to see if the player have connection to the internet or not.
-    /// Maybe this some changed settings in Unity, player settings.(API compatibility level need to be .net 2.0 instead of the subset) Need testing.
+    /// Maybe this need some changed settings in Unity, player settings.(API compatibility level need to be .net 2.0 instead of the subset) Need testing.
     /// </summary>
     /// <param name="resource"></param>
     /// <returns></returns>

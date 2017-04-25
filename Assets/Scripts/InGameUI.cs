@@ -12,17 +12,21 @@ public class InGameUI : MonoBehaviour
 
     private Transform powerUpUI;
 
-    private float visiblePowerUpUIPosition = 213;
+    private float uiStartPosition;
 
-    private float hiddenPowerUpUIPosition = 128;
+    private Vector3 uiStartPosition2;
+
+    private float uiOpenPosition = 100;
 
     private bool isHidden = true;
 
     private void Start()
     {
         pauseCanvas = GameObject.FindGameObjectWithTag("PauseMenu");
-        dropDownPowerUp = this.gameObject.transform.GetChild(1);
-        powerUpUI = this.gameObject.transform.GetChild(2);
+        dropDownPowerUp = gameObject.transform.GetChild(1);
+        powerUpUI = gameObject.transform.GetChild(2);
+
+        uiStartPosition2 = transform.position;
     }
 
     public void OnPauseButtonClick()
@@ -68,12 +72,12 @@ public class InGameUI : MonoBehaviour
         if (isHidden == true && pauseCanvas.GetComponent<Canvas>().enabled == false)
         {
             isHidden = false;
-            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, visiblePowerUpUIPosition, powerUpUI.transform.position.z), 500);
+            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z), 500);
         }
         else if (isHidden == false || pauseCanvas.GetComponent<Canvas>().enabled == true)
         {
             isHidden = true;
-            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, hiddenPowerUpUIPosition, powerUpUI.transform.position.z), 500);
+            powerUpUI.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiOpenPosition, powerUpUI.transform.position.z), 500);
             OnChangePowerUpButtonClick();
         }
 
