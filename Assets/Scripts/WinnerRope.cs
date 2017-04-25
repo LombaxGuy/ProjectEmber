@@ -24,8 +24,13 @@ public class WinnerRope : MonoBehaviour
     {
         if (other.gameObject.tag == "Projectile")
         {
-            //Skift eller noget
-            //Lav en fucking animation yo
+            LevelEnd();
         }
+    }
+
+    private IEnumerator LevelEnd()
+    {
+        //Do some fading, make the levelselect appear or do an animation
+        return null;
     }
 }

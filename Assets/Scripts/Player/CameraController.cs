@@ -21,17 +21,17 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private GameObject cameraLockTarget;
 
-    private float margin = 2;
+    private float margin = 40;
 
     private float xMaxSoftRaw = 2;
     private float xMinSoftRaw = -2;
-    private float yMaxSoftRaw = 2;
-    private float yMinSoftRaw = -2;
+    private float yMaxSoftRaw = 40;
+    private float yMinSoftRaw = -40;
 
     private float xMaxSoft = 2;
     private float xMinSoft = -2;
-    private float yMaxSoft = 2;
-    private float yMinSoft = -2;
+    private float yMaxSoft = 40;
+    private float yMinSoft = -40;
 
     private float xMinHard;
     private float xMaxHard;

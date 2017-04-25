@@ -5,6 +5,7 @@ using UnityEngine;
 public class PipeDroplet : MonoBehaviour
 {
     private Vector3 startPos;
+    [SerializeField]
     private const float LIFETIME = 2f;
 
     private Rigidbody dropletBody;
