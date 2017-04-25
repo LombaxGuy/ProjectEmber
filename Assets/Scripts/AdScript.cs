@@ -51,12 +51,12 @@ public class AdScript : MonoBehaviour {
 
     void OnEnable()
     {
-        //EventManager.LevelLost += AdCountdown;
+        EventManager.OnLevelLost += AdCountdown;
     }
 
     void OnDisable()
     {
-        //EventManager.LevelLost -= AdCountdown;
+        EventManager.OnLevelLost -= AdCountdown;
     }
 
     private void AdCountdown()
