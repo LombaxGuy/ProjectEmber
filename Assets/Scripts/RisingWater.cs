@@ -7,17 +7,6 @@ public class RisingWater : MonoBehaviour
     private WorldManager worldManager;
 
     [SerializeField]
-    private float[] steps;
-
-    private float startGoal;
-    private float currentGoal;
-    private float offset = 50;
-    private float distanceToGoal;
-    private float distanceToStep;
-
-    private int currentIndex = 0;
-
-    [SerializeField]
     private float topOfMap = 20;
 
     [SerializeField]
@@ -29,12 +18,16 @@ public class RisingWater : MonoBehaviour
     [SerializeField]
     private int currentRoundsInTotal = 0;
 
+    private float waterRiseTime = 1.5f;
+
     [SerializeField]
     float deltaY;
     [SerializeField]
     float increment;
     [SerializeField]
     float currentY;
+
+    float oldY;
 
     private void OnEnable()
     {
@@ -86,13 +79,6 @@ public class RisingWater : MonoBehaviour
         //InitializeVariables();
     }
 
-    private void InitializeVariables()
-    {
-        currentGoal = startGoal;
-
-        CalculateSteps();
-    }
-
     // Use this for initialization
     private void Start()
     {
@@ -110,13 +96,17 @@ public class RisingWater : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+
     }
 
     private void MoveWater()
     {
+        oldY = transform.position.y;
         currentY = increment * (currentRoundsInTotal - roundsBeforeStart - 1);
 
-        transform.position = new Vector3(transform.position.x, currentY, transform.position.z);
+        StartCoroutine(CoroutineMove());
+
+        //transform.position = new Vector3(transform.position.x, currentY, transform.position.z);
 
         //if (steps.Length >= 1)
         //{
@@ -124,16 +114,20 @@ public class RisingWater : MonoBehaviour
         //}
     }
 
-    private void CalculateSteps()
+    private IEnumerator CoroutineMove()
     {
-        steps = new float[worldManager.CurrentLives];
+        float t = 0;
+        float s = 0;
 
-        distanceToGoal = currentGoal - transform.position.y;
-        distanceToStep = distanceToGoal / worldManager.CurrentLives;
-
-        for (int i = 0; i < worldManager.CurrentLives; i++)
+        while (t < 1)
         {
-            steps[i] = transform.position.y + distanceToStep * (i + 1);
+            t += Time.deltaTime / waterRiseTime;
+
+            s = 0.5f * Mathf.Sin((t - 0.5f) / (1 / Mathf.PI)) + 0.5f;
+
+            transform.position = new Vector3(transform.position.x, Mathf.Lerp(oldY, currentY, s), transform.position.z);
+
+            yield return null;
         }
     }
 }
