@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4616946, g: 0.51241565, b: 0.58993244, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -1438,7 +1438,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 311448050}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4f2e6ca8a44a28429d5df6aeb557e9e, type: 3}
+  m_Script: {fileID: 11500000, guid: e3b3849d5e691cb44909e9bb1daa4c55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxCollisions: 6
@@ -6311,8 +6311,6 @@ GameObject:
   - component: {fileID: 1634840372}
   - component: {fileID: 1634840371}
   - component: {fileID: 1634840375}
-  - component: {fileID: 1634840374}
-  - component: {fileID: 1634840376}
   - component: {fileID: 1634840377}
   m_Layer: 8
   m_Name: Water
@@ -6386,22 +6384,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1634840369}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1634840374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1634840369}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4726608eb22db154e8805b917bb2b3c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectile: {fileID: 2049147004}
-  hp: 3
-  checkpointPossition: {x: 0, y: 0, z: 0}
-  traveling: 0
-  point: 0
 --- !u!65 &1634840375
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6414,19 +6396,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 10, y: 0.56, z: 10}
   m_Center: {x: 0, y: -0.26, z: 0.0000009536743}
---- !u!114 &1634840376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1634840369}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b635a3494e488374ca8a83b50a076bbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  waterMoveTime: 2
-  steps: []
 --- !u!114 &1634840377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6441,10 +6410,6 @@ MonoBehaviour:
   topOfMap: 20
   roundsBeforeStart: 3
   roundsAfterStart: 5
-  currentRoundsInTotal: 0
-  deltaY: 0
-  increment: 0
-  currentY: 0
 --- !u!1 &1642249190
 GameObject:
   m_ObjectHideFlags: 0
@@ -6621,8 +6586,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37662d9f80bac84ead23e5b10b75178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lives: 3
-  currentLives: 0
 --- !u!114 &1668802042
 MonoBehaviour:
   m_ObjectHideFlags: 0
