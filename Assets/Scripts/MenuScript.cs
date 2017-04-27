@@ -212,7 +212,7 @@ public class MenuScript : MonoBehaviour
             skinItemArray[i] = new ShopItem();
             if (i == 0)
             {
-                skinItemArray[i].ItemPosition = 118;
+                skinItemArray[i].ItemPosition = 138;
                 skinItemArray[i].Unlocked = true;
                 skinItemArray[i].Equipped = true;
             }
@@ -220,7 +220,6 @@ public class MenuScript : MonoBehaviour
             {
                 skinItemArray[i].ItemPosition = skinItemArray[i - 1].ItemPosition - 220;
             }
-            Debug.Log(i + " " + skinItemArray[i].ItemPosition);
             //Currently rnging the price for each object
             rngNumber = Random.Range(1, 5);
             switch (rngNumber)
@@ -238,7 +237,6 @@ public class MenuScript : MonoBehaviour
                     skinItemArray[i].Price = "9.99€";
                     break;
             }
-
         }
         //Setting up powerups much like the skins is set up
         for (int i = 0; i < powerupElements; i++)
@@ -246,7 +244,7 @@ public class MenuScript : MonoBehaviour
             powerupItemArray[i] = new ShopItem();
             if (i == 0)
             {
-                powerupItemArray[i].ItemPosition = 118;
+                powerupItemArray[i].ItemPosition = 138;
             }
             else
             {
@@ -278,7 +276,7 @@ public class MenuScript : MonoBehaviour
 
             if (i == 0)
             {
-                coinItemArray[i].ItemPosition = 118;
+                coinItemArray[i].ItemPosition = 138;
             }
             else
             {
@@ -310,7 +308,6 @@ public class MenuScript : MonoBehaviour
     /// </summary>
     public void BuyEquipButton()
     {
-        Debug.Log(currentlyActive);
         if (currentlyActive == "SkinObject")
         {
             if (skinItemArray[currentItemShown].Unlocked == true)
@@ -325,7 +322,6 @@ public class MenuScript : MonoBehaviour
                 //Unlocks an item
                 transactionScript.BuyShopItem(currentItemShown, currentlyActive, skinItemArray[currentItemShown]);
                 priceText.text = "";
-                Debug.Log(skinItemArray[currentItemShown].Unlocked);
             }
         }
         else if (currentlyActive == "PowerupObject")
@@ -620,24 +616,29 @@ public class MenuScript : MonoBehaviour
     /// </summary>
     private void UpdateCurrentlySelected()
     {
+        Debug.Log("Blargh1");
         //Converts the currently selected swipeobjects position to an int and then determines which of the current objects is in center
         if (currentlyActive == "SkinObject")
         {
+            Debug.Log("Blargh2");
             snappedPosInt = Mathf.RoundToInt(swipeSkinObject.transform.position.x);
-            Debug.Log(snappedPosInt);
+            Debug.Log("Hulubulu " + snappedPosInt);
             for (int i = 0; i < skinItemArray.Length; i++)
             {
+                Debug.Log("Blargh3");
                 Debug.Log("ITEM POSITION" + skinItemArray[i].ItemPosition);
                 if (snappedPosInt >= skinItemArray[i].ItemPosition && snappedPosInt <= skinItemArray[i].ItemPosition + 5 || snappedPosInt <= skinItemArray[i].ItemPosition && snappedPosInt >= skinItemArray[i].ItemPosition - 5)
                 {
-                    Debug.Log("BLARGH");
+                    Debug.Log("Blargh4");
                     currentItemShown = i;
                     if (!skinItemArray[currentItemShown].Unlocked)
                     {
+                        Debug.Log("Blargh5");
                         priceText.text = skinItemArray[i].Price;
                     }
                     else
                     {
+                        Debug.Log("Blargh6");
                         priceText.text = "";
                     }
                 }
@@ -645,11 +646,14 @@ public class MenuScript : MonoBehaviour
         }
         else if (currentlyActive == "PowerupObject")
         {
+            Debug.Log("Blargh7");
             snappedPosInt = Mathf.RoundToInt(swipePowerupObject.transform.position.x);
             for (int i = 0; i < powerupItemArray.Length; i++)
             {
+                Debug.Log("Blargh8");
                 if (snappedPosInt >= powerupItemArray[i].ItemPosition && snappedPosInt <= powerupItemArray[i].ItemPosition + 5 || snappedPosInt <= powerupItemArray[i].ItemPosition && snappedPosInt >= powerupItemArray[i].ItemPosition - 5)
                 {
+                    Debug.Log("Blargh9");
                     currentItemShown = i;
                     priceText.text = powerupItemArray[i].Price;
                 }
@@ -657,11 +661,14 @@ public class MenuScript : MonoBehaviour
         }
         else if (currentlyActive == "CoinObject")
         {
+            Debug.Log("Blargh10");
             snappedPosInt = Mathf.RoundToInt(swipeCoinObject.transform.position.x);
             for (int i = 0; i < coinItemArray.Length; i++)
             {
+                Debug.Log("Blargh11");
                 if (snappedPosInt >= coinItemArray[i].ItemPosition && snappedPosInt <= coinItemArray[i].ItemPosition + 5 || snappedPosInt <= coinItemArray[i].ItemPosition && snappedPosInt >= coinItemArray[i].ItemPosition - 5)
                 {
+                    Debug.Log("Blargh12");
                     currentItemShown = i;
                     priceText.text = coinItemArray[i].Price;
                 }
@@ -727,40 +734,15 @@ public class MenuScript : MonoBehaviour
     {
         Debug.Log("Opening/Closing " + name);
 
-        GameObject tempObject = GameObject.Find(name);
+        UIVisibilityControl tempControl = GameObject.Find(name).GetComponent<UIVisibilityControl>();
 
-        for (int i = 0; i < tempObject.transform.childCount; i++)
+        if (closeWindow == false)
         {
-            if (closeWindow == false)
-            {
-                if (tempObject.transform.GetChild(i).GetComponent<Image>() == true)
-                {
-                    tempObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
-                }
-                if (tempObject.transform.GetChild(i).GetComponent<Text>() == true)
-                {
-                    tempObject.transform.GetChild(i).GetComponent<Text>().enabled = true;
-                }
-                if (tempObject.transform.GetChild(i).transform.childCount > 0)
-                {
-                    tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = true;
-                }
-            }
-            else
-            {
-                if (tempObject.transform.GetChild(i).GetComponent<Image>() == true)
-                {
-                    tempObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
-                }
-                if (tempObject.transform.GetChild(i).GetComponent<Text>() == true)
-                {
-                    tempObject.transform.GetChild(i).GetComponent<Text>().enabled = false;
-                }
-                if (tempObject.transform.GetChild(i).transform.childCount > 0)
-                {
-                    tempObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = false;
-                }
-            }
+            tempControl.ShowUI();
+        }
+        else
+        {
+            tempControl.HideUI();
         }
 
         ToogleMainMenu(showMainMenu);
@@ -773,30 +755,17 @@ public class MenuScript : MonoBehaviour
     /// <param name="state"></param>
     private void ToogleMainMenu(bool state)
     {
+        UIVisibilityControl tempControl = GameObject.Find("MainMenuObject").GetComponent<UIVisibilityControl>();
         if (state == true)
         {
-            for (int i = 0; i < mainMenuObject.transform.childCount; i++)
-            {
-                mainMenuObject.transform.GetChild(i).GetComponent<Image>().enabled = true;
-                if (mainMenuObject.transform.GetChild(i).transform.childCount > 0)
-                {
-                    mainMenuObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = true;
-                }
-            }
+            tempControl.ShowUI();
             mainMenuHidden = false;
         }
         else
         {
             if (mainMenuHidden == false)
             {
-                for (int i = 0; i < mainMenuObject.transform.childCount; i++)
-                {
-                    mainMenuObject.transform.GetChild(i).GetComponent<Image>().enabled = false;
-                    if (mainMenuObject.transform.GetChild(i).transform.childCount > 0)
-                    {
-                        mainMenuObject.transform.GetChild(i).GetComponentInChildren<Text>().enabled = false;
-                    }
-                }
+                tempControl.HideUI();
                 mainMenuHidden = true;
             }
         }
