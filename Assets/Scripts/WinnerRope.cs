@@ -24,13 +24,15 @@ public class WinnerRope : MonoBehaviour
     {
         if (other.gameObject.tag == "Projectile")
         {
-            LevelEnd();
+            CoroutineLevelEnd();
         }
     }
 
-    private IEnumerator LevelEnd()
+    private IEnumerator CoroutineLevelEnd()
     {
+        EventManager.InvokeOnLevelCompleted();
+
         //Do some fading, make the levelselect appear or do an animation
-        return null;
+        yield return null;
     }
 }
