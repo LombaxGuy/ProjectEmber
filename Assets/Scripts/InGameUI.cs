@@ -20,8 +20,6 @@ public class InGameUI : MonoBehaviour
     private Text ratingText;
 
     private Button continueButton;
-    private GameObject endScreen;
-    private GameObject pauseScreen;
 
     private UIVisibilityControl endVisibilityCtrl;
     private UIVisibilityControl pauseVisibilityCtrl;
@@ -56,8 +54,6 @@ public class InGameUI : MonoBehaviour
         ratingText = GameObject.Find("RatingText").GetComponent<Text>();
 
         continueButton = GameObject.Find("ContinueButton").GetComponent<Button>();
-        endScreen = GameObject.Find("EndScreenObject");
-        pauseScreen = GameObject.Find("PauseMenuObject");
     }
 
     private void Update()
