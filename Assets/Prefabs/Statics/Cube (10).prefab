@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 65419699243118810}
   - component: {fileID: 23271192028539640}
   m_Layer: 0
-  m_Name: Wallbrick
+  m_Name: Cube (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

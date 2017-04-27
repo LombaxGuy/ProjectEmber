@@ -1,11 +1,14 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RisingWater : MonoBehaviour
 {
     private WorldManager worldManager;
+
     private Flame flame;
+    private float flameSpawnOffset = 0.5f;
+
+    private Coroutine moveCoroutine;
 
     private Vector3 waterStartPosition;
 
@@ -20,6 +23,7 @@ public class RisingWater : MonoBehaviour
 
     private int currentRoundsInTotal = 0;
 
+    // This value should always be less than the extingushTime in the flame script.
     private float waterRiseTime = 1.5f;
 
     private float deltaY = 0;
@@ -58,7 +62,7 @@ public class RisingWater : MonoBehaviour
         }
         else
         {
-            // Invokes the OnEndOfTurn event.
+            // Invokes the EndOfTurn event.
             EventManager.InvokeOnEndOfTurn();
         }
     }
@@ -71,7 +75,7 @@ public class RisingWater : MonoBehaviour
         }
         else
         {
-            // Invokes the OnEndOfTurn event.
+            // Invokes the EndOfTurn event.
             EventManager.InvokeOnEndOfTurn();
         }
     }
@@ -80,6 +84,11 @@ public class RisingWater : MonoBehaviour
     {
         currentRoundsInTotal = 0;
 
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+        }
+
         transform.position = waterStartPosition;
     }
 
@@ -87,6 +96,7 @@ public class RisingWater : MonoBehaviour
     private void Start()
     {
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+        flame = worldManager.ActiveFlame.GetComponent<Flame>();
 
         waterStartPosition = transform.position;
 
@@ -97,7 +107,7 @@ public class RisingWater : MonoBehaviour
     private void OnEndOfTurn()
     {
         // If the waters y-position is larger than the flames spawnpoints y-position
-        if (transform.position.y > flame.SpawnPoint.y)
+        if (transform.position.y > flame.SpawnPoint.y - flameSpawnOffset)
         {
             // Invokes the on GameWorldReset event.
             EventManager.InvokeOnGameWorldReset();
@@ -109,7 +119,7 @@ public class RisingWater : MonoBehaviour
         oldY = transform.position.y;
         currentY = increment * (currentRoundsInTotal - roundsBeforeStart - 1);
 
-        StartCoroutine(CoroutineMove());
+        moveCoroutine = StartCoroutine(CoroutineMove());
     }
 
     private IEnumerator CoroutineMove()
@@ -127,8 +137,8 @@ public class RisingWater : MonoBehaviour
 
             yield return null;
         }
-
-        // Invokes the OnEndOfTurn event.
+        
+        // Invokes the EndOfTurn event.
         EventManager.InvokeOnEndOfTurn();
     }
 }

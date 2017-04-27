@@ -14,33 +14,4 @@ public class WorldManager : MonoBehaviour
     }
     #endregion
 
-    /// <summary>
-    /// Subscribes to events.
-    /// </summary>
-    private void OnEnable()
-    {
-        EventManager.OnProjectileIgnite += OnIgnite;
-    }
-    /// <summary>
-    /// Unsubscribes from events.
-    /// </summary>
-    private void OnDisable()
-    {
-        EventManager.OnProjectileIgnite -= OnIgnite;
-    }
-
-    private void OnIgnite(Vector3 newCheckpoint)
-    {
-
-    }
-
-    /// <summary>
-    /// Contains the kill condition for the whole of the game not made to work yet
-    /// </summary>
-    void Update()
-    {
-
-            // Invokes the on GameWorldReset event.
-            EventManager.InvokeOnGameWorldReset();
-    }
 }

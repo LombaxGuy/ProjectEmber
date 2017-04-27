@@ -22,7 +22,6 @@ public class Flame : MonoBehaviour
 
     #region Reset values
     private bool wasShot_R = false;
-    private float extTimer_R = 0;
     private Vector3 spawnPoint_R;
     #endregion
 
@@ -93,9 +92,7 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnWorldReset()
     {
-        //isAlive = isAlive_R;
         wasShot = wasShot_R;
-        extinguishTimer = extTimer_R;
         spawnPoint = spawnPoint_R;
         gameObject.transform.position = spawnPoint_R;
     }
@@ -113,6 +110,8 @@ public class Flame : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        spawnPoint = transform.position;
+
         spawnPoint_R = gameObject.transform.position;
         spawnPoint = spawnPoint_R;
         projetileBody = gameObject.GetComponent<Rigidbody>();
@@ -222,7 +221,6 @@ public class Flame : MonoBehaviour
     private IEnumerator CoroutineDeathSequence()
     {
         // Play sound and animation here
-
         yield return new WaitForSeconds(extinguishTimer);
 
         EventManager.InvokeOnProjectileRespawn();
