@@ -5,6 +5,9 @@ using UnityEngine;
 public class RisingWater : MonoBehaviour
 {
     private WorldManager worldManager;
+    private Flame flame;
+
+    private Vector3 waterStartPosition;
 
     [SerializeField]
     private float topOfMap = 20;
@@ -15,19 +18,14 @@ public class RisingWater : MonoBehaviour
     [SerializeField]
     private int roundsAfterStart = 5;
 
-    [SerializeField]
     private int currentRoundsInTotal = 0;
 
     private float waterRiseTime = 1.5f;
 
-    [SerializeField]
-    float deltaY;
-    [SerializeField]
-    float increment;
-    [SerializeField]
-    float currentY;
-
-    float oldY;
+    private float deltaY = 0;
+    private float increment = 0;
+    private float currentY = 0;
+    private float oldY = 0;
 
     private void OnEnable()
     {
@@ -35,6 +33,7 @@ public class RisingWater : MonoBehaviour
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnGameWorldReset += OnReset;
+        EventManager.OnEndOfTurn += OnEndOfTurn;
     }
 
     private void OnDisable()
@@ -43,6 +42,7 @@ public class RisingWater : MonoBehaviour
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnGameWorldReset -= OnReset;
+        EventManager.OnEndOfTurn -= OnEndOfTurn;
     }
 
     private void OnShoot(Vector3 direction, float force)
@@ -50,33 +50,37 @@ public class RisingWater : MonoBehaviour
         currentRoundsInTotal++;
     }
 
-    private void OnDeath(int amount)
+    private void OnDeath()
     {
-        //Move
         if (currentRoundsInTotal > roundsBeforeStart)
         {
             MoveWater();
         }
-        
-        // other stuff
+        else
+        {
+            // Invokes the OnEndOfTurn event.
+            EventManager.InvokeOnEndOfTurn();
+        }
     }
 
-    private void OnIgnite(int amount, Vector3 checkpoint)
+    private void OnIgnite(Vector3 checkpoint)
     {
-        //Move
         if (currentRoundsInTotal > roundsBeforeStart)
         {
             MoveWater();
         }
-
-        //currentGoal = checkpoint.y + offset;
-
-        //CalculateSteps();
+        else
+        {
+            // Invokes the OnEndOfTurn event.
+            EventManager.InvokeOnEndOfTurn();
+        }
     }
 
     private void OnReset()
     {
-        //InitializeVariables();
+        currentRoundsInTotal = 0;
+
+        transform.position = waterStartPosition;
     }
 
     // Use this for initialization
@@ -84,19 +88,20 @@ public class RisingWater : MonoBehaviour
     {
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
 
+        waterStartPosition = transform.position;
+
         deltaY = Vector3.Distance(transform.position, new Vector3(transform.position.x, topOfMap, transform.position.z));
         increment = deltaY / roundsAfterStart;
-
-        //startGoal = worldManager.ActiveFlame.transform.position.y;
-
-        //InitializeVariables(); 
-
     }
 
-    // Update is called once per frame
-    private void Update()
+    private void OnEndOfTurn()
     {
-
+        // If the waters y-position is larger than the flames spawnpoints y-position
+        if (transform.position.y > flame.SpawnPoint.y)
+        {
+            // Invokes the on GameWorldReset event.
+            EventManager.InvokeOnGameWorldReset();
+        }
     }
 
     private void MoveWater()
@@ -105,13 +110,6 @@ public class RisingWater : MonoBehaviour
         currentY = increment * (currentRoundsInTotal - roundsBeforeStart - 1);
 
         StartCoroutine(CoroutineMove());
-
-        //transform.position = new Vector3(transform.position.x, currentY, transform.position.z);
-
-        //if (steps.Length >= 1)
-        //{
-        //    transform.position = new Vector3(transform.position.x, steps[worldManager.CurrentLives - 1], transform.position.z);
-        //}
     }
 
     private IEnumerator CoroutineMove()
@@ -129,5 +127,8 @@ public class RisingWater : MonoBehaviour
 
             yield return null;
         }
+
+        // Invokes the OnEndOfTurn event.
+        EventManager.InvokeOnEndOfTurn();
     }
 }

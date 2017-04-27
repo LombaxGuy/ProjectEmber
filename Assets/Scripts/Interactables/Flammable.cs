@@ -33,24 +33,17 @@ public class Flammable : MonoBehaviour
     {
 
         EventManager.OnGameWorldReset += OnWorldReset;
-        EventManager.OnProjectileIgnite += OnIgnite;
     }
 
     private void OnDisable()
     {
 
         EventManager.OnGameWorldReset -= OnWorldReset;
-        EventManager.OnProjectileIgnite -= OnIgnite;
     }
 
     private void OnWorldReset()
     {
         Reset();
-    }
-
-    private void OnIgnite(int amount, Vector3 newCheckpoint)
-    {
-        
     }
 
     // Use this for initialization

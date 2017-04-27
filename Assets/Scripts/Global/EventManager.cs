@@ -10,10 +10,10 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileUpdated(Vector3 direction, float forceStrength);
     public static event ProjectileUpdated OnProjectileUpdated;
 
-    public delegate void ProjectileDeath(int amount);
+    public delegate void ProjectileDeath();
     public static event ProjectileDeath OnProjectileDeath;
 
-    public delegate void ProjectileIgnite(int amount, Vector3 newCheckpoint);
+    public delegate void ProjectileIgnite(Vector3 newCheckpoint);
     public static event ProjectileIgnite OnProjectileIgnite;
 
     public delegate void ProjectileRespawn();
@@ -21,6 +21,9 @@ public class EventManager : MonoBehaviour
 
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
+
+    public delegate void EndOfTurn();
+    public static event EndOfTurn OnEndOfTurn;
 
     public delegate void LevelLost();
     public static event LevelLost OnLevelLost;
@@ -54,11 +57,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnProjectileDeath(int amount)
+    public static void InvokeOnProjectileDeath()
     {
         if (OnProjectileDeath != null)
         {
-            OnProjectileDeath.Invoke(amount);
+            OnProjectileDeath.Invoke();
             Debug.Log("EventManager.cs: The event 'OnProjectileDeath' was invoked.");
         }
         else
@@ -67,11 +70,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnProjectileIgnite(int amount, Vector3 newCheckpoint)
+    public static void InvokeOnProjectileIgnite(Vector3 newCheckpoint)
     {
         if (OnProjectileIgnite != null)
         {
-            OnProjectileIgnite.Invoke(amount,newCheckpoint);
+            OnProjectileIgnite.Invoke(newCheckpoint);
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was invoked.");
         }
         else
@@ -103,6 +106,19 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnEndOfTurn()
+    {
+        if (OnEndOfTurn != null)
+        {
+            OnEndOfTurn.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnEndOfTurn' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnEndOfTurn' was not invoked because nothing subscibes to it.");
         }
     }
 

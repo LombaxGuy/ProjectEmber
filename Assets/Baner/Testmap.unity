@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 311448050}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4f2e6ca8a44a28429d5df6aeb557e9e, type: 3}
+  m_Script: {fileID: 11500000, guid: e3b3849d5e691cb44909e9bb1daa4c55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxCollisions: 6
@@ -5837,11 +5837,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4726608eb22db154e8805b917bb2b3c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  go: {fileID: 0}
   projectile: {fileID: 2049147004}
   hp: 3
+  startPosition: {x: 0, y: 0, z: 0}
+  currentPossition: {x: 0, y: 0, z: 0}
+  currentTargetPossition: {x: 0, y: 0, z: 0}
   checkpointPossition: {x: 0, y: 0, z: 0}
   traveling: 0
+  t: 0
   point: 0
+  points: []
 --- !u!65 &1634840375
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5865,8 +5871,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b635a3494e488374ca8a83b50a076bbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldManager: {fileID: 0}
   waterMoveTime: 2
+  currentFlameCheckpoint: {fileID: 0}
+  startPosition: {x: 0, y: 0, z: 0}
+  goalPosition: {x: 0, y: 0, z: 0}
+  currentPosition: {x: 0, y: 0, z: 0}
   steps: []
+  distanceToGoal: 0
+  distanceToNextStep: 0
 --- !u!114 &1634840377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5878,7 +5891,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c50568ae30876bc4eb5ecfef06658785, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  steps: []
+  topOfMap: 20
+  roundsBeforeStart: 3
+  roundsAfterStart: 5
 --- !u!1 &1642249190
 GameObject:
   m_ObjectHideFlags: 0
@@ -6054,8 +6069,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37662d9f80bac84ead23e5b10b75178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lives: 3
-  currentLives: 0
 --- !u!1 &1717945304
 GameObject:
   m_ObjectHideFlags: 0
