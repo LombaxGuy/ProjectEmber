@@ -16,6 +16,7 @@ public class UIVisibilityControl : MonoBehaviour
     private InputField[] inputFields;
     private ScrollRect[] scrollRects;
 
+    [SerializeField]
     private bool currentlyVisible = true;
 
     public bool CurrentlyVisible

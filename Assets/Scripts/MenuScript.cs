@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.Audio;
 
 public class MenuScript : MonoBehaviour
 {
-    #region SoundVariables
-    [SerializeField]
-    private AudioMixer[] mixer;
-    private bool sfxOff = false;
-    private bool musicOff = false;
-    #endregion
 
     #region UIVariables
     private Text priceText;
@@ -112,6 +105,8 @@ public class MenuScript : MonoBehaviour
     }
     #endregion
 
+    private InGameUI ingameUI;
+
     private void Start()
     {
         //Stuff that only needs to be run in the main menu
@@ -187,7 +182,7 @@ public class MenuScript : MonoBehaviour
 
             }
         }
-        else if(CurrentlyActive == "CoinObject")
+        else if (CurrentlyActive == "CoinObject")
         {
             HandleSwipeHorizontal(swipeCoinObject);
             CalculateCaps(coinElements);
@@ -200,74 +195,11 @@ public class MenuScript : MonoBehaviour
                 updateObjectPosition = false;
             }
         }
-
-        coinText.text = Coins.ToString();
-    }
-
-    #region Sound
-    /// <summary>
-    /// Mutes or unmutes the sound depending on it's current state 
-    /// </summary>
-    public void SFXOnOff()
-    {
-        if (sfxOff == true)
+        if (SceneManager.GetActiveScene().name == "Main Menu")
         {
-            //Turn sound on by increasing volume to 0
-            mixer[0].SetFloat("sfxVol", 0);
-            sfxOff = false;
-            PlayerPrefs.SetInt("sound", 0);
-        }
-        else
-        {
-            //Turn sound off by lowering the volume to minimum value
-            mixer[0].SetFloat("sfxVol", -144);
-            sfxOff = true;
-            PlayerPrefs.SetInt("sound", -144);
-        }
-
-    }
-
-    /// <summary>
-    /// Method for testing
-    /// </summary>
-    public void FlameOnOff()
-    {
-        if (sfxOff == true)
-        {
-            //Turn sound on by increasing volume to 0
-            sfxOff = false;
-            mixer[2].SetFloat("flameVol", 0);
-        }
-        else
-        {
-            //Turn sound off by lowering the volume to minimum value
-            mixer[2].SetFloat("flameVol", -144);
-            sfxOff = true;
-        }
-
-    }
-
-    /// <summary>
-    /// Mutes or unmutes the music depending on it's current state 
-    /// </summary>
-    public void MusicOnOff()
-    {
-        if (musicOff == true)
-        {
-            //Turn music on by increasing volume to 0
-            mixer[1].SetFloat("musicVol", 0);
-            musicOff = false;
-            PlayerPrefs.SetInt("music", 0);
-        }
-        else
-        {
-            //Turn music off by lowering the volume to minimum value
-            mixer[1].SetFloat("musicVol", -144);
-            musicOff = true;
-            PlayerPrefs.SetInt("music", -144);
+            coinText.text = Coins.ToString();
         }
     }
-    #endregion
 
     #region Shop
     private void SetupShopItems()
@@ -373,6 +305,9 @@ public class MenuScript : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// The OnClick method for buying/equipping. Handles both skins and powerups
+    /// </summary>
     public void BuyEquipButton()
     {
         Debug.Log(currentlyActive);
@@ -536,12 +471,6 @@ public class MenuScript : MonoBehaviour
         xMaxHard = xMaxSoft + margin;
     }
 
-    public void PauseMenuExitButton()
-    {
-        //Loads the first scene in the build which should be our menu
-        SceneManager.LoadScene(0);
-
-    }
 
 
     /// <summary>
@@ -629,7 +558,7 @@ public class MenuScript : MonoBehaviour
         {
             ToogleMainMenuWindow("PowerupObject", true, false);
         }
-        else if(CurrentlyActive == "CoinObject")
+        else if (CurrentlyActive == "CoinObject")
         {
             ToogleMainMenuWindow("CoinObject", true, false);
         }
@@ -641,11 +570,11 @@ public class MenuScript : MonoBehaviour
     public void CoinButton()
     {
         ToogleMainMenuWindow("CoinObject", false, false);
-        if(CurrentlyActive == "SkinObject")
+        if (CurrentlyActive == "SkinObject")
         {
             ToogleMainMenuWindow("SkinObject", true, false);
         }
-        else if(CurrentlyActive == "PowerupObject")
+        else if (CurrentlyActive == "PowerupObject")
         {
             ToogleMainMenuWindow("PowerupObject", true, false);
         }
@@ -677,10 +606,6 @@ public class MenuScript : MonoBehaviour
         ToogleMainMenuWindow("MapSelectObject", false, false);
         CurrentlyActive = "MapSelectObject";
     }
-    /// <summary>
-    /// The OnClick method for buying/equipping. Handles both skins and powerups
-    /// </summary>
-
 
     /// <summary>
     /// Temp method for starting a lvl
@@ -730,12 +655,12 @@ public class MenuScript : MonoBehaviour
                 }
             }
         }
-        else if(currentlyActive == "CoinObject")
+        else if (currentlyActive == "CoinObject")
         {
             snappedPosInt = Mathf.RoundToInt(swipeCoinObject.transform.position.x);
             for (int i = 0; i < coinItemArray.Length; i++)
             {
-                if(snappedPosInt >= coinItemArray[i].ItemPosition && snappedPosInt <= coinItemArray[i].ItemPosition + 5 || snappedPosInt <= coinItemArray[i].ItemPosition && snappedPosInt >= coinItemArray[i].ItemPosition - 5)
+                if (snappedPosInt >= coinItemArray[i].ItemPosition && snappedPosInt <= coinItemArray[i].ItemPosition + 5 || snappedPosInt <= coinItemArray[i].ItemPosition && snappedPosInt >= coinItemArray[i].ItemPosition - 5)
                 {
                     currentItemShown = i;
                     priceText.text = coinItemArray[i].Price;

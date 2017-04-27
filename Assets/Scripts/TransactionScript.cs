@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Purchasing;
 
-public class TransactionScript : MonoBehaviour, IStoreListener
+public class TransactionScript : IStoreListener
 {
 
     private static IStoreController m_StoreController;
