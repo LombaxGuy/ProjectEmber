@@ -7,7 +7,7 @@ using System.IO;
 
 public class AdScript : MonoBehaviour {
 
-
+    // muligvis static
     private bool adCanBeWatched = false;
     private bool adClicked = false;
     //private float timeLeft = 0;
@@ -66,7 +66,7 @@ public class AdScript : MonoBehaviour {
         {
             adCanBeWatched = true;
             turnsBeforeAd = 5;
-            //or
+            //Andet script ordner arbejdet med at få vist en knap med reklamen eller
             //Gør en knap klar til at blive trykket på?
         }
     }
