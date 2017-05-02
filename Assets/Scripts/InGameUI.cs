@@ -8,23 +8,25 @@ public class InGameUI : MonoBehaviour
 {
     private GameObject dropDownPowerUp;
 
-    private GameObject powerupUI;
+    private GameObject powerUpUI;
 
     private float uiStartPosition;
 
     private float uiOpenPosition = 100;
 
-    private bool isHidden = true;
+    private bool powerUpIsHidden = true;
 
     private Text scoreText;
     private Text ratingText;
 
     private Button continueButton;
+    private Button pauseButton;
 
     private UIVisibilityControl endVisibilityCtrl;
     private UIVisibilityControl pauseVisibilityCtrl;
+    private UIVisibilityControl powerupVisibilityCtrl;
 
-    public bool fuckYourShittyEndScreens = false;
+    public bool disableEndScreens = false;
 
     private void OnEnable()
     {
@@ -43,19 +45,24 @@ public class InGameUI : MonoBehaviour
     private void Start()
     {
         dropDownPowerUp = GameObject.Find("PowerUpDropdown"); ;
-        powerupUI = GameObject.Find("PowerUpUI");
+        powerUpUI = GameObject.Find("PowerUpUI");
 
         endVisibilityCtrl = GameObject.Find("EndScreenObject").GetComponent<UIVisibilityControl>();
         pauseVisibilityCtrl = GameObject.Find("PauseMenuObject").GetComponent<UIVisibilityControl>();
+        powerupVisibilityCtrl = GameObject.Find("PowerUpUI").GetComponent<UIVisibilityControl>();
 
-        uiStartPosition = powerupUI.transform.position.y;
+        uiStartPosition = powerUpUI.transform.position.y;
         Debug.Log(uiStartPosition);
         scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         ratingText = GameObject.Find("RatingText").GetComponent<Text>();
 
         continueButton = GameObject.Find("ContinueButton").GetComponent<Button>();
+        pauseButton = GameObject.Find("PauseMenuButton").GetComponent<Button>();
     }
 
+    /// <summary>
+    /// Tempcode to call OnLevelCompleted and OnLevelLost events for testing
+    /// </summary>
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
@@ -68,29 +75,60 @@ public class InGameUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Shows the pausemenu UI while hiding the powerupUI and the pausebutton
+    /// </summary>
     public void OnPauseButtonClick()
     {
-        pauseVisibilityCtrl.ToggleUI();
-        if (isHidden == false)
-        {
-            OnShowPowerUpUiButtonClick();
-        }
+        pauseVisibilityCtrl.ShowUI();
 
-        if(pauseVisibilityCtrl.CurrentlyVisible == true)
-        {
-            Time.timeScale = 0;
-        }
-        else
-        {
-            Time.timeScale = 1;
-        }
+        HideGameRunningUI();
+
+        Time.timeScale = 0;
 
     }
 
-    public void OnChangePowerUpButtonClick()
+    /// <summary>
+    /// Hides the pause button
+    /// </summary>
+    private void HideGameRunningUI()
+    {
+        HidePowerUpUI();
+        powerupVisibilityCtrl.HideUI();
+
+        pauseButton.GetComponent<Image>().enabled = false;
+        pauseButton.transform.GetChild(0).GetComponent<Text>().enabled = false;
+    }
+    
+    /// <summary>
+    /// Shows the pausebutton
+    /// </summary>
+    private void ShowGameRunningUI()
+    {
+        powerupVisibilityCtrl.ShowUI();
+        pauseButton.GetComponent<Image>().enabled = true;
+        pauseButton.transform.GetChild(0).GetComponent<Text>().enabled = true;
+    }
+
+    /// <summary>
+    /// Resumes the game and shows the pause button
+    /// </summary>
+    public void OnResumeGame()
+    {
+        pauseVisibilityCtrl.HideUI();
+
+        ShowGameRunningUI();
+
+        Time.timeScale = 1;
+    }
+
+    /// <summary>
+    /// Toogles the PowerUpDropdown UI
+    /// </summary>
+    public void TooglePowerUpDropdownUI()
     {
         Image image = dropDownPowerUp.GetComponent<Image>();
-        if (image.enabled == true || isHidden == true)
+        if (image.enabled == true || powerUpIsHidden == true)
         {
             image.enabled = false;
             dropDownPowerUp.transform.Find("Arrow").GetComponent<Image>().enabled = false;
@@ -109,45 +147,74 @@ public class InGameUI : MonoBehaviour
         //Start UsePowerUp Event
     }
 
-    public void OnShowPowerUpUiButtonClick()
+    /// <summary>
+    /// Hides the powerup UI
+    /// </summary>
+    public void HidePowerUpUI()
     {
-        if (isHidden == true && pauseVisibilityCtrl.CurrentlyVisible == false)
+        powerUpIsHidden = true;
+        powerUpUI.transform.position = new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z);
+
+    }
+
+    /// <summary>
+    /// Toggles the powerup UI
+    /// </summary>
+    public void TooglePowerUpUI()
+    {
+        if (powerUpIsHidden == true && pauseVisibilityCtrl.CurrentlyVisible == false)
         {
-            isHidden = false;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, uiOpenPosition, powerupUI.transform.position.z), 500);
+            powerUpIsHidden = false;
+            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiOpenPosition, powerUpUI.transform.position.z), 500);
         }
-        else if (isHidden == false || pauseVisibilityCtrl.CurrentlyVisible == true)
+        else if (powerUpIsHidden == false || pauseVisibilityCtrl.CurrentlyVisible == true)
         {
-            isHidden = true;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, uiStartPosition, powerupUI.transform.position.z), 500);
-            OnChangePowerUpButtonClick();
+            powerUpIsHidden = true;
+            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z), 500);
+            TooglePowerUpDropdownUI();
         }
 
     }
 
+    /// <summary>
+    /// Makes the gamelost endscreen pop up if the disableEndScreens variable is false
+    /// </summary>
     private void GameLostUI()
     {
-        if (!fuckYourShittyEndScreens)
+        if (!disableEndScreens)
         {
             endVisibilityCtrl.ShowUI();
             continueButton.GetComponent<Image>().enabled = false;
             continueButton.transform.GetChild(0).GetComponent<Text>().enabled = false;
+            HideGameRunningUI();
         }
     }
 
+    /// <summary>
+    /// Makes the gamewon endscreen pop up if the disableEndScreens variable is false
+    /// </summary>
     private void GameWonUI()
     {
-        if (!fuckYourShittyEndScreens)
+        if (!disableEndScreens)
         {
             endVisibilityCtrl.ShowUI();
+            HideGameRunningUI();
         }
     }
-
+    
+    /// <summary>
+    /// Closes the endscreen
+    /// </summary>
     private void CloseUI()
     {
+        ShowGameRunningUI();
         endVisibilityCtrl.HideUI();
+
     }
 
+    /// <summary>
+    /// Continues to the next scene in the build index
+    /// </summary>
     public void OnContinueButton()
     {
         if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1) != null)
@@ -155,12 +222,20 @@ public class InGameUI : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
-
+    
+    /// <summary>
+    /// Restarts the current level
+    /// </summary>
     public void OnPlayAgainButton()
     {
         EventManager.InvokeOnGameWorldReset();
+        OnResumeGame();
+        CloseUI();
     }
 
+    /// <summary>
+    /// Changes the scene to main menu
+    /// </summary>
     public void OnMainMenuButton()
     {
         SceneManager.LoadScene(0);
