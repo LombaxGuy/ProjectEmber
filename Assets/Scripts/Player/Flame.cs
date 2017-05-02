@@ -28,6 +28,7 @@ public class Flame : MonoBehaviour
     public Vector3 SpawnPoint
     {
         get { return spawnPoint; }
+        set { spawnPoint = value; }
     }
 
     /// <summary>
@@ -169,6 +170,7 @@ public class Flame : MonoBehaviour
             try
             {
                 flammableObject = other.gameObject.GetComponent<Flammable>();
+                flammableObject.OnFire = true;
             }
             catch
             {

@@ -6,7 +6,7 @@ public class ActionController : MonoBehaviour
 {
     private WorldManager worldManager;
 
-    private GameObject activeFlame;
+    private Flame activeFlame;
     private GameObject selectionSphere;
     private Rigidbody flameRigidbody;
 
@@ -42,7 +42,7 @@ public class ActionController : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
-        activeFlame = gameObject;
+        activeFlame = GetComponent<Flame>();
         selectionSphere = transform.GetChild(0).gameObject;
 
         // Gets the rigidbody component on the active flame
@@ -86,7 +86,7 @@ public class ActionController : MonoBehaviour
                 //... the HandleInputBegan method is called.
                 HandleInputBegan();
             }
-            
+
             // If the player is currently making a shot
             if (playerShooting == true)
             {
@@ -240,6 +240,26 @@ public class ActionController : MonoBehaviour
                     {
                         //... the shootMode is set to true.
                         shootMode = true;
+                    }
+
+                    // If the ray hits a flammable object...
+                    if (hit.collider.gameObject.tag == "FlammableObject")
+                    {
+                        try
+                        {
+                            //... and the object is on fire the spawnpoint is changed to that flammable object.
+                            Flammable flammableObject = hit.transform.GetComponent<Flammable>();
+
+                            if (flammableObject.OnFire)
+                            {
+                                activeFlame.SpawnPoint = flammableObject.SpawnPoint;
+                            }
+                        }
+                        catch
+                        {
+                            Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+                        }
+
                     }
                 }
             }

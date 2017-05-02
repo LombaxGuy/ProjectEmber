@@ -9,8 +9,8 @@ using UnityEngine;
 public class Flammable : MonoBehaviour
 {
 
-    [SerializeField]
-    private int health;
+    private bool onFire = false;
+    private Vector3 spawnPoint;
 
     [SerializeField]
     private Texture burntTexture;
@@ -20,13 +20,16 @@ public class Flammable : MonoBehaviour
 
     private Material myMaterial;
 
-    public int Health
+    public bool OnFire
     {
-        get
-        {
-            return health;
-        }
+        get { return onFire; }
+        set { onFire = value; }
+    }
 
+    public Vector3 SpawnPoint
+    {
+        get { return spawnPoint; }
+        set { spawnPoint = value; }
     }
 
     private void OnEnable()
@@ -52,6 +55,8 @@ public class Flammable : MonoBehaviour
         myMaterial = gameObject.GetComponent<Renderer>().material;
         B_color = new Color(0,0,0,1);
         W_color = new Color(255,255,255,1);
+
+        spawnPoint = transform.GetChild(0).transform.position;
     }
 
     // Update is called once per frame
@@ -63,6 +68,7 @@ public class Flammable : MonoBehaviour
     private void Reset()
     {
         gameObject.GetComponent<Collider>().enabled = true;
+        onFire = false;
     }
 
     public void FlameHitTransition()
