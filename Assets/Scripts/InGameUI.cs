@@ -8,13 +8,13 @@ public class InGameUI : MonoBehaviour
 {
     private GameObject dropDownPowerUp;
 
-    private GameObject powerupUI;
+    private GameObject powerUpUI;
 
     private float uiStartPosition;
 
     private float uiOpenPosition = 100;
 
-    private bool isHidden = true;
+    private bool powerUpIsHidden = true;
 
     private Text scoreText;
     private Text ratingText;
@@ -24,7 +24,7 @@ public class InGameUI : MonoBehaviour
     private UIVisibilityControl endVisibilityCtrl;
     private UIVisibilityControl pauseVisibilityCtrl;
 
-    public bool fuckYourShittyEndScreens = false;
+    public bool disableEndScreens = false;
 
     private void OnEnable()
     {
@@ -43,12 +43,12 @@ public class InGameUI : MonoBehaviour
     private void Start()
     {
         dropDownPowerUp = GameObject.Find("PowerUpDropdown"); ;
-        powerupUI = GameObject.Find("PowerUpUI");
+        powerUpUI = GameObject.Find("PowerUpUI");
 
         endVisibilityCtrl = GameObject.Find("EndScreenObject").GetComponent<UIVisibilityControl>();
         pauseVisibilityCtrl = GameObject.Find("PauseMenuObject").GetComponent<UIVisibilityControl>();
 
-        uiStartPosition = powerupUI.transform.position.y;
+        uiStartPosition = powerUpUI.transform.position.y;
         Debug.Log(uiStartPosition);
         scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         ratingText = GameObject.Find("RatingText").GetComponent<Text>();
@@ -70,13 +70,21 @@ public class InGameUI : MonoBehaviour
 
     public void OnPauseButtonClick()
     {
+        //pauseVisibilityCtrl.ShowUI();
+
+        //HidePowerUpUI();
+
+        //Time.timeScale = 0;
+
+
         pauseVisibilityCtrl.ToggleUI();
-        if (isHidden == false)
+
+        if (powerUpIsHidden == false)
         {
             OnShowPowerUpUiButtonClick();
         }
 
-        if(pauseVisibilityCtrl.CurrentlyVisible == true)
+        if (pauseVisibilityCtrl.CurrentlyVisible == true)
         {
             Time.timeScale = 0;
         }
@@ -87,10 +95,17 @@ public class InGameUI : MonoBehaviour
 
     }
 
+    public void OnResumeGame()
+    {
+        pauseVisibilityCtrl.HideUI();
+
+        Time.timeScale = 1;
+    }
+
     public void OnChangePowerUpButtonClick()
     {
         Image image = dropDownPowerUp.GetComponent<Image>();
-        if (image.enabled == true || isHidden == true)
+        if (image.enabled == true || powerUpIsHidden == true)
         {
             image.enabled = false;
             dropDownPowerUp.transform.Find("Arrow").GetComponent<Image>().enabled = false;
@@ -109,17 +124,24 @@ public class InGameUI : MonoBehaviour
         //Start UsePowerUp Event
     }
 
+    public void HidePowerUpUI()
+    {
+        powerUpIsHidden = true;
+        powerUpUI.transform.position = new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z);
+
+    }
+
     public void OnShowPowerUpUiButtonClick()
     {
-        if (isHidden == true && pauseVisibilityCtrl.CurrentlyVisible == false)
+        if (powerUpIsHidden == true && pauseVisibilityCtrl.CurrentlyVisible == false)
         {
-            isHidden = false;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, uiOpenPosition, powerupUI.transform.position.z), 500);
+            powerUpIsHidden = false;
+            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiOpenPosition, powerUpUI.transform.position.z), 500);
         }
-        else if (isHidden == false || pauseVisibilityCtrl.CurrentlyVisible == true)
+        else if (powerUpIsHidden == false || pauseVisibilityCtrl.CurrentlyVisible == true)
         {
-            isHidden = true;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, uiStartPosition, powerupUI.transform.position.z), 500);
+            powerUpIsHidden = true;
+            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z), 500);
             OnChangePowerUpButtonClick();
         }
 
@@ -127,7 +149,7 @@ public class InGameUI : MonoBehaviour
 
     private void GameLostUI()
     {
-        if (!fuckYourShittyEndScreens)
+        if (!disableEndScreens)
         {
             endVisibilityCtrl.ShowUI();
             continueButton.GetComponent<Image>().enabled = false;
@@ -137,7 +159,7 @@ public class InGameUI : MonoBehaviour
 
     private void GameWonUI()
     {
-        if (!fuckYourShittyEndScreens)
+        if (!disableEndScreens)
         {
             endVisibilityCtrl.ShowUI();
         }
@@ -159,6 +181,7 @@ public class InGameUI : MonoBehaviour
     public void OnPlayAgainButton()
     {
         EventManager.InvokeOnGameWorldReset();
+
     }
 
     public void OnMainMenuButton()

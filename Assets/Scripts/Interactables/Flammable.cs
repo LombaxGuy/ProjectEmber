@@ -17,6 +17,7 @@ public class Flammable : MonoBehaviour
     [Tooltip("The material of the object when it is on fire.")]
     [SerializeField]
     private Material burntMaterial;
+    [SerializeField]
     private Material normalMaterial;
     private Renderer materialRenderer;
 
@@ -58,7 +59,7 @@ public class Flammable : MonoBehaviour
     void Start()
     {
         materialRenderer = GetComponent<Renderer>();
-        normalMaterial = materialRenderer.material;
+        //normalMaterial = materialRenderer.material;
 
         //myMaterial = gameObject.GetComponent<Renderer>().material;
         //B_color = new Color(0,0,0,1);
@@ -102,7 +103,7 @@ public class Flammable : MonoBehaviour
             yield return null;
         }
 
-        materialRenderer.material = burntMaterial;
+        //materialRenderer.material = burntMaterial;
 
 
         //float t = 0;
