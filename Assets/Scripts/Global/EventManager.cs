@@ -13,7 +13,7 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileDeath();
     public static event ProjectileDeath OnProjectileDeath;
 
-    public delegate void ProjectileIgnite(Vector3 newCheckpoint);
+    public delegate void ProjectileIgnite(Flammable flammableObject);
     public static event ProjectileIgnite OnProjectileIgnite;
 
     public delegate void ProjectileRespawn();
@@ -73,11 +73,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnProjectileIgnite(Vector3 newCheckpoint)
+    public static void InvokeOnProjectileIgnite(Flammable flammableObject)
     {
         if (OnProjectileIgnite != null)
         {
-            OnProjectileIgnite.Invoke(newCheckpoint);
+            OnProjectileIgnite.Invoke(flammableObject);
             Debug.Log("EventManager.cs: The event 'OnProjectileIgnite' was invoked.");
         }
         else

@@ -81,7 +81,7 @@ public class Flame : MonoBehaviour
     /// <summary>
     /// Called when projectile hits flammable
     /// </summary>
-    private void OnIgnite(Vector3 newCheckpoint)
+    private void OnIgnite(Flammable flammableObject)
     {
         wasShot = false;
 
@@ -190,20 +190,17 @@ public class Flame : MonoBehaviour
 
             try
             {
-                spawnPoint = other.gameObject.transform.GetChild(0).transform.position;
+                spawnPoint = flammableObject.transform.GetChild(0).transform.position;
 
             }
             catch
             {
-                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a LaunchPoint child object even though it is tagged as a FlammableObject.");
+                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a SpawnPoint child object even though it is tagged as a FlammableObject.");
             }
 
             if (flammableObject != null)
             {
-                EventManager.InvokeOnProjectileIgnite(spawnPoint);
-
-                // Not sure if this is a good idea.
-                other.gameObject.GetComponent<Flammable>().FlameHitTransition();
+                EventManager.InvokeOnProjectileIgnite(flammableObject);
             }
         }
 

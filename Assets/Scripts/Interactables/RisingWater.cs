@@ -67,7 +67,7 @@ public class RisingWater : MonoBehaviour
         }
     }
 
-    private void OnIgnite(Vector3 checkpoint)
+    private void OnIgnite(Flammable flammableObject)
     {
         if (currentRoundsInTotal > roundsBeforeStart)
         {
