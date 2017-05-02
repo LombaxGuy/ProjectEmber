@@ -12,8 +12,13 @@ public class Flammable : MonoBehaviour
     private bool onFire = false;
     private Vector3 spawnPoint;
 
+    private float transitionTime = 2;
+
+    [Tooltip("The material of the object when it is on fire.")]
     [SerializeField]
-    private Texture burntTexture;
+    private Material burntMaterial;
+    private Material normalMaterial;
+    private Renderer materialRenderer;
 
     private Color B_color;
     private Color W_color;
@@ -52,9 +57,12 @@ public class Flammable : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        myMaterial = gameObject.GetComponent<Renderer>().material;
-        B_color = new Color(0,0,0,1);
-        W_color = new Color(255,255,255,1);
+        materialRenderer = GetComponent<Renderer>();
+        normalMaterial = materialRenderer.material;
+
+        //myMaterial = gameObject.GetComponent<Renderer>().material;
+        //B_color = new Color(0,0,0,1);
+        //W_color = new Color(255,255,255,1);
 
         spawnPoint = transform.GetChild(0).transform.position;
     }
@@ -69,6 +77,8 @@ public class Flammable : MonoBehaviour
     {
         gameObject.GetComponent<Collider>().enabled = true;
         onFire = false;
+
+        materialRenderer.material = normalMaterial;
     }
 
     public void FlameHitTransition()
@@ -83,28 +93,41 @@ public class Flammable : MonoBehaviour
     {
         float t = 0;
 
-        while (myMaterial.color != B_color)
+        while (t < 1)
         {
-            t += Time.deltaTime / 4f;
-            myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
+            t += Time.deltaTime / transitionTime;
+
+            materialRenderer.material.Lerp(normalMaterial, burntMaterial, t);
 
             yield return null;
         }
+
+        materialRenderer.material = burntMaterial;
+
+
+        //float t = 0;
+
+        //while (myMaterial.color != B_color)
+        //{
+        //    t += Time.deltaTime / 4f;
+        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
+
+        //    yield return null;
+        //}
             
-            yield return new WaitForSeconds(0.1f);
-            myMaterial.mainTexture = burntTexture;
-            t = 0;
+        //    yield return new WaitForSeconds(0.1f);
+        //    myMaterial.mainTexture = burntTexture;
+        //    t = 0;
 
-        while (myMaterial.color != W_color)
-        {
-            t += Time.deltaTime / 4f;
-            myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
+        //while (myMaterial.color != W_color)
+        //{
+        //    t += Time.deltaTime / 4f;
+        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
 
-            yield return null;
-        }
+        //    yield return null;
+        //}
 
-        yield return new WaitForSeconds(0.1f);
-        Debug.Log("Done");
+        //yield return new WaitForSeconds(0.1f);
     }
 
 }

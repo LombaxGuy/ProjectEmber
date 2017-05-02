@@ -247,19 +247,18 @@ public class ActionController : MonoBehaviour
                     {
                         try
                         {
-                            //... and the object is on fire the spawnpoint is changed to that flammable object.
+                            //... and the object is on fire the the OnSetNewSpawnPoint event is invoked.
                             Flammable flammableObject = hit.transform.GetComponent<Flammable>();
 
                             if (flammableObject.OnFire)
                             {
-                                activeFlame.SpawnPoint = flammableObject.SpawnPoint;
+                                EventManager.InvokeOnSetNewSpawnPoint(flammableObject.SpawnPoint);
                             }
                         }
                         catch
                         {
                             Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
                         }
-
                     }
                 }
             }

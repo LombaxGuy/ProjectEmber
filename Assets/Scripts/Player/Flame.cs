@@ -40,6 +40,7 @@ public class Flame : MonoBehaviour
         EventManager.OnProjectileDeath += OnDeath;
         EventManager.OnProjectileIgnite += OnIgnite;
         EventManager.OnProjectileRespawn += OnRespawn;
+        EventManager.OnSetNewSpawnPoint += OnSetNewSpawnPoint;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
 
@@ -52,6 +53,7 @@ public class Flame : MonoBehaviour
         EventManager.OnProjectileDeath -= OnDeath;
         EventManager.OnProjectileIgnite -= OnIgnite;
         EventManager.OnProjectileRespawn -= OnRespawn;
+        EventManager.OnSetNewSpawnPoint -= OnSetNewSpawnPoint;
         EventManager.OnGameWorldReset -= OnWorldReset;
     }
 
@@ -101,15 +103,24 @@ public class Flame : MonoBehaviour
     /// <summary>
     /// Used to move the flame and reset everything for a new shot
     /// </summary>
-    void OnRespawn()
+    private void OnRespawn()
     {
         projetileBody.Sleep();
 
         gameObject.transform.position = spawnPoint;
     }
 
+    /// <summary>
+    /// Used to set the current spawn point of the flame.
+    /// </summary>
+    /// <param name="spawnPoint">The new spawn point.</param>
+    private void OnSetNewSpawnPoint(Vector3 spawnPoint)
+    {
+        this.spawnPoint = spawnPoint;
+    }
+
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         spawnPoint = transform.position;
 
@@ -119,7 +130,7 @@ public class Flame : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         // Handle when not shot
         if (!wasShot)
@@ -160,7 +171,7 @@ public class Flame : MonoBehaviour
     /// Used for collision and interaction with other objects
     /// </summary>
     /// <param name="other">The object we are colliding with.</param>
-    void OnCollisionEnter(Collision other)
+    private void OnCollisionEnter(Collision other)
     {
         //Checkpoints
         if (other.gameObject.tag == "FlammableObject")

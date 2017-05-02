@@ -19,6 +19,9 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileRespawn();
     public static event ProjectileRespawn OnProjectileRespawn;
 
+    public delegate void SetNewSpawnPoint(Vector3 newCheckpoint);
+    public static event SetNewSpawnPoint OnSetNewSpawnPoint;
+
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
 
@@ -93,6 +96,19 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnProjectileRespawn' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnSetNewSpawnPoint(Vector3 spawnPoint)
+    {
+        if (OnSetNewSpawnPoint != null)
+        {
+            OnSetNewSpawnPoint.Invoke(spawnPoint);
+            Debug.Log("EventManager.cs: The event 'OnSetNewSpawnPoint' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnSetNewSpawnPoint' was not invoked because nothing subscibes to it.");
         }
     }
 
