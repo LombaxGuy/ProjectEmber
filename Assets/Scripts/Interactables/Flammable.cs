@@ -9,6 +9,11 @@ public class Flammable : MonoBehaviour
     private Vector3 spawnPoint;
 
     [SerializeField]
+    private GameObject spawn;
+
+    private ParticleSystem[] fireParticleSystems;
+
+    [SerializeField]
     private Texture burntTexture;
 
     private Color B_color;
@@ -60,26 +65,50 @@ public class Flammable : MonoBehaviour
         B_color = new Color(0, 0, 0, 1);
         W_color = new Color(255, 255, 255, 1);
 
-        spawnPoint = transform.GetChild(0).transform.position;
+        spawnPoint = spawn.transform.position;
+
+        fireParticleSystems = GetComponentsInChildren<ParticleSystem>();
+
+        for (int i = 0; i < fireParticleSystems.Length; i++)
+        {
+            var temp = fireParticleSystems[i].emission;
+            temp.enabled = false;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (spawnPoint != spawn.transform.position)
+        {
+            spawnPoint = spawn.transform.position;
+        }
     }
 
     private void Reset()
     {
-        gameObject.GetComponent<Collider>().enabled = true;
+        //gameObject.GetComponent<Collider>().enabled = true;
         onFire = false;
+
+        for (int i = 0; i < fireParticleSystems.Length; i++)
+        {
+            var temp = fireParticleSystems[i].emission;
+            temp.enabled = false;
+        }
     }
 
     private void FlameHitTransition()
     {
         StartCoroutine(Burn());
-        
-        gameObject.GetComponent<Collider>().enabled = false;
+
+        //gameObject.GetComponent<Collider>().enabled = false;
+
+        for (int i = 0; i < fireParticleSystems.Length; i++)
+        {
+            var temp = fireParticleSystems[i].emission;
+            temp.enabled = true;
+        }
+
     }
 
 
@@ -110,4 +139,13 @@ public class Flammable : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
     }
 
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0, 1, 0, 0.3f);
+        Gizmos.DrawSphere(spawn.transform.position, 0.25f);
+
+        Gizmos.color = new Color(0, 1, 0, 1f);
+        Gizmos.DrawWireSphere(spawn.transform.position, 0.25f);
+    }
 }
