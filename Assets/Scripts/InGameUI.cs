@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class InGameUI : MonoBehaviour
+public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private GameObject dropDownPowerUp;
 
@@ -15,12 +16,16 @@ public class InGameUI : MonoBehaviour
     private float uiOpenPosition = 100;
 
     private bool powerUpIsHidden = true;
+    private bool mouseIsHoveringMarker = false;
 
     private Text scoreText;
     private Text ratingText;
 
     private Button continueButton;
     private Button pauseButton;
+
+    private GameObject startShootPositionMarker;
+    private Image shootMarkerImageComponent;
 
     private UIVisibilityControl endVisibilityCtrl;
     private UIVisibilityControl pauseVisibilityCtrl;
@@ -30,6 +35,8 @@ public class InGameUI : MonoBehaviour
 
     private void OnEnable()
     {
+        EventManager.OnShootingStarted += UpdateStartShootingPositionMarker;
+        EventManager.OnShootingEnded += HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted += GameWonUI;
         EventManager.OnLevelLost += GameLostUI;
         EventManager.OnGameWorldReset += CloseUI;
@@ -37,6 +44,8 @@ public class InGameUI : MonoBehaviour
 
     private void OnDisable()
     {
+        EventManager.OnShootingStarted -= UpdateStartShootingPositionMarker;
+        EventManager.OnShootingEnded -= HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted -= GameWonUI;
         EventManager.OnLevelLost -= GameLostUI;
         EventManager.OnGameWorldReset -= CloseUI;
@@ -53,6 +62,10 @@ public class InGameUI : MonoBehaviour
 
         uiStartPosition = powerUpUI.transform.position.y;
         Debug.Log(uiStartPosition);
+
+        startShootPositionMarker = GameObject.Find("StartShootPositionMarker");
+        shootMarkerImageComponent = startShootPositionMarker.GetComponent<Image>();
+
         scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         ratingText = GameObject.Find("RatingText").GetComponent<Text>();
 
@@ -89,7 +102,7 @@ public class InGameUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Hides the pause button
+    /// Hides the UI shown while game is not paused
     /// </summary>
     private void HideGameRunningUI()
     {
@@ -99,9 +112,9 @@ public class InGameUI : MonoBehaviour
         pauseButton.GetComponent<Image>().enabled = false;
         pauseButton.transform.GetChild(0).GetComponent<Text>().enabled = false;
     }
-    
+
     /// <summary>
-    /// Shows the pausebutton
+    /// Shows the UI shown while game is not paused
     /// </summary>
     private void ShowGameRunningUI()
     {
@@ -201,7 +214,7 @@ public class InGameUI : MonoBehaviour
             HideGameRunningUI();
         }
     }
-    
+
     /// <summary>
     /// Closes the endscreen
     /// </summary>
@@ -222,7 +235,7 @@ public class InGameUI : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
-    
+
     /// <summary>
     /// Restarts the current level
     /// </summary>
@@ -239,5 +252,47 @@ public class InGameUI : MonoBehaviour
     public void OnMainMenuButton()
     {
         SceneManager.LoadScene(0);
+    }
+
+    private void UpdateStartShootingPositionMarker()
+    {
+        shootMarkerImageComponent.enabled = true;
+        if (Input.touchCount == 1)
+        {
+            shootMarkerImageComponent.transform.position = Input.GetTouch(0).position;
+        }
+        else
+        {
+            shootMarkerImageComponent.transform.position = Input.mousePosition;
+        }
+
+    }
+
+    private void HideStartShootingPositionMarker()
+    {
+        shootMarkerImageComponent.enabled = false;
+    }
+
+
+    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+    {
+        if (eventData.hovered.Contains(startShootPositionMarker))
+        {
+            if (shootMarkerImageComponent.enabled == true)
+            {
+                shootMarkerImageComponent.color = Color.red;
+            }
+        }
+    }
+
+    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+    {
+        if (eventData.hovered.Contains(startShootPositionMarker))
+        {
+            if (shootMarkerImageComponent.enabled == true)
+            {
+                shootMarkerImageComponent.color = Color.green;
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@ public class ActionController : MonoBehaviour
 
     private bool shootMode = false;
     private bool canShoot = true;
+    private bool gameHasEnded = false;
 
     [SerializeField]
     private bool touchFlameToShoot = false;
@@ -51,12 +52,18 @@ public class ActionController : MonoBehaviour
 
     private void OnEnable()
     {
+        EventManager.OnLevelCompleted += OnGameEnd;
+        EventManager.OnLevelLost += OnGameEnd;
+        EventManager.OnGameWorldReset += OnGameReset;
         EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnProjectileLaunched += OnLaunch;
     }
 
     private void OnDisable()
     {
+        EventManager.OnLevelCompleted -= OnGameEnd;
+        EventManager.OnLevelLost -= OnGameEnd;
+        EventManager.OnGameWorldReset -= OnGameReset;
         EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnProjectileLaunched -= OnLaunch;
     }
@@ -78,11 +85,12 @@ public class ActionController : MonoBehaviour
     private void Update()
     {
         // If the one finger is touching the screen
-        if (Input.touchCount == 1 && canShoot)
+        if (Input.touchCount == 1 && canShoot && !gameHasEnded)
         {
             // If the touch phase is began...
             if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
+                EventManager.InvokeOnShootingStarted();
                 //... the HandleInputBegan method is called.
                 HandleInputBegan();
             }
@@ -100,6 +108,7 @@ public class ActionController : MonoBehaviour
                 // If the touch phase is ended...
                 if (Input.GetTouch(0).phase == TouchPhase.Ended)
                 {
+                    EventManager.InvokeOnShootingEnded();
                     //... the UpdateDirection method is called.
                     UpdateDirection();
 
@@ -112,7 +121,7 @@ public class ActionController : MonoBehaviour
 #if (DEBUG)
         Input.simulateMouseWithTouches = false;
 
-        if (Input.GetMouseButtonDown(0) && canShoot)
+        if (Input.GetMouseButtonDown(0) && canShoot && !gameHasEnded)
         {
             if (touchFlameToShoot)
             {
@@ -136,6 +145,7 @@ public class ActionController : MonoBehaviour
                 // If shootMode is true...
                 if (shootMode)
                 {
+                    EventManager.InvokeOnShootingStarted();
                     //... the touchStartPos is set and the playerShooting variable is set to true.
                     touchStartPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, activeFlame.transform.position.z));
                     playerShooting = true;
@@ -171,6 +181,7 @@ public class ActionController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0) && playerShooting)
         {
+            EventManager.InvokeOnShootingEnded();
             // Resets the playerShooting and the shootMode variables to false.
             playerShooting = false;
             shootMode = false;
@@ -343,7 +354,7 @@ public class ActionController : MonoBehaviour
             //... the forceStrength is set to the defaultForceStrength
             forceStrength = defaultForceStrength;
         }
-        // If the length of the bull is lower than the min pull distance...
+        // If the length of the pull is lower than the min pull distance...
         else
         {
             //... the forceStrength is set to 0.
@@ -351,5 +362,21 @@ public class ActionController : MonoBehaviour
         }
 
         return forceStrength;
+    }
+
+    /// <summary>
+    /// Sets the gameHasEnded bool to true making it impossible for the player to shoot the flame. This method is called when either the game is won or lost
+    /// </summary>
+    private void OnGameEnd()
+    {
+        gameHasEnded = true;
+    }
+
+    /// <summary>
+    /// Sets the gameHasEnded bool to false making it possible for the player to shoot the flame
+    /// </summary>
+    private void OnGameReset()
+    {
+        gameHasEnded = false;
     }
 }

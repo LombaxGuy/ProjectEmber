@@ -34,6 +34,12 @@ public class EventManager : MonoBehaviour
     public delegate void LevelCompleted();
     public static event LevelCompleted OnLevelCompleted;
 
+    public delegate void ShootingStarted();
+    public static event ShootingStarted OnShootingStarted;
+
+    public delegate void ShootingEnded();
+    public static event ShootingStarted OnShootingEnded;
+
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)
@@ -161,6 +167,32 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnLevelCompleted' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnShootingStarted()
+    {
+        if(OnShootingStarted != null)
+        {
+            OnShootingStarted.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnShootingEnded()
+    {
+        if (OnShootingEnded != null)
+        {
+            OnShootingEnded.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was not invoked because nothing subscibes to it.");
         }
     }
 }

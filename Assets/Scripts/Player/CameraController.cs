@@ -93,6 +93,8 @@ public class CameraController : MonoBehaviour
     {
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileRespawn += OnRespawn;
+        EventManager.OnLevelCompleted += OnGameEnd;
+        EventManager.OnLevelLost += OnGameEnd;
         EventManager.OnGameWorldReset += OnWorldReset;
     }
 
@@ -103,6 +105,8 @@ public class CameraController : MonoBehaviour
     {
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileRespawn -= OnRespawn;
+        EventManager.OnLevelCompleted += OnGameEnd;
+        EventManager.OnLevelLost += OnGameEnd;
         EventManager.OnGameWorldReset -= OnWorldReset;
     }
 
@@ -132,6 +136,14 @@ public class CameraController : MonoBehaviour
         cameraLockState = cameraLockState_R;
         cameraLockTarget = cameraLockTarget_R;
         gameObject.transform.position = cameraDefaultPosition;
+    }
+
+    /// <summary>
+    /// Locks the camera when the game is either won or lost
+    /// </summary>
+    private void OnGameEnd()
+    {
+        cameraLockState = CameraLockState.Disabled;
     }
 
     // Use this for initialization
