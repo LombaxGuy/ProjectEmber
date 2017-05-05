@@ -70,7 +70,6 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnDeath()
     {
-        //isAlive = false;
         wasShot = false;
 
         DeathSequence();
@@ -117,6 +116,9 @@ public class Flame : MonoBehaviour
     private void OnSetNewSpawnPoint(Vector3 spawnPoint)
     {
         this.spawnPoint = spawnPoint;
+
+        transform.position = spawnPoint;
+
     }
 
     // Use this for initialization
