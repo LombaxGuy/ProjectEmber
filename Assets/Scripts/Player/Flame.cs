@@ -10,12 +10,14 @@ public class Flame : MonoBehaviour
     private int maxCollisions = 6; // Should be 1 more than expected as the object collides with the ground the frame it is launched.
     private int currentCollisions = 0;
 
+    private ParticleSystem[] particles;
+
     private float idleVelocityThreshold = 0.5f;
     private float maxIdleTimeBeforeDeath = 1;
     private float idleTimeBeforeDeath = 0;
 
     // The time in seconds the camera is locked before the OnRespawn evnet is called.
-    private float extinguishTimer = 1;
+    private float extinguishTimer = 0.25f;
 
     private Vector3 spawnPoint;
     private Rigidbody projetileBody;
@@ -129,6 +131,8 @@ public class Flame : MonoBehaviour
         spawnPoint_R = gameObject.transform.position;
         spawnPoint = spawnPoint_R;
         projetileBody = gameObject.GetComponent<Rigidbody>();
+
+        particles = GetComponentsInChildren<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -183,39 +187,48 @@ public class Flame : MonoBehaviour
             try
             {
                 flammableObject = other.gameObject.GetComponent<Flammable>();
-                flammableObject.OnFire = true;
+
+                if (!flammableObject.OnFire)
+                {
+                    flammableObject.OnFire = true;
+
+                    try
+                    {
+                        spawnPoint = flammableObject.transform.GetChild(0).transform.position;
+
+                    }
+                    catch
+                    {
+                        Debug.LogWarning("Flame.cs: Collision object does not have a SpawnPoint child object even though it is tagged as a FlammableObject.");
+                    }
+
+                    if (flammableObject != null)
+                    {
+                        EventManager.InvokeOnProjectileIgnite(flammableObject);
+                    }
+                }
             }
             catch
             {
-                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+                Debug.LogWarning("Flame.cs: Collision object does not have a Flammable component even though it is tagged as a FlammableObject.");
             }
 
-            try
-            {
-                spawnPoint = flammableObject.transform.GetChild(0).transform.position;
 
-            }
-            catch
-            {
-                Debug.LogWarning("ProjectileLife.cs: Collision object does not have a SpawnPoint child object even though it is tagged as a FlammableObject.");
-            }
-
-            if (flammableObject != null)
-            {
-                EventManager.InvokeOnProjectileIgnite(flammableObject);
-            }
-        }
-
-        //Killers
-        if (other.gameObject.tag == "KillerObject")
-        {
-            EventManager.InvokeOnProjectileDeath();
         }
 
         // If neither a KillerObject or a FlammableObject was hit the collision count is increased.
         if (other.gameObject.tag != "KillerObject" && other.gameObject.tag != "FlammableObject")
         {
             currentCollisions++;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //Killers
+        if (other.tag == "KillerObject")
+        {
+            EventManager.InvokeOnProjectileDeath();
         }
     }
 

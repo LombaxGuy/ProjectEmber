@@ -167,6 +167,25 @@ public class ActionController : MonoBehaviour
                             shootMode = true;
                         }
                     }
+
+                    // If the ray hits a flammable object...
+                    if (hit.collider.gameObject.tag == "FlammableObject")
+                    {
+                        try
+                        {
+                            //... and the object is on fire the the OnSetNewSpawnPoint event is invoked.
+                            Flammable flammableObject = hit.transform.GetComponent<Flammable>();
+
+                            if (flammableObject.OnFire)
+                            {
+                                EventManager.InvokeOnSetNewSpawnPoint(flammableObject.SpawnPoint);
+                            }
+                        }
+                        catch
+                        {
+                            Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+                        }
+                    }
                 }
             }
         }
@@ -197,7 +216,7 @@ public class ActionController : MonoBehaviour
         }
 #endif
         #endregion
-
+        
         // Update the selection marker by calling the method UpdateSelectionSphere.
         UpdateSelectionSphere();
     }

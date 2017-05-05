@@ -61,7 +61,6 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         powerupVisibilityCtrl = GameObject.Find("PowerUpUI").GetComponent<UIVisibilityControl>();
 
         uiStartPosition = powerUpUI.transform.position.y;
-        Debug.Log(uiStartPosition);
 
         startShootPositionMarker = GameObject.Find("StartShootPositionMarker");
         shootMarkerImageComponent = startShootPositionMarker.GetComponent<Image>();

@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4616946, g: 0.51241565, b: 0.58993244, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -230,7 +230,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -1268549319
+  randomSeed: -1152548347
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10328,7 +10328,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -2068623948
+  randomSeed: -1308818478
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13277,7 +13277,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -174194555
+  randomSeed: -458309745
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -16060,7 +16060,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 682774593
+  randomSeed: -1336159233
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -22663,7 +22663,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 2120835699
+  randomSeed: 454041374
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -26695,7 +26695,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -1308828245
+  randomSeed: 713953820
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -38104,10 +38104,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1634840370}
   - component: {fileID: 1634840373}
-  - component: {fileID: 1634840372}
   - component: {fileID: 1634840371}
   - component: {fileID: 1634840375}
   - component: {fileID: 1634840377}
+  - component: {fileID: 1634840372}
   m_Layer: 8
   m_Name: Water
   m_TagString: KillerObject
@@ -38159,20 +38159,21 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
---- !u!64 &1634840372
-MeshCollider:
+--- !u!54 &1634840372
+Rigidbody:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1634840369}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
   serializedVersion: 2
-  m_Convex: 0
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!33 &1634840373
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -45339,7 +45340,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 542991911
+  randomSeed: 522493120
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -48820,7 +48821,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 1326741039
+  randomSeed: -1979429682
   InitialModule:
     serializedVersion: 3
     enabled: 1
