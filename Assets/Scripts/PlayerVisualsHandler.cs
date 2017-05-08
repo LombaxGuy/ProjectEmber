@@ -2,46 +2,72 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerVisualsHandler : MonoBehaviour {
+public class PlayerVisualsHandler : MonoBehaviour
+{
 
-    Rigidbody rigid;
-
-    [SerializeField]
-    ParticleSystem sparks;
+    private Rigidbody rigid;
 
     [SerializeField]
-    float forceSparkThreshhold = 3f;
+    private ParticleSystem sparks;
 
     [SerializeField]
-    float baseStart = 0.0f;
+    private float forceSparkThreshhold = 3f;
 
     [SerializeField]
-    float amplitude = 1.0f;
+    private float baseStart = 0.0f;
 
     [SerializeField]
-    float phase = 0.0f;
+    private float amplitude = 1.0f;
 
     [SerializeField]
-    float frequency = 0.5f;
+    private float phase = 0.0f;
 
+    [SerializeField]
+    private float frequency = 0.5f;
 
-    Light flameLight;
-    Color originalColor;
+    private ParticleSystem[] particles;
+    
+    private Light flameLight;
+    private Color originalColor;
 
-	// Use this for initialization
-	void Start ()
+    private void OnEnable()
+    {
+        EventManager.OnGameWorldReset += OnReset;
+        EventManager.OnLevelLost += OnLost;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnGameWorldReset -= OnReset;
+        EventManager.OnLevelLost -= OnLost;
+    }
+
+    private void OnReset()
+    {
+        ControlParticles(true);
+    }
+
+    private void OnLost()
+    {
+        ControlParticles(false);
+    }
+
+    // Use this for initialization
+    private void Start()
     {
         rigid = GetComponent<Rigidbody>();
 
         flameLight = GetComponent<Light>();
         originalColor = flameLight.color;
-	}
-	
-	// Update is called once per frame
-	void Update ()
+
+        particles = GetComponentsInChildren<ParticleSystem>();
+    }
+
+    // Update is called once per frame
+    private void Update()
     {
         flameLight.color = originalColor * (EvaluateLightWave());
-	}
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -49,16 +75,14 @@ public class PlayerVisualsHandler : MonoBehaviour {
 
         if (impactForce >= forceSparkThreshhold)
         {
-            Debug.Log("Spark!");
-
-// Obsolete
+            // Obsolete
             sparks.startSize = Mathf.Clamp(impactForce, 0.3f, 0.6f);
             sparks.Emit(5);
             sparks.startSize = 0.3f;
         }
     }
 
-    float EvaluateLightWave()
+    private float EvaluateLightWave()
     {
         float x = (Time.time + phase) * frequency;
         float y;
@@ -69,4 +93,14 @@ public class PlayerVisualsHandler : MonoBehaviour {
         return (y * amplitude) + baseStart;
     }
 
+    private void ControlParticles(bool isActive)
+    {
+        for (int i = 0; i < particles.Length; i++)
+        {
+            var temp = particles[i].emission;
+            temp.enabled = isActive;
+        }
+
+        flameLight.enabled = isActive;
+    }
 }

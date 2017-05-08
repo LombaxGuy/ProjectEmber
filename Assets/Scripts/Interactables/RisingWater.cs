@@ -8,6 +8,8 @@ public class RisingWater : MonoBehaviour
     private Flame flame;
     private float flameSpawnOffset = 0.5f;
 
+    private Flammable[] levelFlammables;
+
     private Coroutine moveCoroutine;
 
     private Vector3 waterStartPosition;
@@ -98,6 +100,21 @@ public class RisingWater : MonoBehaviour
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
         flame = worldManager.ActiveFlame.GetComponent<Flame>();
 
+        GameObject[] levelFlammableObjects = GameObject.FindGameObjectsWithTag("FlammableObject");
+        levelFlammables = new Flammable[levelFlammableObjects.Length];
+
+        for (int i = 0; i < levelFlammableObjects.Length; i++)
+        {
+            try
+            {
+                levelFlammables[i] = levelFlammableObjects[i].GetComponent<Flammable>();
+            }
+            catch
+            {
+                Debug.LogWarning("RisingWater.cs: Object number "+ i +" does not have a Flammable component even though it is tagged as a FlammableObject.");
+            }
+        }
+
         waterStartPosition = transform.position;
 
         deltaY = Vector3.Distance(transform.position, new Vector3(transform.position.x, topOfMap, transform.position.z));
@@ -106,11 +123,27 @@ public class RisingWater : MonoBehaviour
 
     private void OnEndOfTurn()
     {
-        // If the waters y-position is larger than the flames spawnpoints y-position
-        if (transform.position.y > flame.SpawnPoint.y - flameSpawnOffset)
+        Vector3 highestCheckpoint = Vector3.zero;
+        Flammable flammableObject = levelFlammables[levelFlammables.Length - 1];
+
+        for (int i = 0; i < levelFlammables.Length; i++)
+        {
+            if (levelFlammables[i].transform.position.y > highestCheckpoint.y && levelFlammables[i].OnFire)
+            {
+                highestCheckpoint = levelFlammables[i].transform.position;
+                flammableObject = levelFlammables[i];
+            }    
+        }
+
+        // If the waters y-position is larger than the highest spawnpoint y-position
+        if (transform.position.y > highestCheckpoint.y - flameSpawnOffset)
         {
             // Invokes the on GameWorldReset event.
-            EventManager.InvokeOnGameWorldReset();
+            EventManager.InvokeOnLevelLost();
+        }
+        else if (transform.position.y > flame.SpawnPoint.y - flameSpawnOffset)
+        {
+            flame.SpawnPoint = flammableObject.SpawnPoint;
         }
     }
 

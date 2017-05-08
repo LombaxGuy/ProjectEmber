@@ -69,11 +69,7 @@ public class Flammable : MonoBehaviour
 
         fireParticleSystems = GetComponentsInChildren<ParticleSystem>();
 
-        for (int i = 0; i < fireParticleSystems.Length; i++)
-        {
-            var temp = fireParticleSystems[i].emission;
-            temp.enabled = false;
-        }
+        ControlParticles(false);
     }
 
     // Update is called once per frame
@@ -90,11 +86,7 @@ public class Flammable : MonoBehaviour
         //gameObject.GetComponent<Collider>().enabled = true;
         onFire = false;
 
-        for (int i = 0; i < fireParticleSystems.Length; i++)
-        {
-            var temp = fireParticleSystems[i].emission;
-            temp.enabled = false;
-        }
+        ControlParticles(false);
     }
 
     private void FlameHitTransition()
@@ -103,14 +95,28 @@ public class Flammable : MonoBehaviour
 
         //gameObject.GetComponent<Collider>().enabled = false;
 
-        for (int i = 0; i < fireParticleSystems.Length; i++)
-        {
-            var temp = fireParticleSystems[i].emission;
-            temp.enabled = true;
-        }
+        ControlParticles(true);
 
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "KillerObject")
+        {
+            ControlParticles(false);
+
+            onFire = false;
+        }
+    }
+
+    private void ControlParticles(bool isActive)
+    {
+        for (int i = 0; i < fireParticleSystems.Length; i++)
+        {
+            var temp = fireParticleSystems[i].emission;
+            temp.enabled = isActive;
+        }
+    }
 
     private IEnumerator Burn()
     {
