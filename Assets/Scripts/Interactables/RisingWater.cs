@@ -58,28 +58,32 @@ public class RisingWater : MonoBehaviour
 
     private void OnDeath()
     {
-        if (currentRoundsInTotal > roundsBeforeStart)
-        {
-            MoveWater();
-        }
-        else
-        {
-            // Invokes the EndOfTurn event.
-            EventManager.InvokeOnEndOfTurn();
-        }
+        MoveWater();
+
+        //if (currentRoundsInTotal > roundsBeforeStart)
+        //{
+        //    MoveWater();
+        //}
+        //else
+        //{
+        //    // Invokes the EndOfTurn event.
+        //    EventManager.InvokeOnEndOfTurn();
+        //}
     }
 
     private void OnIgnite(Flammable flammableObject)
     {
-        if (currentRoundsInTotal > roundsBeforeStart)
-        {
-            MoveWater();
-        }
-        else
-        {
-            // Invokes the EndOfTurn event.
-            EventManager.InvokeOnEndOfTurn();
-        }
+        MoveWater();
+
+        //if (currentRoundsInTotal > roundsBeforeStart)
+        //{
+        //    MoveWater();
+        //}
+        //else
+        //{
+        //    // Invokes the EndOfTurn event.
+        //    EventManager.InvokeOnEndOfTurn();
+        //}
     }
 
     private void OnReset()
@@ -102,6 +106,8 @@ public class RisingWater : MonoBehaviour
 
         GameObject[] levelFlammableObjects = GameObject.FindGameObjectsWithTag("FlammableObject");
         levelFlammables = new Flammable[levelFlammableObjects.Length];
+
+        currentY = transform.position.y;
 
         for (int i = 0; i < levelFlammableObjects.Length; i++)
         {
@@ -150,7 +156,11 @@ public class RisingWater : MonoBehaviour
     private void MoveWater()
     {
         oldY = transform.position.y;
-        currentY = increment * (currentRoundsInTotal - roundsBeforeStart - 1);
+
+        int rounds = currentRoundsInTotal - roundsBeforeStart - 1 < 0 ? 0 : currentRoundsInTotal - roundsBeforeStart - 1;
+        Debug.Log(rounds);
+
+        currentY = currentY + increment * rounds;
 
         moveCoroutine = StartCoroutine(CoroutineMove());
     }

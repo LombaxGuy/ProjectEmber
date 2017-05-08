@@ -162,12 +162,13 @@ public class Flame : MonoBehaviour
         }
 
         // If the number of collision exceed the maximum number of allowed collision or if the idle timer exceeds the max idle time
-        if (currentCollisions >= maxCollisions || idleTimeBeforeDeath >= maxIdleTimeBeforeDeath)
+        if (currentCollisions >= maxCollisions || idleTimeBeforeDeath >= maxIdleTimeBeforeDeath && wasShot == true)
         {
             // The projectile is killed
             wasShot = false;
 
-            DeathSequence();
+            //DeathSequence();
+            //EventManager.InvokeOnProjectileDeath();
 
             currentCollisions = 0;
         }

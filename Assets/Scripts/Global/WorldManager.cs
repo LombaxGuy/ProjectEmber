@@ -14,4 +14,15 @@ public class WorldManager : MonoBehaviour
     }
     #endregion
 
+    #region Level
+    private float topOfLevelYCoordinate = 20;
+
+    public float TopOfLevelYCoordinate
+    {
+        get { return topOfLevelYCoordinate; }
+        set { topOfLevelYCoordinate = value; }
+    }
+
+    #endregion
+
 }
