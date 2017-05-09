@@ -38,18 +38,18 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private void OnEnable()
     {
         EventManager.OnShootingStarted += UpdateStartShootingPositionMarker;
-        EventManager.OnShootingEnded += HideStartShootingPositionMarker;
+        EventManager.OnProjectileLaunched += HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted += GameWonUI;
         EventManager.OnLevelLost += GameLostUI;
         EventManager.OnGameWorldReset += OnGameWorldReset;
         EventManager.OnEndOfTurn += UpdateWaterText;
-        EventManager.OnEndOfTurn -= UpdateScoreText;
+        EventManager.OnEndOfTurn += UpdateScoreText;
     }
 
     private void OnDisable()
     {
         EventManager.OnShootingStarted -= UpdateStartShootingPositionMarker;
-        EventManager.OnShootingEnded -= HideStartShootingPositionMarker;
+        EventManager.OnProjectileLaunched -= HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted -= GameWonUI;
         EventManager.OnLevelLost -= GameLostUI;
         EventManager.OnGameWorldReset -= OnGameWorldReset;
@@ -304,7 +304,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
-    private void HideStartShootingPositionMarker()
+    private void HideStartShootingPositionMarker(Vector3 direction, float force)
     {
         shootMarkerImageComponent.enabled = false;
     }
