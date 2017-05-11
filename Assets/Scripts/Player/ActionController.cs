@@ -68,6 +68,22 @@ public class ActionController : MonoBehaviour
         EventManager.OnProjectileLaunched -= OnLaunch;
     }
 
+    /// <summary>
+    /// Sets the gameHasEnded bool to true making it impossible for the player to shoot the flame. This method is called when either the game is won or lost
+    /// </summary>
+    private void OnGameEnd()
+    {
+        gameHasEnded = true;
+    }
+
+    /// <summary>
+    /// Sets the gameHasEnded bool to false making it possible for the player to shoot the flame
+    /// </summary>
+    private void OnGameReset()
+    {
+        gameHasEnded = false;
+    }
+
     private void OnRespawn()
     {
         canShoot = true;
@@ -108,7 +124,6 @@ public class ActionController : MonoBehaviour
                 // If the touch phase is ended...
                 if (Input.GetTouch(0).phase == TouchPhase.Ended)
                 {
-                    EventManager.InvokeOnShootingEnded();
                     //... the UpdateDirection method is called.
                     UpdateDirection();
 
@@ -183,7 +198,7 @@ public class ActionController : MonoBehaviour
                         }
                         catch
                         {
-                            Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+                            Debug.LogError("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
                         }
                     }
                 }
@@ -200,7 +215,6 @@ public class ActionController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0) && playerShooting)
         {
-            EventManager.InvokeOnShootingEnded();
             // Resets the playerShooting and the shootMode variables to false.
             playerShooting = false;
             shootMode = false;
@@ -287,7 +301,7 @@ public class ActionController : MonoBehaviour
                         }
                         catch
                         {
-                            Debug.LogWarning("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
+                            Debug.LogError("ProjectileLife.cs: Collision object does not have a FlammableObject component even though it is tagged as a FlammableObject.");
                         }
                     }
                 }
@@ -381,21 +395,5 @@ public class ActionController : MonoBehaviour
         }
 
         return forceStrength;
-    }
-
-    /// <summary>
-    /// Sets the gameHasEnded bool to true making it impossible for the player to shoot the flame. This method is called when either the game is won or lost
-    /// </summary>
-    private void OnGameEnd()
-    {
-        gameHasEnded = true;
-    }
-
-    /// <summary>
-    /// Sets the gameHasEnded bool to false making it possible for the player to shoot the flame
-    /// </summary>
-    private void OnGameReset()
-    {
-        gameHasEnded = false;
     }
 }

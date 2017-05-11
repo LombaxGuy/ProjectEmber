@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class Flame : MonoBehaviour
 {
-    private bool wasShot = false;
+    private bool isAlive = false;
 
     [SerializeField]
     private int maxCollisions = 6; // Should be 1 more than expected as the object collides with the ground the frame it is launched.
     private int currentCollisions = 0;
-
-    private ParticleSystem[] particles;
 
     private float idleVelocityThreshold = 0.5f;
     private float maxIdleTimeBeforeDeath = 1;
@@ -23,7 +21,7 @@ public class Flame : MonoBehaviour
     private Rigidbody projetileBody;
 
     #region Reset values
-    private bool wasShot_R = false;
+    private bool isAlive_R = false;
     private Vector3 spawnPoint_R;
     #endregion
 
@@ -64,7 +62,7 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnLaunch(Vector3 dir, float force)
     {
-        wasShot = true;
+        isAlive = true;
     }
 
     /// <summary>
@@ -72,9 +70,9 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnDeath()
     {
-        wasShot = false;
+        isAlive = false;
 
-        DeathSequence();
+        StartCoroutine(CoroutineDeathSequence());
 
         currentCollisions = 0;
     }
@@ -84,9 +82,9 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnIgnite(Flammable flammableObject)
     {
-        wasShot = false;
+        isAlive = false;
 
-        DeathSequence();
+        StartCoroutine(CoroutineDeathSequence());
 
         currentCollisions = 0;
     }
@@ -96,7 +94,7 @@ public class Flame : MonoBehaviour
     /// </summary>
     private void OnWorldReset()
     {
-        wasShot = wasShot_R;
+        isAlive = isAlive_R;
         spawnPoint = spawnPoint_R;
         gameObject.transform.position = spawnPoint_R;
     }
@@ -131,45 +129,45 @@ public class Flame : MonoBehaviour
         spawnPoint_R = gameObject.transform.position;
         spawnPoint = spawnPoint_R;
         projetileBody = gameObject.GetComponent<Rigidbody>();
-
-        particles = GetComponentsInChildren<ParticleSystem>();
     }
 
     // Update is called once per frame
     private void Update()
     {
         // Handle when not shot
-        if (!wasShot)
+        if (!isAlive)
         {
             projetileBody.Sleep();
         }
-
-        // If the projectile was shot and the magnitude of the velocity is below idle velocity
-        if (projetileBody.velocity.magnitude <= 0.5f && wasShot)
-        {
-            // Increase the idle timer
-            idleTimeBeforeDeath += Time.deltaTime;
-        }
-        // If the speed is above the threshold
         else
         {
-            // And the idel timer is not 0
-            if (idleTimeBeforeDeath != 0)
+            // If the projectile was shot and the magnitude of the velocity is below idle velocity
+            if (projetileBody.velocity.magnitude <= idleVelocityThreshold)
             {
-                // The idle timer is set to 0
-                idleTimeBeforeDeath = 0;
+                // Increase the idle timer
+                idleTimeBeforeDeath += Time.deltaTime;
             }
-        }
+            // If the speed is above the threshold
+            else
+            {
+                // And the idel timer is not 0
+                if (idleTimeBeforeDeath != 0)
+                {
+                    // The idle timer is set to 0
+                    idleTimeBeforeDeath = 0;
+                }
+            }
 
-        // If the number of collision exceed the maximum number of allowed collision or if the idle timer exceeds the max idle time
-        if (currentCollisions >= maxCollisions || idleTimeBeforeDeath >= maxIdleTimeBeforeDeath)
-        {
-            // The projectile is killed
-            wasShot = false;
+            // If the number of collision exceed the maximum number of allowed collision or if the idle timer exceeds the max idle time
+            if ((currentCollisions >= maxCollisions || idleTimeBeforeDeath >= maxIdleTimeBeforeDeath))
+            {
+                // The projectile is killed
+                isAlive = false;
 
-            DeathSequence();
+                EventManager.InvokeOnProjectileDeath();
 
-            currentCollisions = 0;
+                currentCollisions = 0;
+            }
         }
     }
 
@@ -199,7 +197,7 @@ public class Flame : MonoBehaviour
                     }
                     catch
                     {
-                        Debug.LogWarning("Flame.cs: Collision object does not have a SpawnPoint child object even though it is tagged as a FlammableObject.");
+                        Debug.LogError("Flame.cs: Collision object does not have a SpawnPoint child object even though it is tagged as a FlammableObject.");
                     }
 
                     if (flammableObject != null)
@@ -210,10 +208,8 @@ public class Flame : MonoBehaviour
             }
             catch
             {
-                Debug.LogWarning("Flame.cs: Collision object does not have a Flammable component even though it is tagged as a FlammableObject.");
+                Debug.LogError("Flame.cs: Collision object does not have a Flammable component even though it is tagged as a FlammableObject.");
             }
-
-
         }
 
         // If neither a KillerObject or a FlammableObject was hit the collision count is increased.
@@ -226,18 +222,10 @@ public class Flame : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //Killers
-        if (other.tag == "KillerObject")
+        if (other.tag == "KillerObject" && isAlive)
         {
             EventManager.InvokeOnProjectileDeath();
         }
-    }
-
-    /// <summary>
-    /// Starts the death sequence coroutine.
-    /// </summary>
-    private void DeathSequence()
-    {
-        StartCoroutine(CoroutineDeathSequence());
     }
 
     /// <summary>
@@ -245,9 +233,18 @@ public class Flame : MonoBehaviour
     /// </summary>
     private IEnumerator CoroutineDeathSequence()
     {
+        
+
         // Play sound and animation here
         yield return new WaitForSeconds(extinguishTimer);
 
-        EventManager.InvokeOnProjectileRespawn();
+        // Invokes the OnRespawn event.
+        //EventManager.InvokeOnProjectileRespawn();
+
+        // Invokes the OnMoveWater event.
+        EventManager.InvokeOnWaterMove();
+
+        // Invokes the OnEndOfTurn event.
+        //EventManager.InvokeOnEndOfTurn();
     }
 }
