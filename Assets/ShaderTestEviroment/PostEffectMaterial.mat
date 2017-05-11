@@ -40,6 +40,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - first:
+        name: _DissolveTex
+      second:
+        m_Texture: {fileID: 2800000, guid: 9d2ebff9d6397034fbad2efe64277dfd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
         name: _EmissionMap
       second:
         m_Texture: {fileID: 0}
@@ -48,7 +54,7 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: 2378c65e86dee134498171f8bbd7985c, type: 3}
+        m_Texture: {fileID: 2800000, guid: d4480f7617825114abe18c286c3e1faf, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - first:
@@ -69,6 +75,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - first:
+        name: _SecondTex
+      second:
+        m_Texture: {fileID: 2800000, guid: 55208fe7d671cc2489283b9d40eab28f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _ThirdTex
+      second:
+        m_Texture: {fileID: 2800000, guid: 63292bdea589267458f2bdee3d9326a2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
         name: _BumpScale
@@ -80,11 +98,14 @@ Material:
         name: _DetailNormalMapScale
       second: 1
     - first:
+        name: _DissolveAmount
+      second: 1
+    - first:
         name: _DstBlend
       second: 0
     - first:
         name: _Extrude
-      second: 0.01
+      second: -0
     - first:
         name: _GlossMapScale
       second: 1
@@ -124,7 +145,7 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.007352948, g: 1, b: 0.26064917, a: 1}
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}

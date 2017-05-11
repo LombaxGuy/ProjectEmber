@@ -73,7 +73,7 @@ public class Rock : MonoBehaviour
             CalculateExplosiveForce(explosionPoint);
 
         }
-        if (other.gameObject.tag != "Player")
+        if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
             Split();
         }

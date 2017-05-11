@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {
-    public delegate void ShootingStarted();
-    public static event ShootingStarted OnShootingStarted;
-
     public delegate void ProjectileLaunched(Vector3 direction, float forceStrength);
     public static event ProjectileLaunched OnProjectileLaunched;
 
@@ -19,9 +16,6 @@ public class EventManager : MonoBehaviour
     public delegate void ProjectileIgnite(Flammable flammableObject);
     public static event ProjectileIgnite OnProjectileIgnite;
 
-    public delegate void WaterMove();
-    public static event WaterMove OnWaterMove;
-
     public delegate void ProjectileRespawn();
     public static event ProjectileRespawn OnProjectileRespawn;
 
@@ -30,9 +24,6 @@ public class EventManager : MonoBehaviour
 
     public delegate void GameWorldReset();
     public static event GameWorldReset OnGameWorldReset;
-
-    public delegate void StartOfTurn();
-    public static event StartOfTurn OnStartOfTurn;
 
     public delegate void EndOfTurn();
     public static event EndOfTurn OnEndOfTurn;
@@ -43,19 +34,12 @@ public class EventManager : MonoBehaviour
     public delegate void LevelCompleted();
     public static event LevelCompleted OnLevelCompleted;
 
-    public static void InvokeOnShootingStarted()
-    {
-        if (OnShootingStarted != null)
-        {
-            OnShootingStarted.Invoke();
-            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was invoked.");
-        }
-        else
-        {
-            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was not invoked because nothing subscibes to it.");
-        }
-    }
+    public delegate void ShootingStarted();
+    public static event ShootingStarted OnShootingStarted;
 
+    public delegate void ShootingEnded();
+    public static event ShootingStarted OnShootingEnded;
+    
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)
@@ -108,19 +92,6 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void InvokeOnWaterMove()
-    {
-        if (OnWaterMove != null)
-        {
-            OnWaterMove.Invoke();
-            Debug.Log("EventManager.cs: The event 'OnWaterMove' was invoked.");
-        }
-        else
-        {
-            Debug.Log("EventManager.cs: The event 'OnWaterMove' was not invoked because nothing subscibes to it.");
-        }
-    }
-
     public static void InvokeOnProjectileRespawn()
     {
         if (OnProjectileRespawn != null)
@@ -157,19 +128,6 @@ public class EventManager : MonoBehaviour
         else
         {
             Debug.Log("EventManager.cs: The event 'OnGameWorldReset' was not invoked because nothing subscibes to it.");
-        }
-    }
-
-    public static void InvokeOnStartOfTurn()
-    {
-        if (OnStartOfTurn != null)
-        {
-            OnStartOfTurn.Invoke();
-            Debug.Log("EventManager.cs: The event 'OnStartOfTurn' was invoked.");
-        }
-        else
-        {
-            Debug.Log("EventManager.cs: The event 'OnStartOfTurn' was not invoked because nothing subscibes to it.");
         }
     }
 
@@ -212,22 +170,29 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// A series of events invoked in sequence. This method invokes the OnEndOfTurn, OnLevelEnded, OnStartOfTurn and OnProjectileRespawn events in that order.
-    /// </summary>
-    public static void InvokeEndTurnSequence(WorldManager worldManager)
+    public static void InvokeOnShootingStarted()
     {
-        InvokeOnEndOfTurn();
-
-        // If the level did not end during the OnEndOfTurn event the two next events are called. If the level ended the OnLevelLostEvent is invoked.
-        if (worldManager.LevelEnded)
+        if(OnShootingStarted != null)
         {
-            InvokeOnLevelLost();
+            OnShootingStarted.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was invoked.");
         }
         else
         {
-            InvokeOnStartOfTurn();
-            InvokeOnProjectileRespawn();
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was not invoked because nothing subscibes to it.");
+        }
+    }
+
+    public static void InvokeOnShootingEnded()
+    {
+        if (OnShootingEnded != null)
+        {
+            OnShootingEnded.Invoke();
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was invoked.");
+        }
+        else
+        {
+            Debug.Log("EventManager.cs: The event 'OnShootingStarted' was not invoked because nothing subscibes to it.");
         }
     }
 }
