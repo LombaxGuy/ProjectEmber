@@ -4,11 +4,19 @@ using UnityEngine;
 
 public class PlayerVisualsHandler : MonoBehaviour
 {
-
-    private Rigidbody rigid;
+    //private Rigidbody rigid;
 
     [SerializeField]
-    private ParticleSystem sparks;
+    private GameObject sparkParticleGameObject;
+    private ParticleSystem[] sparkParticles;
+
+    [SerializeField]
+    private GameObject flameParticleGameObject;
+    private ParticleSystem[] flameParticles;
+
+    [SerializeField]
+    private GameObject extinguishParticleGameObject;
+    private ParticleSystem[] extinguishParticles;
 
     [SerializeField]
     private float forceSparkThreshhold = 3f;
@@ -24,43 +32,62 @@ public class PlayerVisualsHandler : MonoBehaviour
 
     [SerializeField]
     private float frequency = 0.5f;
-
-    private ParticleSystem[] particles;
     
     private Light flameLight;
     private Color originalColor;
 
     private void OnEnable()
     {
+        EventManager.OnProjectileDeath += OnDeath;
+        EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnGameWorldReset += OnReset;
         EventManager.OnLevelLost += OnLost;
     }
 
     private void OnDisable()
     {
+        EventManager.OnProjectileDeath -= OnDeath;
+        EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnGameWorldReset -= OnReset;
         EventManager.OnLevelLost -= OnLost;
     }
 
+    private void OnDeath()
+    {
+        for (int i = 0; i < extinguishParticles.Length; i++)
+        {
+            extinguishParticles[i].Play();
+        }
+
+        ControlFireParticles(false);
+    }
+
+    private void OnRespawn()
+    {
+        ControlFireParticles(true);
+    }
+
     private void OnReset()
     {
-        ControlParticles(true);
+        ControlFireParticles(true);
     }
 
     private void OnLost()
     {
-        ControlParticles(false);
+        ControlFireParticles(false);
     }
 
     // Use this for initialization
     private void Start()
     {
-        rigid = GetComponent<Rigidbody>();
+        //rigid = GetComponent<Rigidbody>();
 
         flameLight = GetComponent<Light>();
         originalColor = flameLight.color;
 
-        particles = GetComponentsInChildren<ParticleSystem>();
+        sparkParticles = sparkParticleGameObject.GetComponentsInChildren<ParticleSystem>();
+        flameParticles = flameParticleGameObject.GetComponentsInChildren<ParticleSystem>();
+        extinguishParticles = extinguishParticleGameObject.GetComponentsInChildren<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -75,10 +102,18 @@ public class PlayerVisualsHandler : MonoBehaviour
 
         if (impactForce >= forceSparkThreshhold)
         {
+            for (int i = 0; i < sparkParticles.Length; i++)
+            {
+                ParticleSystem.MinMaxCurve temp = sparkParticles[i].main.startSize;
+                temp = Mathf.Clamp(impactForce, 0.3f, 0.6f);
+                sparkParticles[i].Emit(5);
+                temp = 0.3f;
+            }
+
             // Obsolete
-            sparks.startSize = Mathf.Clamp(impactForce, 0.3f, 0.6f);
-            sparks.Emit(5);
-            sparks.startSize = 0.3f;
+            //sparks.startSize = Mathf.Clamp(impactForce, 0.3f, 0.6f);
+            //sparks.Emit(5);
+            //sparks.startSize = 0.3f;
         }
     }
 
@@ -93,11 +128,17 @@ public class PlayerVisualsHandler : MonoBehaviour
         return (y * amplitude) + baseStart;
     }
 
-    private void ControlParticles(bool isActive)
+    private void ControlFireParticles(bool isActive)
     {
-        for (int i = 0; i < particles.Length; i++)
+        for (int i = 0; i < sparkParticles.Length; i++)
         {
-            var temp = particles[i].emission;
+            var temp = sparkParticles[i].emission;
+            temp.enabled = isActive;
+        }
+
+        for (int i = 0; i < flameParticles.Length; i++)
+        {
+            var temp = flameParticles[i].emission;
             temp.enabled = isActive;
         }
 

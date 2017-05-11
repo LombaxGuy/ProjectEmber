@@ -14,13 +14,10 @@ public class RisingWater : MonoBehaviour
 
     private Vector3 waterStartPosition;
 
-    [SerializeField]
     private float topOfMap = 20;
 
-    [SerializeField]
     private int roundsBeforeStart = 3;
 
-    [SerializeField]
     private int roundsAfterStart = 5;
 
     private int currentRoundsInTotal = 0;
@@ -36,8 +33,9 @@ public class RisingWater : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnProjectileLaunched += OnShoot;
-        EventManager.OnProjectileDeath += OnDeath;
-        EventManager.OnProjectileIgnite += OnIgnite;
+        //EventManager.OnProjectileDeath += OnDeath;
+        //EventManager.OnProjectileIgnite += OnIgnite;
+        EventManager.OnWaterMove += OnWaterMove;
         EventManager.OnGameWorldReset += OnReset;
         EventManager.OnEndOfTurn += OnEndOfTurn;
     }
@@ -45,8 +43,9 @@ public class RisingWater : MonoBehaviour
     private void OnDisable()
     {
         EventManager.OnProjectileLaunched -= OnShoot;
-        EventManager.OnProjectileDeath -= OnDeath;
-        EventManager.OnProjectileIgnite -= OnIgnite;
+        //EventManager.OnProjectileDeath -= OnDeath;
+        //EventManager.OnProjectileIgnite -= OnIgnite;
+        EventManager.OnWaterMove -= OnWaterMove;
         EventManager.OnGameWorldReset -= OnReset;
         EventManager.OnEndOfTurn -= OnEndOfTurn;
     }
@@ -58,28 +57,37 @@ public class RisingWater : MonoBehaviour
 
     private void OnDeath()
     {
-        if (currentRoundsInTotal > roundsBeforeStart)
-        {
-            MoveWater();
-        }
-        else
-        {
-            // Invokes the EndOfTurn event.
-            EventManager.InvokeOnEndOfTurn();
-        }
+        MoveWater();
+
+        //if (currentRoundsInTotal > roundsBeforeStart)
+        //{
+        //    MoveWater();
+        //}
+        //else
+        //{
+        //    // Invokes the EndOfTurn event.
+        //    EventManager.InvokeOnEndOfTurn();
+        //}
     }
 
     private void OnIgnite(Flammable flammableObject)
     {
-        if (currentRoundsInTotal > roundsBeforeStart)
-        {
-            MoveWater();
-        }
-        else
-        {
-            // Invokes the EndOfTurn event.
-            EventManager.InvokeOnEndOfTurn();
-        }
+        MoveWater();
+
+        //if (currentRoundsInTotal > roundsBeforeStart)
+        //{
+        //    MoveWater();
+        //}
+        //else
+        //{
+        //    // Invokes the EndOfTurn event.
+        //    EventManager.InvokeOnEndOfTurn();
+        //}
+    }
+
+    private void OnWaterMove()
+    {
+        MoveWater();
     }
 
     private void OnReset()
@@ -94,33 +102,6 @@ public class RisingWater : MonoBehaviour
         transform.position = waterStartPosition;
     }
 
-    // Use this for initialization
-    private void Start()
-    {
-        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
-        flame = worldManager.ActiveFlame.GetComponent<Flame>();
-
-        GameObject[] levelFlammableObjects = GameObject.FindGameObjectsWithTag("FlammableObject");
-        levelFlammables = new Flammable[levelFlammableObjects.Length];
-
-        for (int i = 0; i < levelFlammableObjects.Length; i++)
-        {
-            try
-            {
-                levelFlammables[i] = levelFlammableObjects[i].GetComponent<Flammable>();
-            }
-            catch
-            {
-                Debug.LogWarning("RisingWater.cs: Object number "+ i +" does not have a Flammable component even though it is tagged as a FlammableObject.");
-            }
-        }
-
-        waterStartPosition = transform.position;
-
-        deltaY = Vector3.Distance(transform.position, new Vector3(transform.position.x, topOfMap, transform.position.z));
-        increment = deltaY / roundsAfterStart;
-    }
-
     private void OnEndOfTurn()
     {
         Vector3 highestCheckpoint = Vector3.zero;
@@ -132,14 +113,16 @@ public class RisingWater : MonoBehaviour
             {
                 highestCheckpoint = levelFlammables[i].transform.position;
                 flammableObject = levelFlammables[i];
-            }    
+            }
         }
 
         // If the waters y-position is larger than the highest spawnpoint y-position
         if (transform.position.y > highestCheckpoint.y - flameSpawnOffset)
         {
+            worldManager.LevelEnded = true;
+            
             // Invokes the on GameWorldReset event.
-            EventManager.InvokeOnLevelLost();
+            //EventManager.InvokeOnLevelLost();
         }
         else if (transform.position.y > flame.SpawnPoint.y - flameSpawnOffset)
         {
@@ -147,10 +130,47 @@ public class RisingWater : MonoBehaviour
         }
     }
 
+    // Use this for initialization
+    private void Start()
+    {
+        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+        flame = worldManager.ActiveFlame.GetComponent<Flame>();
+
+        topOfMap = worldManager.TopOfLevelYCoordinate;
+        roundsBeforeStart = worldManager.RoundsBeforeWaterRising;
+        roundsAfterStart = worldManager.RoundsAfterWaterRising;
+
+        GameObject[] levelFlammableObjects = GameObject.FindGameObjectsWithTag("FlammableObject");
+        levelFlammables = new Flammable[levelFlammableObjects.Length];
+
+        currentY = transform.position.y;
+
+        for (int i = 0; i < levelFlammableObjects.Length; i++)
+        {
+            try
+            {
+                levelFlammables[i] = levelFlammableObjects[i].GetComponent<Flammable>();
+            }
+            catch
+            {
+                Debug.LogError("RisingWater.cs: Object number " + i + " does not have a Flammable component even though it is tagged as a FlammableObject.");
+            }
+        }
+
+        waterStartPosition = transform.position;
+
+        deltaY = Vector3.Distance(transform.position, new Vector3(transform.position.x, topOfMap, transform.position.z));
+        increment = deltaY / roundsAfterStart;
+    }
+
+
     private void MoveWater()
     {
         oldY = transform.position.y;
-        currentY = increment * (currentRoundsInTotal - roundsBeforeStart - 1);
+
+        int rounds = currentRoundsInTotal - roundsBeforeStart < 0 ? 0 : currentRoundsInTotal - roundsBeforeStart;
+
+        currentY = waterStartPosition.y + increment * rounds;
 
         moveCoroutine = StartCoroutine(CoroutineMove());
     }
@@ -170,8 +190,14 @@ public class RisingWater : MonoBehaviour
 
             yield return null;
         }
-        
-        // Invokes the EndOfTurn event.
-        EventManager.InvokeOnEndOfTurn();
+
+        // Invokes the OnEndOfTurn event.
+        //EventManager.InvokeOnEndOfTurn();
+
+        // Invokes the OnRespawn event.
+        //EventManager.InvokeOnProjectileRespawn();
+
+        // Invokes a sequence of events that should be called when a turn ends.
+        EventManager.InvokeEndTurnSequence(worldManager);
     }
 }

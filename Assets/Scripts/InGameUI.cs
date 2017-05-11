@@ -7,8 +7,9 @@ using UnityEngine.EventSystems;
 
 public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private GameObject dropDownPowerUp;
+    private WorldManager wM;
 
+    private GameObject dropDownPowerUp;
     private GameObject powerUpUI;
 
     private float uiStartPosition;
@@ -16,8 +17,9 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private float uiOpenPosition = 100;
 
     private bool powerUpIsHidden = true;
-    private bool mouseIsHoveringMarker = false;
 
+    // hæhæhæ
+    private Text wtrText;
     private Text scoreText;
     private Text ratingText;
 
@@ -36,23 +38,29 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private void OnEnable()
     {
         EventManager.OnShootingStarted += UpdateStartShootingPositionMarker;
-        EventManager.OnShootingEnded += HideStartShootingPositionMarker;
+        EventManager.OnProjectileLaunched += HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted += GameWonUI;
         EventManager.OnLevelLost += GameLostUI;
-        EventManager.OnGameWorldReset += CloseUI;
+        EventManager.OnGameWorldReset += OnGameWorldReset;
+        EventManager.OnEndOfTurn += UpdateWaterText;
+        EventManager.OnEndOfTurn += UpdateScoreText;
     }
 
     private void OnDisable()
     {
         EventManager.OnShootingStarted -= UpdateStartShootingPositionMarker;
-        EventManager.OnShootingEnded -= HideStartShootingPositionMarker;
+        EventManager.OnProjectileLaunched -= HideStartShootingPositionMarker;
         EventManager.OnLevelCompleted -= GameWonUI;
         EventManager.OnLevelLost -= GameLostUI;
-        EventManager.OnGameWorldReset -= CloseUI;
+        EventManager.OnGameWorldReset -= OnGameWorldReset;
+        EventManager.OnEndOfTurn -= UpdateWaterText;
+        EventManager.OnEndOfTurn -= UpdateScoreText;
     }
 
     private void Start()
     {
+        wM = GameObject.Find("World").GetComponent<WorldManager>();
+
         dropDownPowerUp = GameObject.Find("PowerUpDropdown"); ;
         powerUpUI = GameObject.Find("PowerUpUI");
 
@@ -65,11 +73,14 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         startShootPositionMarker = GameObject.Find("StartShootPositionMarker");
         shootMarkerImageComponent = startShootPositionMarker.GetComponent<Image>();
 
+        wtrText = GameObject.Find("WaterText").GetComponent<Text>();
         scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         ratingText = GameObject.Find("RatingText").GetComponent<Text>();
 
         continueButton = GameObject.Find("ContinueButton").GetComponent<Button>();
         pauseButton = GameObject.Find("PauseMenuButton").GetComponent<Button>();
+
+        wtrText.text = wM.RoundsBeforeWaterRising.ToString();
     }
 
     /// <summary>
@@ -217,11 +228,11 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     /// <summary>
     /// Closes the endscreen
     /// </summary>
-    private void CloseUI()
+    private void OnGameWorldReset()
     {
         ShowGameRunningUI();
         endVisibilityCtrl.HideUI();
-
+        wtrText.text = wM.RoundsBeforeWaterRising.ToString();
     }
 
     /// <summary>
@@ -229,7 +240,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     /// </summary>
     public void OnContinueButton()
     {
-        if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1) != null)
+        if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1).IsValid())
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
@@ -242,7 +253,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         EventManager.InvokeOnGameWorldReset();
         OnResumeGame();
-        CloseUI();
+        OnGameWorldReset();
     }
 
     /// <summary>
@@ -251,6 +262,32 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnMainMenuButton()
     {
         SceneManager.LoadScene(0);
+    }
+
+    private void UpdateWaterText()
+    {
+        if (wM.RoundsPassed < wM.RoundsBeforeWaterRising)
+        {
+            wM.RoundsPassed++;
+            wtrText.text = (wM.RoundsBeforeWaterRising - wM.RoundsPassed).ToString();
+            if (wM.RoundsPassed == wM.RoundsBeforeWaterRising)
+            {
+                wtrText.text = wM.RoundsAfterWaterRising.ToString();
+            }
+        }
+        else
+        {
+            if (wM.RoundsPassed < (wM.RoundsBeforeWaterRising + wM.RoundsAfterWaterRising))
+            {
+                wM.RoundsPassed++;
+                wtrText.text = wM.RoundsAfterWaterRising.ToString();
+            }
+        }
+    }
+
+    private void UpdateScoreText()
+    {
+
     }
 
     private void UpdateStartShootingPositionMarker()
@@ -267,7 +304,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
-    private void HideStartShootingPositionMarker()
+    private void HideStartShootingPositionMarker(Vector3 direction, float force)
     {
         shootMarkerImageComponent.enabled = false;
     }

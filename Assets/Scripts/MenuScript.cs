@@ -13,8 +13,6 @@ public class MenuScript : MonoBehaviour
     private Text coinText;
     private Text buyButtonText;
     private Text currentlyOwnedText;
-    private GameObject mainMenuObject;
-    private GameObject shopMenuObject;
     private bool mainMenuHidden = false;
     #endregion
 
@@ -71,7 +69,6 @@ public class MenuScript : MonoBehaviour
 
     private Vector3 oldMousePos;
     private Camera menuCamera;
-    private float moveLerpTime = 0.1f;
     private float horizontalMoveSpeed = 0.5f;
     private float spacing = 220;
 
@@ -133,7 +130,6 @@ public class MenuScript : MonoBehaviour
 
             SetupShopItems();
 
-            mainMenuObject = GameObject.Find("MainMenuObject");
             transactionScript.OnStartUp(skinElements, powerupElements, coinElements);
         }
     }
@@ -523,7 +519,6 @@ public class MenuScript : MonoBehaviour
     {
         ToogleMainMenuWindow("ShopObject", false, false);
         ToogleMainMenuWindow("SkinObject", false, false);
-        shopMenuObject = GameObject.Find("SkinObject");
         CurrentlyActive = "SkinObject";
         UpdateCurrentlySelected();
     }
@@ -541,7 +536,6 @@ public class MenuScript : MonoBehaviour
             ToogleMainMenuWindow("CoinObject", true, false);
         }
         ToogleMainMenuWindow("PowerupObject", false, false);
-        shopMenuObject = GameObject.Find("PowerupObject");
         CurrentlyActive = "PowerupObject";
     }
     /// <summary>
@@ -558,7 +552,6 @@ public class MenuScript : MonoBehaviour
         {
             ToogleMainMenuWindow("CoinObject", true, false);
         }
-        shopMenuObject = GameObject.Find("SkinObject");
         CurrentlyActive = "SkinObject";
         currentlyOwnedText.text = "";
     }
@@ -574,7 +567,6 @@ public class MenuScript : MonoBehaviour
         {
             ToogleMainMenuWindow("PowerupObject", true, false);
         }
-        shopMenuObject = GameObject.Find("CoinObject");
         CurrentlyActive = "CoinObject";
         currentlyOwnedText.text = "";
     }
