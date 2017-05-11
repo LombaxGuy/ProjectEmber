@@ -39,7 +39,7 @@ public class EventManager : MonoBehaviour
 
     public delegate void ShootingEnded();
     public static event ShootingStarted OnShootingEnded;
-
+    
     public static void InvokeOnProjectileLaunched(Vector3 direction, float forceStrength)
     {
         if (OnProjectileLaunched != null)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class Powerup : MonoBehaviour {
 
-    public enum Powerups { PowerShot, SeeWhereTheFlameGoes, OpBounce, MoreLight }
+    public enum Powerups { Test, Supernova, Combustion, Glue }
 
     private int turns;
     private Powerups powerUps;
