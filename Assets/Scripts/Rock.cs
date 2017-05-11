@@ -9,14 +9,6 @@ public class Rock : MonoBehaviour
     private GameObject breakObject;
     private GameObject[] breakObjects = new GameObject[4];
 
-    private Vector3[] spawnPointArray = new Vector3[4];
-    private Vector3 spawnPoint1;
-    private Vector3 spawnPoint2;
-    private Vector3 spawnPoint3;
-    private Vector3 spawnPoint4;
-
-    private bool canBreak = true;
-
     private Vector3 startPos;
 
     private Rigidbody rockBody;
@@ -28,12 +20,15 @@ public class Rock : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
+        breakObject = Instantiate(breakObject, Vector3.zero, Quaternion.identity);
+        breakObject.SetActive(false);
 
-        for (int i = 0; i < breakObjects.Length; i++)
-        {
-            breakObjects[i] = Instantiate(breakObject, new Vector3(0, 0, 0), Quaternion.identity);
-            breakObjects[i].SetActive(false);
-        }
+        //for (int i = 0; i < breakObjects.Length; i++)
+        //{
+        //    breakObjects[i] = Instantiate(breakObject, new Vector3(0, 0, 0), Quaternion.identity);
+        //    breakObjects[i].SetActive(false);
+        //}
+
         rockBody = GetComponent<Rigidbody>();
 
         startPos = gameObject.transform.position;
@@ -51,37 +46,45 @@ public class Rock : MonoBehaviour
 
     private void Split()
     {
-        spawnPointArray[0] = new Vector3(transform.position.x - 0.20f, transform.position.y - 0.20f, transform.position.z);
-        spawnPointArray[1] = new Vector3(transform.position.x + 0.20f, transform.position.y - 0.20f, transform.position.z);
-        spawnPointArray[2] = new Vector3(transform.position.x - 0.20f, transform.position.y + 0.20f, transform.position.z);
-        spawnPointArray[3] = new Vector3(transform.position.x + 0.20f, transform.position.y + 0.20f, transform.position.z);
+        //spawnPointArray[0] = new Vector3(transform.position.x - 0.20f, transform.position.y - 0.20f, transform.position.z);
+        //spawnPointArray[1] = new Vector3(transform.position.x + 0.20f, transform.position.y - 0.20f, transform.position.z);
+        //spawnPointArray[2] = new Vector3(transform.position.x - 0.20f, transform.position.y + 0.20f, transform.position.z);
+        //spawnPointArray[3] = new Vector3(transform.position.x + 0.20f, transform.position.y + 0.20f, transform.position.z);
 
-        for (int i = 0; i < 4; i++)
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    breakObjects[i].SetActive(true);
+        //    breakObjects[i].transform.position = spawnPointArray[i];
+        //    breakObjects[i].GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
+        //}
+
+        breakObject.transform.position = transform.position;
+        breakObject.SetActive(true);
+
+        int childCount = breakObject.transform.childCount;
+
+        for (int i = 0; i < childCount; i++)
         {
-            breakObjects[i].SetActive(true);
-            breakObjects[i].transform.position = spawnPointArray[i];
-            breakObjects[i].GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
+            breakObject.transform.GetChild(i).gameObject.SetActive(true);
         }
+
         gameObject.SetActive(false);
     }
 
     private void OnCollisionEnter(Collision other)
     {
-        foreach (ContactPoint cP in other.contacts)
-        {
-            explosionPoint = cP.point;
-            CalculateExplosiveForce(explosionPoint);
-
-        }
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
             Split();
         }
 
+        //foreach (ContactPoint cP in other.contacts)
+        //{
+        //    explosionPoint = cP.point;
+        //    CalculateExplosiveForce(explosionPoint);
+
+        //}
     }
-
-
-
 
     /// <summary>
     /// Resets the droplets position and velocity.

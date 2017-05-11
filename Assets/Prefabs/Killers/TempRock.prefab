@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1fc901ce1be69945812ef9af28405b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  breakObject: {fileID: 1577004213283542, guid: b34013e9da2377c4b94bdbbb0e22e614,
+  breakObject: {fileID: 1968986921563838, guid: ff2cfc04b37d50949b69c211bd0f836b,
     type: 2}
 --- !u!135 &135605702258422514
 SphereCollider:
