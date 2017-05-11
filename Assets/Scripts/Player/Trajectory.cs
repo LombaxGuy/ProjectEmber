@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Trajectory : MonoBehaviour
 {
+    private GameObject arrowObject;
+
     private WorldManager worldManager;
 
     private LineRenderer line;
@@ -19,6 +21,7 @@ public class Trajectory : MonoBehaviour
 
     private void OnEnable()
     {
+        EventManager.OnShootingStarted += OnShootingStarted;
         EventManager.OnProjectileLaunched += OnLaunch;
         EventManager.OnProjectileUpdated += OnUpdate;
         EventManager.OnGameWorldReset += OnReset;
@@ -26,6 +29,7 @@ public class Trajectory : MonoBehaviour
 
     private void OnDisable()
     {
+        EventManager.OnShootingStarted -= OnShootingStarted;
         EventManager.OnProjectileLaunched -= OnLaunch;
         EventManager.OnProjectileUpdated -= OnUpdate;
         EventManager.OnGameWorldReset -= OnReset;
@@ -39,6 +43,11 @@ public class Trajectory : MonoBehaviour
         segmentCount = 0;
     }
 
+    private void OnShootingStarted()
+    {
+        arrowObject.SetActive(true);
+    }
+
     /// <summary>
     /// Event handler for the OnLaunch event. Simulates the path of the projectile.
     /// </summary>
@@ -47,6 +56,7 @@ public class Trajectory : MonoBehaviour
     private void OnLaunch(Vector3 direction, float forceStrenght)
     {
         SimulatePath(direction, forceStrenght);
+        arrowObject.SetActive(false);
     }
 
     /// <summary>
@@ -56,7 +66,9 @@ public class Trajectory : MonoBehaviour
     /// <param name="forceStrenght">The force with which the projectile was launched.</param>
     private void OnUpdate(Vector3 direction, float forceStrenght)
     {
-        SimulatePath(direction, forceStrenght);
+
+        ShowDirection(direction, forceStrenght);
+        //SimulatePath(direction, forceStrenght);
     }
 
     private void Start()
@@ -65,6 +77,8 @@ public class Trajectory : MonoBehaviour
         line = GetComponent<LineRenderer>();
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
         flameObject = worldManager.ActiveFlame;
+
+        arrowObject = flameObject.transform.Find("Arrow").gameObject;
     }
 
     private void Update()
@@ -73,6 +87,17 @@ public class Trajectory : MonoBehaviour
         {
             flameObject = worldManager.ActiveFlame;
         }
+    }
+
+    /// <summary>
+    /// Shows the direction of the shot.
+    /// </summary>
+    /// <param name="direction">The direction shown.</param>
+    /// <param name="forceStrength">The force of the shot.</param>
+    private void ShowDirection(Vector3 direction, float forceStrength)
+    {
+        Vector3 angles = arrowObject.transform.eulerAngles;
+        
     }
 
     /// <summary>

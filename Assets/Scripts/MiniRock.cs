@@ -9,20 +9,22 @@ public class MiniRock : MonoBehaviour
     private const float LIFETIME = 2f;
     private Rigidbody rb;
 
+    private Vector3 startPosition;
+
     // Use this for initialization
-    void Awake()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        startPosition = transform.position;
     }
+
     /// <summary>
     /// Used to start the timer coroutine when the droplet is activated.
     /// </summary>
     private void OnDisable()
     {
-        //if (rb != null)
-        //{
-            rb.velocity = Vector3.zero;
-        //}
+        transform.position = startPosition;
+        rb.velocity = Vector3.zero;
     }
 
     private void OnCollisionEnter(Collision other)
