@@ -15,7 +15,10 @@ public class PowerupManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if(Input.GetKeyDown(KeyCode.Keypad1))
+        {
+            CreatePowerup(Powerup.Powerups.Combustion);
+        }
 	}
     /// <summary>
     /// Instatiate powerup after the player choice
@@ -27,24 +30,20 @@ public class PowerupManager : MonoBehaviour {
         switch (powerups)
         {
             case Powerup.Powerups.Test:
-                //temp = Instantiate(Resources.Load("Powerups/TestPowerup") as GameObject);
-                temp = Instantiate(Resources.Load("TestPowerup") as GameObject);
+                temp = Instantiate(Resources.Load("Powerups/TestPowerup") as GameObject);
                 temp.transform.position = transform.position;
                 break;
             case Powerup.Powerups.Supernova:
-                //temp = Instantiate(Resources.Load("Powerups/SupernovaPowerup") as GameObject);
-                temp = Instantiate(Resources.Load("SupernovaPowerup") as GameObject);
+                temp = Instantiate(Resources.Load("Powerups/SupernovaPowerup") as GameObject);
                 temp.transform.position = transform.position;
                 break;
 
             case Powerup.Powerups.Combustion:
-                //temp = Instantiate(Resources.Load("Powerups/CombustionPowerup") as GameObject);
-                temp = Instantiate(Resources.Load("CombustionPowerup") as GameObject);
+                temp = Instantiate(Resources.Load("Powerups/CombustionPowerup") as GameObject);
                 temp.transform.position = transform.position;
                 break;
             case Powerup.Powerups.Glue:
-                //temp = Instantiate(Resources.Load("Powerups/GluePowerup") as GameObject);
-                temp = Instantiate(Resources.Load("GluePowerup") as GameObject);
+                temp = Instantiate(Resources.Load("Powerups/GluePowerup") as GameObject);
                 temp.transform.position = transform.position;
                 break;
             default:

@@ -14,13 +14,18 @@ public class Combustion : Powerup {
     // Use this for initialization
     void Start()
     {
-
+        canUsePowerup = false;
+        player = GameObject.FindGameObjectWithTag("Projectile");
+        combustionPrefab = Resources.Load("Powerups/CombustionEffect") as GameObject;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if(canUsePowerup == true)
+        {
+            PowerupInUse();
+        }
     }
 
     private void OnEnable()
@@ -51,6 +56,12 @@ public class Combustion : Powerup {
                 ResetValues();
             }
         }
+
+        if(Input.GetKey(KeyCode.Keypad2) && canUsePowerup == true)
+        {
+            InstantiatePrefabs();
+            ResetValues();
+        }
     }
 
     //Getting the combusion prefab and instantiate it at the players position.
@@ -70,7 +81,7 @@ public class Combustion : Powerup {
     {
         canUsePowerup = false;
         player = GameObject.FindGameObjectWithTag("Projectile");
-        combustionPrefab = Resources.Load("CombustionPrefab") as GameObject;
+        combustionPrefab = Resources.Load("Powerup/CombustionEffect") as GameObject;
     }
 
     public override void NextTurn()
