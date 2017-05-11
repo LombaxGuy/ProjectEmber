@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    private WorldManager worldManager;
+    private ActionController actionController;
+
     [Header("Movement")]
     #region Movement
 
@@ -93,9 +96,9 @@ public class CameraController : MonoBehaviour
     {
         EventManager.OnProjectileLaunched += OnShot;
         EventManager.OnProjectileRespawn += OnRespawn;
-        EventManager.OnLevelCompleted += OnGameEnd;
-        EventManager.OnLevelLost += OnGameEnd;
         EventManager.OnGameWorldReset += OnWorldReset;
+        EventManager.OnLevelCompleted += OnLevelCompleted;
+        EventManager.OnLevelLost += OnLevelLost;
     }
 
     /// <summary>
@@ -105,9 +108,9 @@ public class CameraController : MonoBehaviour
     {
         EventManager.OnProjectileLaunched -= OnShot;
         EventManager.OnProjectileRespawn -= OnRespawn;
-        EventManager.OnLevelCompleted += OnGameEnd;
-        EventManager.OnLevelLost += OnGameEnd;
         EventManager.OnGameWorldReset -= OnWorldReset;
+        EventManager.OnLevelCompleted -= OnLevelCompleted;
+        EventManager.OnLevelLost -= OnLevelLost;
     }
 
     /// <summary>
@@ -128,6 +131,16 @@ public class CameraController : MonoBehaviour
         StartCoroutine(CoroutineReset());
     }
 
+    private void OnLevelCompleted()
+    {
+        cameraLockState = CameraLockState.Follow;
+    }
+
+    private void OnLevelLost()
+    {
+        cameraLockState = CameraLockState.Follow;
+    }
+
     /// <summary>
     /// Called when the world is reset. Used to reset the camera when a reset call happens.
     /// </summary>
@@ -138,17 +151,12 @@ public class CameraController : MonoBehaviour
         gameObject.transform.position = cameraDefaultPosition;
     }
 
-    /// <summary>
-    /// Locks the camera when the game is either won or lost
-    /// </summary>
-    private void OnGameEnd()
-    {
-        cameraLockState = CameraLockState.Disabled;
-    }
-
     // Use this for initialization
     private void Start()
     {
+        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+        actionController = worldManager.ActiveFlame.GetComponent<ActionController>();
+
         // Sets the soft cap values for the movement
         xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
         xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
@@ -206,7 +214,7 @@ public class CameraController : MonoBehaviour
         {
             case CameraLockState.FreeMove:
                 {
-                    if (!ActionController.PlayerShooting)
+                    if (!actionController.PlayerShooting)
                     {
                         // If a touch input is received and the touch phase is "Moved"
                         if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
@@ -272,6 +280,11 @@ public class CameraController : MonoBehaviour
 
                         if (Input.GetMouseButton(0))
                         {
+
+                            if (oldMousePosition == Vector3.zero)
+                            {
+                                oldMousePosition = Input.mousePosition;
+                            }
 
                             #region xDynamicSpeed
                             // If the camera is located within the x-bounds of the map...

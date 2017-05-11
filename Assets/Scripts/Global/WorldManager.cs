@@ -92,6 +92,7 @@ public class WorldManager : MonoBehaviour
 
     private void OnReset()
     {
+        levelEnded = false;
         RoundsPassed = 0;
     }
 }
