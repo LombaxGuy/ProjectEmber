@@ -14,21 +14,22 @@ public class ActionController : MonoBehaviour
     private Vector3 touchEndPos;
     private Vector3 direction;
 
-    private float defaultForceStrength = 10;
+    private float maxForceStrength = 10;
 
     private float maxShootMagnitude = 3;
     private float minShootMagnitude = 0.5f;
 
     private bool shootMode = false;
     private bool canShoot = true;
+
     private bool gameHasEnded = false;
 
     [SerializeField]
     private bool touchFlameToShoot = false;
 
-    private static bool playerShooting = false;
+    private bool playerShooting = false;
 
-    public static bool PlayerShooting
+    public bool PlayerShooting
     {
         get { return playerShooting; }
         set { playerShooting = value; }
@@ -52,28 +53,20 @@ public class ActionController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnLevelCompleted += OnGameEnd;
-        EventManager.OnLevelLost += OnGameEnd;
         EventManager.OnGameWorldReset += OnGameReset;
         EventManager.OnProjectileRespawn += OnRespawn;
         EventManager.OnProjectileLaunched += OnLaunch;
+        EventManager.OnLevelCompleted += OnLevelCompleted;
+        EventManager.OnLevelLost += OnLevelLost;
     }
 
     private void OnDisable()
     {
-        EventManager.OnLevelCompleted -= OnGameEnd;
-        EventManager.OnLevelLost -= OnGameEnd;
         EventManager.OnGameWorldReset -= OnGameReset;
         EventManager.OnProjectileRespawn -= OnRespawn;
         EventManager.OnProjectileLaunched -= OnLaunch;
-    }
-
-    /// <summary>
-    /// Sets the gameHasEnded bool to true making it impossible for the player to shoot the flame. This method is called when either the game is won or lost
-    /// </summary>
-    private void OnGameEnd()
-    {
-        gameHasEnded = true;
+        EventManager.OnLevelCompleted -= OnLevelCompleted;
+        EventManager.OnLevelLost -= OnLevelLost;
     }
 
     /// <summary>
@@ -81,12 +74,8 @@ public class ActionController : MonoBehaviour
     /// </summary>
     private void OnGameReset()
     {
-        gameHasEnded = false;
-    }
-
-    private void OnRespawn()
-    {
         canShoot = true;
+        gameHasEnded = false;
     }
 
     private void OnLaunch(Vector3 dir, float strength)
@@ -95,6 +84,21 @@ public class ActionController : MonoBehaviour
 
         // Adds a force impulse to the rigidbody of the active flame.
         flameRigidbody.AddForce(dir.normalized * strength, ForceMode.Impulse);
+    }
+
+    private void OnRespawn()
+    {
+        canShoot = true;
+    }
+
+    private void OnLevelCompleted()
+    {
+        gameHasEnded = true;
+    }
+
+    private void OnLevelLost()
+    {
+        gameHasEnded = true;
     }
 
     // Update is called once per frame
@@ -379,13 +383,13 @@ public class ActionController : MonoBehaviour
         if (direction.magnitude < maxShootMagnitude && direction.magnitude > minShootMagnitude)
         {
             //... the forceStrength is calculated from the length of the pull.
-            forceStrength = defaultForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
+            forceStrength = maxForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
         }
         // If the length of the pull is greater than the max pull distance...
         else if (direction.magnitude > maxShootMagnitude)
         {
             //... the forceStrength is set to the defaultForceStrength
-            forceStrength = defaultForceStrength;
+            forceStrength = maxForceStrength;
         }
         // If the length of the pull is lower than the min pull distance...
         else
@@ -394,6 +398,7 @@ public class ActionController : MonoBehaviour
             forceStrength = 0;
         }
 
+        Debug.Log(forceStrength);
         return forceStrength;
     }
 }

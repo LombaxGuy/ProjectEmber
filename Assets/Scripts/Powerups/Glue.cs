@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RockSpawner : MonoBehaviour {
-
-    private float rockInterval;
-
+public class Glue : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -16,9 +13,4 @@ public class RockSpawner : MonoBehaviour {
 	void Update () {
 		
 	}
-
-    private void Spawn()
-    {
-
-    }
 }

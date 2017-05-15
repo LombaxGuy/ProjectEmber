@@ -12,7 +12,6 @@ public class TestPowerUp : Powerup {
 
     // Use this for initialization
     void Start () {
-       
 	}
 	
 	// Update is called once per frame
@@ -27,7 +26,7 @@ public class TestPowerUp : Powerup {
     private void PreStart()
     {
         Turns = 3;
-        PowerUps = Powerups.PowerShot;
+        PowerUps = Powerups.Test;
         player = GameObject.FindGameObjectWithTag("Projectile");
         Debug.Log("player name : " + player.name);
         newValue = 0;
