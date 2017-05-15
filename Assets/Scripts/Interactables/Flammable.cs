@@ -16,6 +16,8 @@ public class Flammable : MonoBehaviour
     [SerializeField]
     private Texture burntTexture;
 
+    float burntState;
+
     private Color B_color;
     private Color W_color;
 
@@ -75,6 +77,7 @@ public class Flammable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        burntState = this.GetComponent<Renderer>().material.GetFloat("_DissolveAmount");
         if (spawnPoint != spawn.transform.position)
         {
             spawnPoint = spawn.transform.position;
@@ -85,7 +88,7 @@ public class Flammable : MonoBehaviour
     {
         //gameObject.GetComponent<Collider>().enabled = true;
         onFire = false;
-
+        this.GetComponent<Renderer>().material.SetFloat("_DissolveAmount", 0.5f);
         ControlParticles(false);
     }
 
@@ -120,25 +123,37 @@ public class Flammable : MonoBehaviour
 
     private IEnumerator Burn()
     {
+        //float t = 0;
+
+        //while (myMaterial.color != B_color)
+        //{
+        //    t += Time.deltaTime / 4f;
+        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
+
+        //    yield return null;
+        //}
+
+        //yield return new WaitForSeconds(0.1f);
+        //myMaterial.mainTexture = burntTexture;
+        //t = 0;
+
+        //while (myMaterial.color != W_color)
+        //{
+        //    t += Time.deltaTime / 4f;
+        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
+
+        //    yield return null;
+        //}
+
         float t = 0;
 
-        while (myMaterial.color != B_color)
+
+        while (burntState > 0)
         {
+            Debug.Log("hej");
             t += Time.deltaTime / 4f;
-            myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
 
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.1f);
-        myMaterial.mainTexture = burntTexture;
-        t = 0;
-
-        while (myMaterial.color != W_color)
-        {
-            t += Time.deltaTime / 4f;
-            myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
-
+            this.GetComponent<Renderer>().material.SetFloat("_DissolveAmount", Mathf.Lerp(0.5f, 0, t));
             yield return null;
         }
 

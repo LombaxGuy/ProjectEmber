@@ -96,8 +96,18 @@ public class Trajectory : MonoBehaviour
     /// <param name="forceStrength">The force of the shot.</param>
     private void ShowDirection(Vector3 direction, float forceStrength)
     {
-        Vector3 angles = arrowObject.transform.eulerAngles;
-        
+        if (forceStrength == 0)
+        {
+            arrowObject.SetActive(false);
+        }
+        else if (arrowObject.activeInHierarchy != true)
+        {
+            arrowObject.SetActive(true);
+        }
+
+        arrowObject.transform.rotation = Quaternion.LookRotation(direction, new Vector3(0, 0, 1));
+        arrowObject.transform.localScale = new Vector3(1, 1, 1 * forceStrength / 10); // 10 is currently the maxForceStrenght
+
     }
 
     /// <summary>
