@@ -21,13 +21,8 @@ public class Rock : MonoBehaviour
     private void Start()
     {
         breakObject = Instantiate(breakObject, Vector3.zero, Quaternion.identity);
+        breakObject.transform.SetParent(transform.parent);
         breakObject.SetActive(false);
-
-        //for (int i = 0; i < breakObjects.Length; i++)
-        //{
-        //    breakObjects[i] = Instantiate(breakObject, new Vector3(0, 0, 0), Quaternion.identity);
-        //    breakObjects[i].SetActive(false);
-        //}
 
         rockBody = GetComponent<Rigidbody>();
 
@@ -44,20 +39,11 @@ public class Rock : MonoBehaviour
         Reset();
     }
 
+    /// <summary>
+    /// Spawns the small rocks and creates an explosion.
+    /// </summary>
     private void Split()
     {
-        //spawnPointArray[0] = new Vector3(transform.position.x - 0.20f, transform.position.y - 0.20f, transform.position.z);
-        //spawnPointArray[1] = new Vector3(transform.position.x + 0.20f, transform.position.y - 0.20f, transform.position.z);
-        //spawnPointArray[2] = new Vector3(transform.position.x - 0.20f, transform.position.y + 0.20f, transform.position.z);
-        //spawnPointArray[3] = new Vector3(transform.position.x + 0.20f, transform.position.y + 0.20f, transform.position.z);
-
-        //for (int i = 0; i < 4; i++)
-        //{
-        //    breakObjects[i].SetActive(true);
-        //    breakObjects[i].transform.position = spawnPointArray[i];
-        //    breakObjects[i].GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
-        //}
-
         breakObject.transform.position = transform.position;
         breakObject.SetActive(true);
 
@@ -65,7 +51,9 @@ public class Rock : MonoBehaviour
 
         for (int i = 0; i < childCount; i++)
         {
+            breakObject.transform.GetChild(i).gameObject.transform.position = breakObject.transform.position;
             breakObject.transform.GetChild(i).gameObject.SetActive(true);
+            breakObject.transform.GetChild(i).GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
         }
 
         gameObject.SetActive(false);
@@ -75,15 +63,11 @@ public class Rock : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
+            explosionPoint = other.contacts[0].point;
+            CalculateExplosiveForce(explosionPoint);
             Split();
         }
 
-        //foreach (ContactPoint cP in other.contacts)
-        //{
-        //    explosionPoint = cP.point;
-        //    CalculateExplosiveForce(explosionPoint);
-
-        //}
     }
 
     /// <summary>
@@ -100,9 +84,15 @@ public class Rock : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the explosiveforce to a value depending on the distance the rock has fallen
+    /// </summary>
+    /// <param name="collisionPoint"></param>
     private void CalculateExplosiveForce(Vector3 collisionPoint)
     {
-
         explosionForce = (startPos.y - collisionPoint.y) * 25;
+        Debug.Log(startPos.y);
+        Debug.Log(collisionPoint.y);
+        Debug.Log(explosionForce);
     }
 }

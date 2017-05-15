@@ -48,9 +48,15 @@ public class MiniRock : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Adds an explosive force to the object
+    /// </summary>
+    /// <param name="explosionForce">Amount of force applied to the object</param>
+    /// <param name="explosionPoint">Point where the explosion happens</param>
     public void Explosion(float explosionForce, Vector3 explosionPoint)
     {
         rb.AddExplosionForce(explosionForce, explosionPoint, 2f);
+        Debug.Log(explosionForce);
     }
 
 }
