@@ -17,6 +17,10 @@ public class WorldManager : MonoBehaviour
     #region Level
     [Header("Level Setup")]
 
+    [Tooltip("The start spawn point on the map.")]
+    [SerializeField]
+    private Vector3 startOfLevelSpawnPoint = new Vector3(0, 1, 0);
+
     [Tooltip("The y-coordinate of the highest point of the map.")]
     [SerializeField]
     private float topOfLevelYCoordinate = 20;
@@ -34,6 +38,12 @@ public class WorldManager : MonoBehaviour
     private int roundsPassed = 0;
 
     private bool levelEnded = false;
+
+    public Vector3 StartOfLevelSpawnPoint
+    {
+        get { return startOfLevelSpawnPoint; }
+        set { startOfLevelSpawnPoint = value; }
+    }
 
     public float TopOfLevelYCoordinate
     {

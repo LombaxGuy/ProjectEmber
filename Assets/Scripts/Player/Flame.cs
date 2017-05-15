@@ -233,18 +233,10 @@ public class Flame : MonoBehaviour
     /// </summary>
     private IEnumerator CoroutineDeathSequence()
     {
-        
-
         // Play sound and animation here
         yield return new WaitForSeconds(extinguishTimer);
 
-        // Invokes the OnRespawn event.
-        //EventManager.InvokeOnProjectileRespawn();
-
         // Invokes the OnMoveWater event.
         EventManager.InvokeOnWaterMove();
-
-        // Invokes the OnEndOfTurn event.
-        //EventManager.InvokeOnEndOfTurn();
     }
 }

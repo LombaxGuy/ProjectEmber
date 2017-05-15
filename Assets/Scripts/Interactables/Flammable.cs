@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Flammable : MonoBehaviour
 {
-
     private bool onFire = false;
     private Vector3 spawnPoint;
 
@@ -13,15 +12,12 @@ public class Flammable : MonoBehaviour
 
     private ParticleSystem[] fireParticleSystems;
 
+    private Renderer thisRenderer;
+
+    private float shaderCutThreshold = 0.5f;
+
     [SerializeField]
-    private Texture burntTexture;
-
-    float burntState;
-
-    private Color B_color;
-    private Color W_color;
-
-    private Material myMaterial;
+    private float burnTransitionTime = 2;
 
     public bool OnFire
     {
@@ -63,9 +59,7 @@ public class Flammable : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        myMaterial = gameObject.GetComponent<Renderer>().material;
-        B_color = new Color(0, 0, 0, 1);
-        W_color = new Color(255, 255, 255, 1);
+        thisRenderer = GetComponent<Renderer>();
 
         spawnPoint = spawn.transform.position;
 
@@ -77,7 +71,6 @@ public class Flammable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        burntState = this.GetComponent<Renderer>().material.GetFloat("_DissolveAmount");
         if (spawnPoint != spawn.transform.position)
         {
             spawnPoint = spawn.transform.position;
@@ -86,17 +79,14 @@ public class Flammable : MonoBehaviour
 
     private void Reset()
     {
-        //gameObject.GetComponent<Collider>().enabled = true;
         onFire = false;
-        this.GetComponent<Renderer>().material.SetFloat("_DissolveAmount", 0.5f);
+        thisRenderer.material.SetFloat("_DissolveAmount", shaderCutThreshold);
         ControlParticles(false);
     }
 
     private void FlameHitTransition()
     {
         StartCoroutine(Burn());
-
-        //gameObject.GetComponent<Collider>().enabled = false;
 
         ControlParticles(true);
 
@@ -123,43 +113,17 @@ public class Flammable : MonoBehaviour
 
     private IEnumerator Burn()
     {
-        //float t = 0;
-
-        //while (myMaterial.color != B_color)
-        //{
-        //    t += Time.deltaTime / 4f;
-        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.black, t);
-
-        //    yield return null;
-        //}
-
-        //yield return new WaitForSeconds(0.1f);
-        //myMaterial.mainTexture = burntTexture;
-        //t = 0;
-
-        //while (myMaterial.color != W_color)
-        //{
-        //    t += Time.deltaTime / 4f;
-        //    myMaterial.color = Color.Lerp(myMaterial.color, Color.white, t);
-
-        //    yield return null;
-        //}
-
         float t = 0;
 
-
-        while (burntState > 0)
+        while (t < 1)
         {
-            Debug.Log("hej");
-            t += Time.deltaTime / 4f;
+            t += Time.deltaTime / burnTransitionTime;
 
-            this.GetComponent<Renderer>().material.SetFloat("_DissolveAmount", Mathf.Lerp(0.5f, 0, t));
+            thisRenderer.material.SetFloat("_DissolveAmount", Mathf.Lerp(shaderCutThreshold, 0, t));
+
             yield return null;
         }
-
-        yield return new WaitForSeconds(0.1f);
     }
-
 
     private void OnDrawGizmos()
     {

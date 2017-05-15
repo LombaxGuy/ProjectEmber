@@ -117,7 +117,7 @@ Material:
       second: 0
     - first:
         name: _Value1
-      second: 0.13
+      second: 0.075
     - first:
         name: _Value2
       second: 1

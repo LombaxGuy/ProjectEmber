@@ -41,6 +41,7 @@ public class Trajectory : MonoBehaviour
     private void OnReset()
     {
         segmentCount = 0;
+        line.numPositions = segmentCount;
     }
 
     private void OnShootingStarted()
