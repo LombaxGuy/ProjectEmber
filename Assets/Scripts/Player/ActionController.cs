@@ -14,7 +14,7 @@ public class ActionController : MonoBehaviour
     private Vector3 touchEndPos;
     private Vector3 direction;
 
-    private float defaultForceStrength = 10;
+    private float maxForceStrength = 10;
 
     private float maxShootMagnitude = 3;
     private float minShootMagnitude = 0.5f;
@@ -383,13 +383,13 @@ public class ActionController : MonoBehaviour
         if (direction.magnitude < maxShootMagnitude && direction.magnitude > minShootMagnitude)
         {
             //... the forceStrength is calculated from the length of the pull.
-            forceStrength = defaultForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
+            forceStrength = maxForceStrength * ((direction.magnitude - minShootMagnitude) / (maxShootMagnitude - minShootMagnitude));
         }
         // If the length of the pull is greater than the max pull distance...
         else if (direction.magnitude > maxShootMagnitude)
         {
             //... the forceStrength is set to the defaultForceStrength
-            forceStrength = defaultForceStrength;
+            forceStrength = maxForceStrength;
         }
         // If the length of the pull is lower than the min pull distance...
         else
@@ -398,6 +398,7 @@ public class ActionController : MonoBehaviour
             forceStrength = 0;
         }
 
+        Debug.Log(forceStrength);
         return forceStrength;
     }
 }
