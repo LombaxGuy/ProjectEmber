@@ -8,7 +8,7 @@
 		_Color("Color", Color) = (1,1,1,1)
 
 		_DissolveTex("SecondTexture", 2D) = "white" {}
-		_DissolveAmount("BlendAmound", Range(0, 1)) = 0
+		_DissolveAmount("BlendAmound", Range(0, 0.50)) = 0
 
 		_SecondTex ("SecondTexture", 2D) = "white"{}
 
@@ -106,8 +106,6 @@
 			sampler2D _DissolveTex;
 			float _Extrude;
 			float _DissolveAmount;
-			sampler2D _ThirdTex;
-
 			sampler2D _SecondTex;
 
 			//Build the object
@@ -139,10 +137,8 @@
 
 				clip(dissolveColor.rgb - _DissolveAmount);
 
-				float4 textureColor2 = tex2D(_SecondTex, IN.uv);
-				float4 textureColor3 = tex2D(_ThirdTex, IN.uv);
 
-				return textureColor + (_Color + textureColor3);
+				return textureColor;
 				
 
 				
@@ -152,8 +148,6 @@
 
 			ENDCG
 		}
-
-
 
 
 	}
