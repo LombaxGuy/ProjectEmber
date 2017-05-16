@@ -401,7 +401,7 @@ public class CameraController : MonoBehaviour
     private void HandleCameraZoom()
     {
         // If the number of touch inputs is 2
-        if (Input.touchCount == 2)
+        if (Input.touchCount == 2 && !actionController.PlayerShooting)
         {
             Touch touch0 = Input.GetTouch(0);
             Touch touch1 = Input.GetTouch(1);

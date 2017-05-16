@@ -110,7 +110,6 @@ public class ActionController : MonoBehaviour
             // If the touch phase is began...
             if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                EventManager.InvokeOnShootingStarted();
                 //... the HandleInputBegan method is called.
                 HandleInputBegan();
             }
@@ -118,6 +117,11 @@ public class ActionController : MonoBehaviour
             // If the player is currently making a shot
             if (playerShooting == true)
             {
+                if (Input.GetTouch(0).phase == TouchPhase.Began)
+                {
+                    EventManager.InvokeOnShootingStarted();
+                }
+
                 // If the touch phase is moved...
                 if (Input.GetTouch(0).phase == TouchPhase.Moved)
                 {
@@ -398,7 +402,6 @@ public class ActionController : MonoBehaviour
             forceStrength = 0;
         }
 
-        Debug.Log(forceStrength);
         return forceStrength;
     }
 }

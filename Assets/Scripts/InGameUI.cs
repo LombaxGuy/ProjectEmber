@@ -1,100 +1,139 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
 public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private WorldManager wM;
+    private WorldManager worldManager;
 
-    private GameObject dropDownPowerUp;
-    private GameObject powerUpUI;
+    #region Powerup Menu
+    private GameObject powerupDropDown;
+    private GameObject powerupUI;
 
-    private float uiStartPosition;
+    private float powerupStartYPosition;
 
-    private float uiOpenPosition = 100;
+    private float powerupOpenPosition = 100;
 
-    private bool powerUpIsHidden = true;
+    private bool powerupMenuClosed = true;
 
-    // hæhæhæ
-    private Text wtrText;
-    private Text scoreText;
-    private Text ratingText;
+    private UIVisibilityControl powerupVisibilityCtrl;
+    #endregion
 
+    #region Pause Menu
     private Button continueButton;
     private Button pauseButton;
 
-    private GameObject startShootPositionMarker;
-    private Image shootMarkerImageComponent;
-
-    private UIVisibilityControl endVisibilityCtrl;
     private UIVisibilityControl pauseVisibilityCtrl;
-    private UIVisibilityControl powerupVisibilityCtrl;
+    #endregion
 
-    public bool disableEndScreens = false;
+    #region Ingame Indicators
+    private Text roundsCountdownText;
+    private Text scoreText;
+    private Image shootMarker;
+    #endregion
+
+    #region End of game screens
+    private UIVisibilityControl endVisibilityCtrl;
+    #endregion
+
+    [SerializeField]
+    private bool disableEndScreens = false;
 
     private void OnEnable()
     {
-        EventManager.OnShootingStarted += UpdateStartShootingPositionMarker;
-        EventManager.OnProjectileLaunched += HideStartShootingPositionMarker;
-        EventManager.OnLevelCompleted += GameWonUI;
-        EventManager.OnLevelLost += GameLostUI;
+        EventManager.OnShootingStarted += OnShootingStarted;
+        EventManager.OnLevelCompleted += OnLevelCompleted;
+        EventManager.OnLevelLost += OnLevelLost;
         EventManager.OnGameWorldReset += OnGameWorldReset;
-        EventManager.OnEndOfTurn += UpdateWaterText;
-        EventManager.OnEndOfTurn += UpdateScoreText;
+        EventManager.OnEndOfTurn += OnEndOfTurn;
     }
 
     private void OnDisable()
     {
-        EventManager.OnShootingStarted -= UpdateStartShootingPositionMarker;
-        EventManager.OnProjectileLaunched -= HideStartShootingPositionMarker;
-        EventManager.OnLevelCompleted -= GameWonUI;
-        EventManager.OnLevelLost -= GameLostUI;
+        EventManager.OnShootingStarted -= OnShootingStarted;
+        EventManager.OnLevelCompleted -= OnLevelCompleted;
+        EventManager.OnLevelLost -= OnLevelLost;
         EventManager.OnGameWorldReset -= OnGameWorldReset;
-        EventManager.OnEndOfTurn -= UpdateWaterText;
-        EventManager.OnEndOfTurn -= UpdateScoreText;
+        EventManager.OnEndOfTurn -= OnEndOfTurn;
     }
 
-    private void Start()
+    private void OnShootingStarted()
     {
-        wM = GameObject.Find("World").GetComponent<WorldManager>();
+        shootMarker.enabled = true;
 
-        dropDownPowerUp = GameObject.Find("PowerUpDropdown"); ;
-        powerUpUI = GameObject.Find("PowerUpUI");
+        if (Input.touchCount > 0)
+        {
+            shootMarker.transform.position = Input.GetTouch(0).position;
+        }
+        else
+        {
+            shootMarker.transform.position = Input.mousePosition;
+        }
 
-        endVisibilityCtrl = GameObject.Find("EndScreenObject").GetComponent<UIVisibilityControl>();
-        pauseVisibilityCtrl = GameObject.Find("PauseMenuObject").GetComponent<UIVisibilityControl>();
-        powerupVisibilityCtrl = GameObject.Find("PowerUpUI").GetComponent<UIVisibilityControl>();
-
-        uiStartPosition = powerUpUI.transform.position.y;
-
-        startShootPositionMarker = GameObject.Find("StartShootPositionMarker");
-        shootMarkerImageComponent = startShootPositionMarker.GetComponent<Image>();
-
-        wtrText = GameObject.Find("WaterText").GetComponent<Text>();
-        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
-        ratingText = GameObject.Find("RatingText").GetComponent<Text>();
-
-        continueButton = GameObject.Find("ContinueButton").GetComponent<Button>();
-        pauseButton = GameObject.Find("PauseMenuButton").GetComponent<Button>();
-
-        wtrText.text = wM.RoundsBeforeWaterRising.ToString();
     }
 
     /// <summary>
-    /// Tempcode to call OnLevelCompleted and OnLevelLost events for testing
+    /// Makes the gamewon endscreen pop up if the disableEndScreens variable is false
     /// </summary>
-    private void Update()
+    private void OnLevelCompleted()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (!disableEndScreens)
         {
-            EventManager.InvokeOnLevelCompleted();
+            endVisibilityCtrl.ShowUI();
+            HideInGameUI();
         }
-        if (Input.GetKeyDown(KeyCode.W))
+    }
+
+    /// <summary>
+    /// Makes the gamelost endscreen pop up if the disableEndScreens variable is false
+    /// </summary>
+    private void OnLevelLost()
+    {
+        if (!disableEndScreens)
         {
-            EventManager.InvokeOnLevelLost();
+            endVisibilityCtrl.ShowUI();
+            continueButton.GetComponent<Image>().enabled = false;
+            continueButton.transform.GetChild(0).GetComponent<Text>().enabled = false;
+            HideInGameUI();
+        }
+    }
+
+    /// <summary>
+    /// Closes the endscreen
+    /// </summary>
+    private void OnGameWorldReset()
+    {
+        ShowInGameUI();
+        endVisibilityCtrl.HideUI();
+        roundsCountdownText.text = worldManager.RoundsBeforeWaterRising.ToString();
+    }
+
+    private void OnEndOfTurn()
+    {
+        UpdateWaterText();
+        UpdateScoreText();
+    }
+
+    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+    {
+        if (eventData.hovered.Contains(shootMarker.gameObject))
+        {
+            if (shootMarker.enabled == true)
+            {
+                shootMarker.color = Color.red;
+            }
+        }
+    }
+
+    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+    {
+        if (eventData.hovered.Contains(shootMarker.gameObject))
+        {
+            if (shootMarker.enabled == true)
+            {
+                shootMarker.color = Color.green;
+            }
         }
     }
 
@@ -103,20 +142,146 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     /// </summary>
     public void OnPauseButtonClick()
     {
-        pauseVisibilityCtrl.ShowUI();
+        PauseGame();
+    }
 
-        HideGameRunningUI();
+    /// <summary>
+    /// Changes the scene to main menu
+    /// </summary>
+    public void OnMainMenuButtonClick()
+    {
+        SceneManager.LoadScene(0);
+    }
 
-        Time.timeScale = 0;
+    /// <summary>
+    /// Resumes the game and shows the pause button
+    /// </summary>
+    public void OnResumeGameButtonClick()
+    {
+        ResumeGame();
+    }
 
+    /// <summary>
+    /// Restarts the current level
+    /// </summary>
+    public void OnPlayAgainButtonClick()
+    {
+        EventManager.InvokeOnGameWorldReset();
+
+        ResumeGame();
+    }
+
+    /// <summary>
+    /// Continues to the next scene in the build index
+    /// </summary>
+    public void OnContinueButtonClick()
+    {
+        if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1).IsValid())
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+    }
+
+    /// <summary>
+    /// Toggles the powerup UI
+    /// </summary>
+    public void OnTogglePowerupUIButtonClick()
+    {
+        if (powerupMenuClosed == true && pauseVisibilityCtrl.CurrentlyVisible == false)
+        {
+            powerupMenuClosed = false;
+            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupOpenPosition, powerupUI.transform.position.z), 500);
+        }
+        else if (powerupMenuClosed == false || pauseVisibilityCtrl.CurrentlyVisible == true)
+        {
+            powerupMenuClosed = true;
+            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupStartYPosition, powerupUI.transform.position.z), 500);
+            //OnTogglePowerupDropdownButtonClick();
+        }
+    }
+
+    /// <summary>
+    /// Toogles the PowerUpDropdown UI
+    /// </summary>
+    public void OnTogglePowerupDropdownButtonClick()
+    {
+        Image image = powerupDropDown.GetComponent<Image>();
+        if (image.enabled == true || powerupMenuClosed == true)
+        {
+            image.enabled = false;
+            powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = false;
+            powerupDropDown.GetComponentInChildren<Text>().enabled = false;
+        }
+        else
+        {
+            image.enabled = true;
+            powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = true;
+            powerupDropDown.GetComponentInChildren<Text>().enabled = true;
+        }
+    }
+
+    public void OnUsePowerUpButtonClick()
+    {
+        //Start UsePowerUp Event
+    }
+
+    private void Start()
+    {
+        worldManager = GameObject.Find("World").GetComponent<WorldManager>();
+
+        powerupDropDown = GameObject.Find("PowerUpDropdown"); ;
+        powerupUI = GameObject.Find("PowerUpUI");
+
+        endVisibilityCtrl = GameObject.Find("EndScreenObject").GetComponent<UIVisibilityControl>();
+        pauseVisibilityCtrl = GameObject.Find("PauseMenuObject").GetComponent<UIVisibilityControl>();
+        powerupVisibilityCtrl = GameObject.Find("PowerUpUI").GetComponent<UIVisibilityControl>();
+
+        powerupStartYPosition = powerupUI.transform.position.y;
+
+        shootMarker = GameObject.Find("StartShootMarker").GetComponent<Image>();
+
+        roundsCountdownText = GameObject.Find("WaterText").GetComponent<Text>();
+        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
+
+        continueButton = GameObject.Find("ContinueButton").GetComponent<Button>();
+        pauseButton = GameObject.Find("PauseMenuButton").GetComponent<Button>();
+
+        roundsCountdownText.text = worldManager.RoundsBeforeWaterRising.ToString();
+    }
+
+    /// <summary>
+    /// Tempcode to call OnLevelCompleted and OnLevelLost events for testing
+    /// </summary>
+    private void Update()
+    {
+        #if(DEBUG)
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            EventManager.InvokeOnLevelCompleted();
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            EventManager.InvokeOnLevelLost();
+        }
+
+        //if (Input.GetMouseButtonUp(0) && shootMarkerImageComponent.enabled)
+        //{
+        //    shootMarkerImageComponent.enabled = false;
+        //}
+        #endif
+
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && shootMarker.enabled)
+        {
+            shootMarker.enabled = false;
+        }
     }
 
     /// <summary>
     /// Hides the UI shown while game is not paused
     /// </summary>
-    private void HideGameRunningUI()
+    private void HideInGameUI()
     {
-        HidePowerUpUI();
+        HidePowerupUI();
         powerupVisibilityCtrl.HideUI();
 
         pauseButton.GetComponent<Image>().enabled = false;
@@ -126,7 +291,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     /// <summary>
     /// Shows the UI shown while game is not paused
     /// </summary>
-    private void ShowGameRunningUI()
+    private void ShowInGameUI()
     {
         powerupVisibilityCtrl.ShowUI();
         pauseButton.GetComponent<Image>().enabled = true;
@@ -134,153 +299,38 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     }
 
     /// <summary>
-    /// Resumes the game and shows the pause button
-    /// </summary>
-    public void OnResumeGame()
-    {
-        pauseVisibilityCtrl.HideUI();
-
-        ShowGameRunningUI();
-
-        Time.timeScale = 1;
-    }
-
-    /// <summary>
-    /// Toogles the PowerUpDropdown UI
-    /// </summary>
-    public void TooglePowerUpDropdownUI()
-    {
-        Image image = dropDownPowerUp.GetComponent<Image>();
-        if (image.enabled == true || powerUpIsHidden == true)
-        {
-            image.enabled = false;
-            dropDownPowerUp.transform.Find("Arrow").GetComponent<Image>().enabled = false;
-            dropDownPowerUp.GetComponentInChildren<Text>().enabled = false;
-        }
-        else
-        {
-            image.enabled = true;
-            dropDownPowerUp.transform.Find("Arrow").GetComponent<Image>().enabled = true;
-            dropDownPowerUp.GetComponentInChildren<Text>().enabled = true;
-        }
-    }
-
-    public void OnUsePowerUpButtonClick()
-    {
-        //Start UsePowerUp Event
-    }
-
-    /// <summary>
     /// Hides the powerup UI
     /// </summary>
-    public void HidePowerUpUI()
+    private void HidePowerupUI()
     {
-        powerUpIsHidden = true;
-        powerUpUI.transform.position = new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z);
+        powerupMenuClosed = true;
+        powerupUI.transform.position = new Vector3(powerupUI.transform.position.x, powerupStartYPosition, powerupUI.transform.position.z);
 
     }
 
-    /// <summary>
-    /// Toggles the powerup UI
-    /// </summary>
-    public void TooglePowerUpUI()
+    private void ShowPowerupUI()
     {
-        if (powerUpIsHidden == true && pauseVisibilityCtrl.CurrentlyVisible == false)
-        {
-            powerUpIsHidden = false;
-            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiOpenPosition, powerUpUI.transform.position.z), 500);
-        }
-        else if (powerUpIsHidden == false || pauseVisibilityCtrl.CurrentlyVisible == true)
-        {
-            powerUpIsHidden = true;
-            powerUpUI.transform.position = Vector3.MoveTowards(powerUpUI.transform.position, new Vector3(powerUpUI.transform.position.x, uiStartPosition, powerUpUI.transform.position.z), 500);
-            TooglePowerUpDropdownUI();
-        }
-
-    }
-
-    /// <summary>
-    /// Makes the gamelost endscreen pop up if the disableEndScreens variable is false
-    /// </summary>
-    private void GameLostUI()
-    {
-        if (!disableEndScreens)
-        {
-            endVisibilityCtrl.ShowUI();
-            continueButton.GetComponent<Image>().enabled = false;
-            continueButton.transform.GetChild(0).GetComponent<Text>().enabled = false;
-            HideGameRunningUI();
-        }
-    }
-
-    /// <summary>
-    /// Makes the gamewon endscreen pop up if the disableEndScreens variable is false
-    /// </summary>
-    private void GameWonUI()
-    {
-        if (!disableEndScreens)
-        {
-            endVisibilityCtrl.ShowUI();
-            HideGameRunningUI();
-        }
-    }
-
-    /// <summary>
-    /// Closes the endscreen
-    /// </summary>
-    private void OnGameWorldReset()
-    {
-        ShowGameRunningUI();
-        endVisibilityCtrl.HideUI();
-        wtrText.text = wM.RoundsBeforeWaterRising.ToString();
-    }
-
-    /// <summary>
-    /// Continues to the next scene in the build index
-    /// </summary>
-    public void OnContinueButton()
-    {
-        if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1).IsValid())
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        }
-    }
-
-    /// <summary>
-    /// Restarts the current level
-    /// </summary>
-    public void OnPlayAgainButton()
-    {
-        EventManager.InvokeOnGameWorldReset();
-        OnResumeGame();
-        OnGameWorldReset();
-    }
-
-    /// <summary>
-    /// Changes the scene to main menu
-    /// </summary>
-    public void OnMainMenuButton()
-    {
-        SceneManager.LoadScene(0);
+        powerupMenuClosed = false;
+        powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupOpenPosition, powerupUI.transform.position.z), 500);
     }
 
     private void UpdateWaterText()
     {
-        if (wM.RoundsPassed < wM.RoundsBeforeWaterRising)
+        if (worldManager.RoundsPassed < worldManager.RoundsBeforeWaterRising)
         {
-            wM.RoundsPassed++;
-            wtrText.text = (wM.RoundsBeforeWaterRising - wM.RoundsPassed).ToString();
-            if (wM.RoundsPassed == wM.RoundsBeforeWaterRising)
+            worldManager.RoundsPassed++;
+            roundsCountdownText.text = (worldManager.RoundsBeforeWaterRising - worldManager.RoundsPassed).ToString();
+            if (worldManager.RoundsPassed == worldManager.RoundsBeforeWaterRising)
             {
-                wtrText.text = wM.RoundsAfterWaterRising.ToString();
+                roundsCountdownText.text = worldManager.RoundsAfterWaterRising.ToString();
             }
         }
         else
         {
-            if (wM.RoundsPassed < (wM.RoundsBeforeWaterRising + wM.RoundsAfterWaterRising))
+            if (worldManager.RoundsPassed < (worldManager.RoundsBeforeWaterRising + worldManager.RoundsAfterWaterRising))
             {
-                wM.RoundsPassed++;
-                wtrText.text = wM.RoundsAfterWaterRising.ToString();
+                worldManager.RoundsPassed++;
+                roundsCountdownText.text = worldManager.RoundsAfterWaterRising.ToString();
             }
         }
     }
@@ -290,45 +340,21 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
-    private void UpdateStartShootingPositionMarker()
+    private void ResumeGame()
     {
-        shootMarkerImageComponent.enabled = true;
-        if (Input.touchCount == 1)
-        {
-            shootMarkerImageComponent.transform.position = Input.GetTouch(0).position;
-        }
-        else
-        {
-            shootMarkerImageComponent.transform.position = Input.mousePosition;
-        }
+        pauseVisibilityCtrl.HideUI();
 
+        ShowInGameUI();
+
+        Time.timeScale = 1;
     }
 
-    private void HideStartShootingPositionMarker(Vector3 direction, float force)
+    private void PauseGame()
     {
-        shootMarkerImageComponent.enabled = false;
-    }
+        pauseVisibilityCtrl.ShowUI();
 
+        HideInGameUI();
 
-    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
-    {
-        if (eventData.hovered.Contains(startShootPositionMarker))
-        {
-            if (shootMarkerImageComponent.enabled == true)
-            {
-                shootMarkerImageComponent.color = Color.red;
-            }
-        }
-    }
-
-    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
-    {
-        if (eventData.hovered.Contains(startShootPositionMarker))
-        {
-            if (shootMarkerImageComponent.enabled == true)
-            {
-                shootMarkerImageComponent.color = Color.green;
-            }
-        }
+        Time.timeScale = 0;
     }
 }
