@@ -6,35 +6,38 @@ public class Rock : MonoBehaviour
 {
 
     [SerializeField]
-    private GameObject breakObject;
-    private GameObject[] breakObjects = new GameObject[4];
+    private GameObject breakObjectPrefab;
+    private GameObject[] breakObjects;
+    private MiniRock[] miniRocks;
 
     private Vector3 startPos;
 
     private Rigidbody rockBody;
 
-    private float explosionForce;
-    private Vector3 explosionPoint;
-
-
     // Use this for initialization
     private void Start()
     {
-        breakObject = Instantiate(breakObject, Vector3.zero, Quaternion.identity);
-        breakObject.transform.SetParent(transform.parent);
-        breakObject.SetActive(false);
+        breakObjectPrefab = Instantiate(breakObjectPrefab, Vector3.zero, Quaternion.identity);
+        breakObjectPrefab.transform.SetParent(transform.parent);
+        breakObjectPrefab.SetActive(false);
 
         rockBody = GetComponent<Rigidbody>();
 
         startPos = gameObject.transform.position;
 
+        int childCount = breakObjectPrefab.transform.childCount;
+
+        breakObjects = new GameObject[childCount];
+        miniRocks = new MiniRock[childCount];
+
+        for (int i = 0; i < childCount; i++)
+        {
+            breakObjects[i] = breakObjectPrefab.transform.GetChild(i).gameObject;
+            miniRocks[i] = breakObjectPrefab.transform.GetChild(i).GetComponent<MiniRock>();
+        }
     }
 
-
-    /// <summary>
-    /// Used to reset the droplet when it is disabled.
-    /// </summary>
-    private void OnDisable()
+    private void OnEnable()
     {
         Reset();
     }
@@ -42,31 +45,29 @@ public class Rock : MonoBehaviour
     /// <summary>
     /// Spawns the small rocks and creates an explosion.
     /// </summary>
-    private void Split()
+    private void Split(float explosionForce, Vector3 explosionPoint)
     {
-        breakObject.transform.position = transform.position;
-        breakObject.SetActive(true);
-
-        int childCount = breakObject.transform.childCount;
-
-        for (int i = 0; i < childCount; i++)
-        {
-            breakObject.transform.GetChild(i).gameObject.SetActive(true);
-            breakObject.transform.GetChild(i).GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
-        }
-
         gameObject.SetActive(false);
+
+        breakObjectPrefab.transform.position = transform.position;
+        breakObjectPrefab.SetActive(true);
+
+        for (int i = 0; i < breakObjectPrefab.transform.childCount; i++)
+        {
+            breakObjects[i].SetActive(true);
+            miniRocks[i].Explosion(explosionForce, explosionPoint);
+        }
     }
 
     private void OnCollisionEnter(Collision other)
     {
+        Vector3 point;
+
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
-            explosionPoint = other.contacts[0].point;
-            CalculateExplosiveForce(explosionPoint);
-            Split();
+            point = other.contacts[0].point;
+            Split(CalculateExplosiveForce(point), point);
         }
-
     }
 
     /// <summary>
@@ -87,8 +88,10 @@ public class Rock : MonoBehaviour
     /// Sets the explosiveforce to a value depending on the distance the rock has fallen
     /// </summary>
     /// <param name="collisionPoint"></param>
-    private void CalculateExplosiveForce(Vector3 collisionPoint)
+    private float CalculateExplosiveForce(Vector3 collisionPoint)
     {
-        explosionForce = (startPos.y - collisionPoint.y) * 10;
+        float explosiveForce = (startPos.y - collisionPoint.y) * 10;
+
+        return explosiveForce;
     }
 }
