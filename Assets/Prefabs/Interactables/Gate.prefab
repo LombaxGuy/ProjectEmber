@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 23043031729678368}
   - component: {fileID: 54238148476837740}
   - component: {fileID: 59609645798189232}
-  - component: {fileID: 114486971156138016}
   m_Layer: 0
   m_Name: DoorLeft
   m_TagString: Untagged
@@ -76,6 +75,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4384094606577506}
+  - component: {fileID: 114317770551402858}
   m_Layer: 0
   m_Name: Gate
   m_TagString: Untagged
@@ -96,7 +96,6 @@ GameObject:
   - component: {fileID: 23589684797472442}
   - component: {fileID: 54592576307844634}
   - component: {fileID: 59835232913134816}
-  - component: {fileID: 114500718563438896}
   m_Layer: 0
   m_Name: DoorRight
   m_TagString: Untagged
@@ -137,7 +136,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1508356429864844}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.3, y: 13.25, z: 6.74}
+  m_LocalPosition: {x: -0.4224974, y: 16.709673, z: 3.389493}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4350964974283726}
@@ -365,7 +364,7 @@ HingeJoint:
   m_Anchor: {x: -0.5, y: 0, z: 0}
   m_Axis: {x: 0, y: 0, z: 1}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -1.6988504, y: 13.29, z: 6.469}
+  m_ConnectedAnchor: {x: -1.8213478, y: 16.749672, z: 3.118493}
   m_UseSpring: 0
   m_Spring:
     spring: 0
@@ -397,7 +396,7 @@ HingeJoint:
   m_Anchor: {x: 0.5, y: 0, z: 0}
   m_Axis: {x: 0, y: 0, z: -1}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 1.5688503, y: 13.29, z: 6.469}
+  m_ConnectedAnchor: {x: 1.446353, y: 16.749672, z: 3.118493}
   m_UseSpring: 0
   m_Spring:
     spring: 0
@@ -467,12 +466,12 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114486971156138016
+--- !u!114 &114317770551402858
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1162552811261810}
+  m_GameObject: {fileID: 1508356429864844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fd8990711916aa469dac43e4c167085, type: 3}
@@ -480,18 +479,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   closedWaitTimer: 3
   openWaitTimer: 3
-  closeAtStart: 1
---- !u!114 &114500718563438896
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1909065452421428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fd8990711916aa469dac43e4c167085, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  closedWaitTimer: 3
-  openWaitTimer: 3
-  closeAtStart: 1
+  closeAtStart: 0

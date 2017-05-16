@@ -10,6 +10,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     #region Powerup Menu
     private GameObject powerupDropDown;
     private GameObject powerupUI;
+    private Image powerupDropDownImage;
 
     private float powerupStartYPosition;
 
@@ -189,14 +190,11 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (powerupMenuClosed == true && pauseVisibilityCtrl.CurrentlyVisible == false)
         {
-            powerupMenuClosed = false;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupOpenPosition, powerupUI.transform.position.z), 500);
+            ShowPowerupUI();
         }
         else if (powerupMenuClosed == false || pauseVisibilityCtrl.CurrentlyVisible == true)
         {
-            powerupMenuClosed = true;
-            powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupStartYPosition, powerupUI.transform.position.z), 500);
-            //OnTogglePowerupDropdownButtonClick();
+            HidePowerupUI();
         }
     }
 
@@ -205,18 +203,13 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     /// </summary>
     public void OnTogglePowerupDropdownButtonClick()
     {
-        Image image = powerupDropDown.GetComponent<Image>();
-        if (image.enabled == true || powerupMenuClosed == true)
+        if (powerupDropDownImage.enabled == true || powerupMenuClosed == true)
         {
-            image.enabled = false;
-            powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = false;
-            powerupDropDown.GetComponentInChildren<Text>().enabled = false;
+            ShowPowerUpDropdown();
         }
         else
         {
-            image.enabled = true;
-            powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = true;
-            powerupDropDown.GetComponentInChildren<Text>().enabled = true;
+            HidePowerUpDropdown();
         }
     }
 
@@ -231,6 +224,7 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         powerupDropDown = GameObject.Find("PowerUpDropdown"); ;
         powerupUI = GameObject.Find("PowerUpUI");
+        powerupDropDownImage= powerupDropDown.GetComponent<Image>();
 
         endVisibilityCtrl = GameObject.Find("EndScreenObject").GetComponent<UIVisibilityControl>();
         pauseVisibilityCtrl = GameObject.Find("PauseMenuObject").GetComponent<UIVisibilityControl>();
@@ -305,13 +299,27 @@ public class InGameUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         powerupMenuClosed = true;
         powerupUI.transform.position = new Vector3(powerupUI.transform.position.x, powerupStartYPosition, powerupUI.transform.position.z);
-
+        HidePowerUpDropdown();
     }
 
     private void ShowPowerupUI()
     {
         powerupMenuClosed = false;
         powerupUI.transform.position = Vector3.MoveTowards(powerupUI.transform.position, new Vector3(powerupUI.transform.position.x, powerupOpenPosition, powerupUI.transform.position.z), 500);
+    }
+
+    private void ShowPowerUpDropdown()
+    {
+        powerupDropDownImage.enabled = false;
+        powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = false;
+        powerupDropDown.GetComponentInChildren<Text>().enabled = false;
+    }
+
+    private void HidePowerUpDropdown()
+    {
+        powerupDropDownImage.enabled = true;
+        powerupDropDown.transform.Find("Arrow").GetComponent<Image>().enabled = true;
+        powerupDropDown.GetComponentInChildren<Text>().enabled = true;
     }
 
     private void UpdateWaterText()

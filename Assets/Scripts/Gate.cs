@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Gate : MonoBehaviour
 {
-
-    private HingeJoint hinge;
-    private JointLimits limits;
+    private HingeJoint[] hingeArray = new HingeJoint[2];
 
     private IEnumerator corutine;
 
@@ -20,32 +18,39 @@ public class Gate : MonoBehaviour
     [SerializeField]
     private bool closeAtStart = false;
 
-    private bool isClosing = false;
+    private bool isRunning = false;
 
     // Use this for initialization
     void Start()
     {
+        hingeArray[0] = transform.GetChild(0).GetComponent<HingeJoint>();
+        hingeArray[1] = transform.GetChild(1).GetComponent<HingeJoint>();
         corutine = GateTimer(closedWaitTimer, openWaitTimer);
 
-        hinge = GetComponent<HingeJoint>();
-        limits = hinge.limits;
+        for (int i = 0; i < hingeArray.Length; i++)
+        {
+            JointLimits limits = hingeArray[i].limits;
+            if (!closeAtStart)
+            {
+                limits.bounciness = 0;
+                limits.bounceMinVelocity = 0;
+                limits.min = 0;
+                limits.max = -90;
+                hingeArray[i].limits = limits;
+                hingeArray[i].useLimits = true;
+            }
+            else
+            {
+                limits.bounciness = 0;
+                limits.bounceMinVelocity = 0;
+                limits.min = 0;
+                hingeArray[i].limits = limits;
+                hingeArray[i].useLimits = true;
+            }
+        }
         if (!closeAtStart)
         {
-        limits.bounciness = 0;
-        limits.bounceMinVelocity = 0;
-        limits.min = 0;
-        limits.max = -90;
-        hinge.limits = limits;
-        hinge.useLimits = true;
             StartCoroutine(corutine);
-        }
-        else
-        {
-            limits.bounciness = 0;
-            limits.bounceMinVelocity = 0;
-            limits.min = 0;
-            hinge.limits = limits;
-            hinge.useLimits = true;
         }
 
     }
@@ -53,38 +58,79 @@ public class Gate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       if(closeAtStart)
+        if (closeAtStart)
         {
-            if(Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 OpenGate();
+            }
+            else if (Input.GetKeyDown(KeyCode.W))
+            {
+                for (int i = 0; i < hingeArray.Length; i++)
+                {
+                    hingeArray[i].useMotor = true;
+                }
             }
         }
     }
 
     private IEnumerator GateTimer(float closedwaitTimer, float openWaitTimer)
     {
+        bool running = false;
         Debug.Log("Blargh");
+        Debug.Log(hingeArray.Length);
         while (true)
         {
-            if (!hinge.useMotor)
+            if (running)
             {
-                hinge.useMotor = true;
-                isClosing = true;
-            }
-            else
-            {
-                hinge.useMotor = false;
-                isClosing = false;
-            }
-            if (isClosing)
-            {
+                Debug.Log("Bum");
+                running = false;
+                for (int i = 0; i < hingeArray.Length; i++)
+                {
+                    hingeArray[i].useMotor = false;
+                }
                 yield return new WaitForSeconds(closedWaitTimer);
             }
             else
             {
+                Debug.Log("melum");
+                running = true;
+                for (int i = 0; i < hingeArray.Length; i++)
+                {
+                    hingeArray[i].useMotor = true;
+                }
+                float time = Time.time;
                 yield return new WaitForSeconds(openWaitTimer);
+                Debug.Log(Time.time - time);
             }
+
+            //for (int i = 0; i < hingeArray.Length; i++)
+            //{
+            //    if (!isRunning)
+            //    {
+            //        hingeArray[i].useMotor = true;
+            //        isRunning = true;
+            //        Debug.Log("YDrk");
+            //    }
+            //    else
+            //    {
+            //        hingeArray[i].useMotor = false;
+            //        isRunning = false;
+            //        Debug.Log("ÆDrk");
+            //    }
+            //    Debug.Log(isRunning);
+
+            //}
+            //if (isRunning)
+            //{
+            //    Debug.Log("Hulu");
+            //    yield return new WaitForSeconds(closedWaitTimer);
+            //}
+            //else
+            //{
+            //    Debug.Log("Bulu");
+            //    yield return new WaitForSeconds(openWaitTimer);
+            //}
 
         }
 
@@ -92,6 +138,9 @@ public class Gate : MonoBehaviour
 
     public void OpenGate()
     {
-        hinge.useLimits = false;
+        for (int i = 0; i < hingeArray.Length; i++)
+        {
+            hingeArray[i].useLimits = false;
+        }
     }
 }
