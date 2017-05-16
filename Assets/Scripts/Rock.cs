@@ -51,7 +51,6 @@ public class Rock : MonoBehaviour
 
         for (int i = 0; i < childCount; i++)
         {
-            breakObject.transform.GetChild(i).gameObject.transform.position = breakObject.transform.position;
             breakObject.transform.GetChild(i).gameObject.SetActive(true);
             breakObject.transform.GetChild(i).GetComponent<MiniRock>().Explosion(explosionForce, explosionPoint);
         }
@@ -90,9 +89,6 @@ public class Rock : MonoBehaviour
     /// <param name="collisionPoint"></param>
     private void CalculateExplosiveForce(Vector3 collisionPoint)
     {
-        explosionForce = (startPos.y - collisionPoint.y) * 25;
-        Debug.Log(startPos.y);
-        Debug.Log(collisionPoint.y);
-        Debug.Log(explosionForce);
+        explosionForce = (startPos.y - collisionPoint.y) * 10;
     }
 }
