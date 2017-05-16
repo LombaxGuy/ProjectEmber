@@ -22,23 +22,25 @@ public class MiniRock : MonoBehaviour
     {
     }
 
+    /// <summary>
+    /// Used to start the timer coroutine when the rocks is activated.
+    /// </summary>
     private void OnEnable()
     {
         StartCoroutine(CoroutineTimer());
     }
 
     /// <summary>
-    /// Used to start the timer coroutine when the droplet is activated.
+    /// Resets the rocks position and velocity.
     /// </summary>
     private void OnDisable()
     {
         transform.position = startPosition;
-        Debug.Log(startPosition);
         rb.velocity = Vector3.zero;
     }
 
     /// <summary>
-    /// Coroutine that waits for a set amount of time and then disables the droplet.
+    /// Coroutine that waits for a set amount of time and then disables the rock.
     /// </summary>
     /// <param name="time">Time in seconds. Set this to use another time than the lifeTime.</param>
     private IEnumerator CoroutineTimer(float time = LIFETIME)
@@ -53,12 +55,10 @@ public class MiniRock : MonoBehaviour
     /// <summary>
     /// Adds an explosive force to the object
     /// </summary>
-    /// <param name="explosionForce">Amount of force applied to the object</param>
-    /// <param name="explosionPoint">Point where the explosion happens</param>
+    /// <param name="explosionForce">Amount of force applied to the object.</param>
+    /// <param name="explosionPoint">Point where the explosion happens.</param>
     public void Explosion(float explosionForce, Vector3 explosionPoint)
     {
         rb.AddExplosionForce(explosionForce, explosionPoint, 2f);
-        Debug.Log(explosionForce);
     }
-
 }
