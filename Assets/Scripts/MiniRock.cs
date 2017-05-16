@@ -18,21 +18,23 @@ public class MiniRock : MonoBehaviour
         startPosition = transform.position;
     }
 
+    private void Start()
+    {
+    }
+
+    private void OnEnable()
+    {
+        StartCoroutine(CoroutineTimer());
+    }
+
     /// <summary>
     /// Used to start the timer coroutine when the droplet is activated.
     /// </summary>
     private void OnDisable()
     {
         transform.position = startPosition;
+        Debug.Log(startPosition);
         rb.velocity = Vector3.zero;
-    }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
-        {
-            StartCoroutine(CoroutineTimer());
-        }
     }
 
     /// <summary>

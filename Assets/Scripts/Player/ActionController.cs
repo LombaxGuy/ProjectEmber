@@ -397,8 +397,6 @@ public class ActionController : MonoBehaviour
             //... the forceStrength is set to 0.
             forceStrength = 0;
         }
-
-        Debug.Log(forceStrength);
         return forceStrength;
     }
 }
