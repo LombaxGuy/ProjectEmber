@@ -76,14 +76,17 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private float zoomLerpTime = 0.1f;
 
+    private Camera thisCamera;
+
     private float zoomMargin = 1;
 
-    private float zoomMinSoft = -1.5f;
-    private float zoomMaxSoft = 2.5f;
+    private float zoomMinSoft = 5;
+    private float zoomMaxSoft = 8;
 
     private float zoomMinHard;
     private float zoomMaxHard;
 
+    [SerializeField]
     private float dynamicZoomSpeed = 1;
 
     private float currentZoomPercentage;
@@ -157,6 +160,8 @@ public class CameraController : MonoBehaviour
         worldManager = GameObject.Find("World").GetComponent<WorldManager>();
         actionController = worldManager.ActiveFlame.GetComponent<ActionController>();
 
+        thisCamera = GetComponent<Camera>();
+
         // Sets the soft cap values for the movement
         xMaxSoft = xMaxSoftRaw + moveZoomCapExtender * currentZoomPercentage;
         xMinSoft = xMinSoftRaw - moveZoomCapExtender * currentZoomPercentage;
@@ -174,7 +179,7 @@ public class CameraController : MonoBehaviour
         zoomMaxHard = zoomMaxSoft + zoomMargin;
 
         // Calculate currentZoomPercentage
-        currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
+        currentZoomPercentage = 1 - (zoomMaxSoft - thisCamera.orthographicSize) / (zoomMaxSoft - zoomMinSoft);
 
         // Reset Values
         cameraLockTarget_R = cameraLockTarget;
@@ -416,35 +421,39 @@ public class CameraController : MonoBehaviour
             float deltaDistance = oldDistance - currentDistance;
 
             // If the zoom level is between the soft caps...
-            if (transform.position.z > zoomMinSoft && transform.position.z < zoomMaxSoft)
+            if (thisCamera.orthographicSize > zoomMinSoft && thisCamera.orthographicSize < zoomMaxSoft)
             {
                 //... the dynamicZoomSpeed is set to 1.
                 dynamicZoomSpeed = 1;
-                currentZoomPercentage = 1 - (zoomMaxSoft - transform.position.z) / (zoomMaxSoft - zoomMinSoft);
+                currentZoomPercentage = 1 - (zoomMaxSoft - thisCamera.orthographicSize) / (zoomMaxSoft - zoomMinSoft);
             }
             // If the zoom level is smaller than the soft cap...
-            else if (transform.position.z < zoomMinSoft)
+            else if (thisCamera.orthographicSize < zoomMinSoft)
             {
                 //... the dynamicZoomSpeed is calculated.
                 CalculateZoomSpeed(zoomMinSoft, zoomMinHard, ref dynamicZoomSpeed);
             }
             // If the zoom level is larger than the soft cap...
-            else if (transform.position.z > zoomMaxSoft)
+            else if (thisCamera.orthographicSize > zoomMaxSoft)
             {
                 //... the dynamicZoomSpeed is calculated.
                 CalculateZoomSpeed(zoomMaxSoft, zoomMaxHard, ref dynamicZoomSpeed);
             }
 
-            if (deltaDistance < 0 && transform.position.z < zoomMaxHard || deltaDistance > 0 && transform.position.z > zoomMinHard)
+            if (deltaDistance < 0 && thisCamera.orthographicSize < zoomMaxHard || deltaDistance > 0 && thisCamera.orthographicSize > zoomMinHard)
             {
-                // The camera is translated.
-                transform.Translate(0, 0, -deltaDistance * zoomSpeed * dynamicZoomSpeed);
+                //// The camera is translated
+                //transform.Translate(0, 0, -deltaDistance * zoomSpeed * dynamicZoomSpeed);
 
-                // The-z component of the cameraPosition is clamped between the two hard caps.
-                cameraPosition.z = Mathf.Clamp(transform.position.z, zoomMinHard, zoomMaxHard);
+                //// The-z component of the cameraPosition is clamped between the two hard caps.
+                //cameraPosition.z = Mathf.Clamp(transform.position.z, zoomMinHard, zoomMaxHard);
 
-                // The z-position of the camera is set to the z-component of the cameraPosition vector.
-                transform.position = new Vector3(transform.position.x, transform.position.y, cameraPosition.z);
+                //// The z-position of the camera is set to the z-component of the cameraPosition vector.
+                //transform.position = new Vector3(transform.position.x, transform.position.y, cameraPosition.z);
+
+                float zoomLevel = -deltaDistance * zoomSpeed * dynamicZoomSpeed;
+
+                thisCamera.orthographicSize = Mathf.Clamp(zoomLevel, zoomMinHard, zoomMaxHard);
             }
         }
 
@@ -452,11 +461,14 @@ public class CameraController : MonoBehaviour
 #if (DEBUG)
         if (Input.mouseScrollDelta.y > 0)
         {
-            transform.Translate(0, 0, 20 * zoomSpeed * dynamicZoomSpeed);
+            thisCamera.orthographicSize += 20 * zoomSpeed * dynamicZoomSpeed;
+
+            //transform.Translate(0, 0, 20 * zoomSpeed * dynamicZoomSpeed);
         }
         else if (Input.mouseScrollDelta.y < 0)
         {
-            transform.Translate(0, 0, -20 * zoomSpeed * dynamicZoomSpeed);
+            thisCamera.orthographicSize += -20 * zoomSpeed * dynamicZoomSpeed;
+            //transform.Translate(0, 0, -20 * zoomSpeed * dynamicZoomSpeed);
         }
 #endif
         #endregion
@@ -465,16 +477,16 @@ public class CameraController : MonoBehaviour
         if (Input.touchCount == 0)
         {
             // If the zoom level is larger than the soft cap...
-            if (transform.position.z > zoomMaxSoft)
+            if (thisCamera.orthographicSize > zoomMaxSoft)
             {
-                //... the z-position of the camera is lerped to the value soft cap.
-                transform.position = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(transform.position.z, zoomMaxSoft, zoomLerpTime));
+                //... the zoom of the camera is lerped to the value soft cap.
+                thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, zoomMaxSoft, zoomLerpTime);
             }
             // If the zoom level is smaller than the soft cap...
-            else if (transform.position.z < zoomMinSoft)
+            else if (thisCamera.orthographicSize < zoomMinSoft)
             {
-                //... the z-position of the camera is lerped to the value soft cap.
-                transform.position = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(transform.position.z, zoomMinSoft, zoomLerpTime));
+                //... the zoom of the camera is lerped to the value soft cap.
+                thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, zoomMinSoft, zoomLerpTime);
             }
         }
     }
